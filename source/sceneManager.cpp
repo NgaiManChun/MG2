@@ -68,6 +68,7 @@ namespace MG {
 				Scene& scene = *scenePtr;
 				if (scene.m_Enabled) {
 					scene.BeforeUpdate();
+					Component::InitAll(scenePtr);
 					Component::UpdateAll(scenePtr);
 					scenePtr->Update();
 					if (transition) {

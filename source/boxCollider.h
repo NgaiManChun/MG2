@@ -2,42 +2,24 @@
 
 #include "component.h"
 #include "dataType.h"
+#include "collider.h"
 
 namespace MG {
 
 	// コライダー自身はサイズを持たず
-	// 原点(0, 0, 0)、幅(1, 1, 1)を基準値として
+	// 原点(0, 0, 0)、ハーフサイズ(0.5, 0.5, 0.5)を基準値として
 	// GameObjectのTransformによって変形させる
-	class BoxCollider : public Component {
-		BIND_COMPONENT_WITHOUT_DRAW(BoxCollider)
+	class BoxCollider : public Collider {
 	public:
-		AABB GetAABB()
-		{
-			XMVECTOR worldCenter = GetPosition();
+		BoxCollider(size_t tags = 0) : Collider(tags) {}
 
-			XMVECTOR localExtent = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		static void UpdateAll(Scene* scene);
 
-			localExtent *= XMVectorAbs(GetScale());
-
-			XMMATRIX absR = Matrix4x4::RotatingMatrix(GetRotation());
-			absR.r[0] = XMVectorAbs(absR.r[0]);
-			absR.r[1] = XMVectorAbs(absR.r[1]);
-			absR.r[2] = XMVectorAbs(absR.r[2]);
-			absR.r[3] = XMVectorZero();
-
-			XMVECTOR worldExtent = XMVectorSet(
-				XMVectorGetX(XMVector3Dot(absR.r[0], localExtent)),
-				XMVectorGetX(XMVector3Dot(absR.r[1], localExtent)),
-				XMVectorGetX(XMVector3Dot(absR.r[2], localExtent)),
-				0.0f
-			);
-
-			return {
-				worldCenter - worldExtent,
-				worldCenter + worldExtent
-			};
+		void Init() override {
+			AddAABB();
 		}
-		bool Overlap(BoxCollider* other)
+		
+		bool Overlap(BoxCollider* other) override
 		{
 			alignas(16) static const XMVECTOR corners[8] =
 			{
@@ -60,24 +42,23 @@ namespace MG {
 
 			static const float offset[2] = { -0.5f, 0.5f };
 
-			// 自分の反転transform相手に掛けることによって、
-			// 自分を原点(0, 0, 0)で幅(1, 1, 1)の立方体に見立てて
-			// 固定軸で判定をする
 			XMMATRIX selfTransform = GetGameObject()->GetWorldMatrix().GetData();
 			XMMATRIX otherTransform = other->GetGameObject()->GetWorldMatrix().GetData();
 			XMMATRIX invTransforms[2] =
 			{
+				// 自分のローカル空間
 				XMMatrixTranspose(XMMatrixInverse(nullptr, selfTransform) * otherTransform),
+
+				// 相手のローカル空間
 				XMMatrixTranspose(XMMatrixInverse(nullptr, otherTransform) * selfTransform)
 			};
+
 			for (int index = 0; index < 2; ++index)
 			{
+				// 8点をローカル空間に変換
 				XMVECTOR points[8];
 				for (int i = 0; i < 8; ++i) {
 					points[i] = XMVector3Transform(corners[i], invTransforms[index]);
-				}
-
-				for (int i = 0; i < 8; ++i) {
 					Vector3 point = XMVectorAbs(points[i]);
 					if (point.x <= 0.5f &&
 						point.y <= 0.5f &&
@@ -86,6 +67,7 @@ namespace MG {
 					}
 				}
 
+				// 12エッジ VS 6面
 				for (int i = 0; i < 12; ++i)
 				{
 					XMVECTOR& xmA = points[edgeIndexes[i][0]];
@@ -117,6 +99,9 @@ namespace MG {
 			
 			return false;
 		}
+	private:
+		//BIND_UPDATE_ALL(BoxCollider, BoxCollider::UpdateAll, 90)
+		BIND_COMPONENT_WITHOUT_DRAW(BoxCollider)
 	};
 } // namespace MG
 

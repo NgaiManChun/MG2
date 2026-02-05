@@ -1,5 +1,6 @@
 #include "character.h"
 #include "modelRenderer.h"
+
 #include "MGUtility.h"
 
 using namespace MG;
@@ -17,6 +18,34 @@ void Character::StaticUninit()
 void Character::Init()
 {
 	m_IdleState.Init(this);
+	
+	GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
+
+	//Model model = Model::Create("asset\\model\\box.mgm");
+	//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
+	//modelRenderer->SetModel(model, LOD_ALL);
+
+	m_Collider = gameObject->AddComponent<BoxCollider>(1);
+	gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
+	gameObject->SetScale({ 0.4f, 1.0f, 0.5f });
+	gameObject->SetParent(GetGameObject());
+
+	{
+		//Model model = Model::Create("asset\\model\\box.mgm");
+		GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
+
+		//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
+		//modelRenderer->SetModel(model, LOD_ALL);
+
+		m_AttackCollider = gameObject->AddComponent<BoxCollider>(2);
+
+		gameObject->SetPosition({ 0.0f, 1.0f, 0.8f });
+		gameObject->SetScale({ 0.7f, 1.5f, 1.2f });
+		gameObject->SetRotation({ 0.0f, 0.0f, XMConvertToRadians(-40.0f) });
+		gameObject->SetParent(GetGameObject());
+
+		m_AttackCollider->SetEnabled(false);
+	}
 }
 
 void Character::SetModel(Model model, unsigned int lod)
@@ -29,6 +58,20 @@ void Character::SetModel(Model model, unsigned int lod)
 	}
 	m_ModelRenderers.push_back(modelRenderer);
 
+}
+
+bool Character::IsImpact()
+{
+	auto& others = m_Collider->GetOverlapColliders();
+	for (Collider* other : others) {
+		if ((other->GetTags() & 2) && other != m_AttackCollider) {
+			m_Impact = GetGameObject()->GetWorldPosition() - other->GetGameObject()->GetParent()->GetWorldPosition();
+			m_Impact.Normalize();
+			m_Impact *= 5.0f;
+			return true;
+		}
+	}
+	return false;
 }
 
 void Character::SetState(STATE state)
@@ -45,6 +88,10 @@ void Character::SetState(STATE state)
 	else if (state == STATE_ATTACK)
 	{
 		m_AttackState.Init(this);
+	}
+	else if (state == STATE_IMPACT)
+	{
+		m_ImpactState.Init(this);
 	}
 }
 
@@ -63,6 +110,10 @@ void Character::Update()
 	{
 		m_AttackState.Update(this);
 	}
+	else if (m_State == STATE_IMPACT)
+	{
+		m_ImpactState.Update(this);
+	}
 
 	m_MoveInput = Vector3{};
 	m_AttackInput = false;
@@ -80,11 +131,17 @@ void Character::IdleState::Init(Character* character)
 
 void Character::IdleState::Update(Character* character)
 {
+	if (character->IsImpact())
+	{
+		character->SetState(STATE_IMPACT);
+		return;
+	}
 	if (character->m_AttackInput)
 	{
 		character->SetState(STATE_ATTACK);
+		return;
 	}
-	else if (character->m_MoveInput.LengthSq() > 0) 
+	if (character->m_MoveInput.LengthSq() > 0) 
 	{
 		character->SetState(STATE_RUN);
 	}
@@ -101,6 +158,11 @@ void Character::RunState::Init(Character* character)
 
 void Character::RunState::Update(Character* character)
 {
+	if (character->IsImpact()) 
+	{
+		character->SetState(STATE_IMPACT);
+		return;
+	}
 	if (character->m_AttackInput)
 	{
 		character->SetState(STATE_ATTACK);
@@ -182,6 +244,12 @@ void Character::AttackState::Init(Character* character)
 
 void Character::AttackState::Update(Character* character)
 {
+	if (character->IsImpact()) {
+		character->m_AttackCollider->SetEnabled(false);
+		character->SetState(STATE_IMPACT);
+		return;
+	}
+	character->m_AttackCollider->SetEnabled(attackTime > 0.5f && attackTime < 0.8f);
 	if (attackTime == 1.0f) {
 		if (character->m_HasMoveInput) {
 			character->SetState(STATE_RUN);
@@ -192,4 +260,42 @@ void Character::AttackState::Update(Character* character)
 	}
 
 	attackTime.IncreaseValue(MGUtility::GetDeltaTime());
+}
+
+
+// ”í’eó‘Ô =====================================================
+void Character::ImpactState::Init(Character* character)
+{
+	Vector3 impact = -character->m_Impact;
+	impact.y = 0;
+	impact.Normalize();
+	character->GetGameObject()->SetRotation({0.0f, atan2(impact.x, impact.z), 0.0f});
+
+	impactTime = TimeLine(0.5f);
+
+	auto& animations = character->m_Models[0].GetData().animations;
+	AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
+	for (auto& modelRenderer : character->m_ModelRenderers) {
+		modelRenderer->GetAnimationSet().Swap(animations[Character::IMPACT_ANIMATION_SLOT], 0.5f);
+	}
+}
+
+void Character::ImpactState::Update(Character* character)
+{
+	float deltaTime = MGUtility::GetDeltaTime();
+	GameObject* gameObject = character->GetGameObject();
+	Vector3 position = gameObject->GetPosition();
+	position += character->m_Impact * deltaTime;
+	gameObject->SetPosition(position);
+	character->m_Impact *= 0.8f;
+	if (impactTime == 1.0f) {
+		if (character->m_HasMoveInput) {
+			character->SetState(STATE_RUN);
+		}
+		else {
+			character->SetState(STATE_IDLE);
+		}
+	}
+
+	impactTime.IncreaseValue(deltaTime);
 }

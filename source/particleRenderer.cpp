@@ -144,7 +144,6 @@ namespace MG {
 		for (ptrdiff_t i = static_cast<ptrdiff_t>(size) - 1; i >= 0; i--) {
 			if (sceneComponents[i]) {
 				ParticleRenderer& component = *sceneComponents[i];
-				component.Initialize();
 				if (component.IsEnabled()) {
 					component.m_UpdateCS;
 					UINT count = 0;

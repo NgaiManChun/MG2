@@ -6,6 +6,7 @@
 #include "modelRenderer.h"
 #include "vector3.h"
 #include "animationFollower.h"
+#include "boxCollider.h"
 
 using namespace MG;
 
@@ -15,7 +16,8 @@ public:
 	enum STATE {
 		STATE_IDLE,
 		STATE_RUN,
-		STATE_ATTACK
+		STATE_ATTACK,
+		STATE_IMPACT
 	};
 	enum ANIMATION_SLOT {
 		IDLE_ANIMATION_SLOT,
@@ -38,9 +40,13 @@ public:
 	BIND_STATIC_UNINIT(Character, Character::StaticUninit)
 	//BIND_UPDATE_ALL(Character, Character::UpdateAll)
 	BIND_COMPONENT_WITHOUT_DRAW(Character)
+
+	BoxCollider* m_AttackCollider;
 private:
 	AnimationFollower m_WeaponFollow;
 	GameObject* m_Weapon;
+	BoxCollider* m_Collider;
+	
 	std::vector<Model> m_Models;
 	std::vector<ModelRenderer*> m_ModelRenderers;
 
@@ -49,6 +55,7 @@ private:
 	Vector3 m_MoveInput;
 	bool m_HasMoveInput;
 	bool m_AttackInput;
+	Vector3 m_Impact;
 
 	struct IdleState {
 		void Init(Character* character);
@@ -72,8 +79,16 @@ private:
 	};
 	AttackState m_AttackState;
 
+	struct ImpactState {
+		TimeLine impactTime;
+		void Init(Character* character);
+		void Update(Character* character);
+	};
+	ImpactState m_ImpactState;
+
 	void SetState(STATE state);
 
+	bool IsImpact();
 
 public:
 	void Init() override;

@@ -10,34 +10,8 @@ namespace MG {
 	// 原点(0, 0, 0)、半径0.5を基準値として
 	// GameObjectのTransformによって変形させる
 	class SphereCollider : public Component {
-		BIND_COMPONENT_WITHOUT_DRAW(SphereCollider)
+		
 	public:
-		AABB GetAABB()
-		{
-			XMVECTOR worldCenter = GetPosition();
-
-			XMVECTOR localExtent = XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
-
-			localExtent *= XMVectorAbs(GetScale());
-
-			XMMATRIX absR = Matrix4x4::RotatingMatrix(GetRotation());
-			absR.r[0] = XMVectorAbs(absR.r[0]);
-			absR.r[1] = XMVectorAbs(absR.r[1]);
-			absR.r[2] = XMVectorAbs(absR.r[2]);
-			absR.r[3] = XMVectorZero();
-
-			XMVECTOR worldExtent = XMVectorSet(
-				XMVectorGetX(XMVector3Dot(absR.r[0], localExtent)),
-				XMVectorGetX(XMVector3Dot(absR.r[1], localExtent)),
-				XMVectorGetX(XMVector3Dot(absR.r[2], localExtent)),
-				0.0f
-			);
-
-			return {
-				worldCenter - worldExtent,
-				worldCenter + worldExtent
-			};
-		}
 		bool Overlap(BoxCollider* other)
 		{
 
@@ -123,6 +97,8 @@ namespace MG {
 
 			return false;
 		}
+	private:
+		BIND_COMPONENT_WITHOUT_DRAW(SphereCollider)
 	};
 } // namespace MG
 

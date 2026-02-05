@@ -4,8 +4,6 @@
 
 namespace MG {
 
-	Scene* GameObject::GetScene() const { return m_Scene; }
-
 	bool GameObject::IsEnabled() const
 	{
 		return

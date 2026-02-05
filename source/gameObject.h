@@ -101,9 +101,14 @@ namespace MG {
 		const Vector3& GetPosition() const { return m_Position; }
 		const Vector3& GetRotation() const { return m_Rotation; }
 		const Vector3& GetScale() const { return m_Scale; }
+		Vector3 GetWorldPosition() const {
+			XMMATRIX matrix = XMMatrixTranspose(m_WorldMatrix.GetData());
+			return matrix.r[3];
+		}
 		bool IsEnabled() const;
 		LAYER GetLayer() const { return m_Layer; }
-		Scene* GetScene() const;
+		//Scene* GetScene() const;
+		Scene* GetScene() const { return m_Scene; }
 		void Destroy();
 		bool IsDestroyed() { return m_Destroyed; }
 
@@ -115,6 +120,7 @@ namespace MG {
 		//ATTRIBUTE_MODIFIED GetAttributeModified() const { return m_AttributeModified; }
 
 		bool SetParent(GameObject* newParent);
+		GameObject* GetParent() const { return m_Parent; }
 
 		void SetPosition(const Vector3& position);
 		void SetRotation(const Vector3& rotation);
@@ -157,8 +163,12 @@ namespace MG {
 			if (!m_Destroyed && std::is_base_of<Component, COMPONENT>::value) {
 				COMPONENT* component = Component::GetDestroyedComponent<COMPONENT>(m_Scene);
 				if (component) {
+					size_t index = component->m_Index;
 					component->~COMPONENT();
 					new (component) COMPONENT(std::forward<Args>(args)...);
+					component->m_Index = index;
+					component->m_Scene = m_Scene;
+					Component::AddInitialize<COMPONENT>(m_Scene, component);
 				}
 				else {
 					component = new COMPONENT(std::forward<Args>(args)...);

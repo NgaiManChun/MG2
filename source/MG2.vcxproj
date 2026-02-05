@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="collider.h" />
     <ClInclude Include="directionalLight.h" />
     <ClInclude Include="spriteRenderer2D.h" />
     <ClInclude Include="animation.h" />
@@ -241,7 +242,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="boneDivision.cpp" />
+    <ClCompile Include="boxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="collider.cpp" />
     <ClCompile Include="dynamicIndexDivision.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="input.cpp" />

@@ -14,7 +14,10 @@ namespace MG {
 		bool m_Initialized = false;
 		bool m_Destroyed = false;
 		bool m_Enabled = true;
+		Scene* m_Scene = nullptr;
+		size_t m_Index = 0;
 
+		virtual void UpdateDestroyedIndex() = 0;
 		void SetGameObject(GameObject* gameObjecct) { m_GameObject = gameObjecct; }
 	public:
 		Component() {}
@@ -25,6 +28,8 @@ namespace MG {
 		virtual void Uninit() {};
 		virtual void Update() {};
 		virtual void Draw() {};
+		
+
 
 		GameObject* GetGameObject() const { return m_GameObject; }
 		const Vector3& GetPosition() const { return m_GameObject->m_Position; }
@@ -45,24 +50,30 @@ namespace MG {
 				m_GameObject &&
 				m_GameObject->IsEnabled();
 		}
+		bool NeedInitialize()
+		{
+			return !m_Initialized && m_Enabled && !m_Destroyed;
+		}
 		void Initialize()
 		{
-			if (!m_Initialized && m_Enabled && !m_Destroyed && m_GameObject && m_GameObject->IsEnabled()) {
-				Init();
-				m_Initialized = true;
-			}
+			Init();
+			m_Initialized = true;
 		}
 		void Destroy()
 		{
 			if (!m_Destroyed)
 			{
 				Uninit();
+				
 				m_Destroyed = true;
 				m_Enabled = false;
 				if (m_GameObject) {
 					m_GameObject->RemoveComponent(this);
 				}
 				m_GameObject = nullptr;
+				if (m_Scene) {
+					UpdateDestroyedIndex();
+				}
 			}
 		}
 		bool IsDestroyed() const { return m_Destroyed; }
@@ -83,6 +94,8 @@ namespace MG {
 
 		static inline std::vector<FUNCTION_PAIR> s_StaticUninitFunctions{};
 
+		static inline std::vector<SCENE_FUNCTION_PAIR> s_InitAllFunctions{};
+
 		static inline std::vector<SCENE_FUNCTION_PAIR> s_UpdateAllFunctions{};
 
 		static inline std::vector<SCENE_FUNCTION_PAIR> s_DrawAllFunctions{};
@@ -100,6 +113,12 @@ namespace MG {
 		static bool AddStaticUninitFunction(void (*function)(), int priority = 0)
 		{
 			s_StaticUninitFunctions.push_back(FUNCTION_PAIR{ function, priority });
+			return true;
+		}
+
+		static bool AddInitAllFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_InitAllFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
 			return true;
 		}
 
@@ -134,6 +153,7 @@ namespace MG {
 		template <typename COMPONENT>
 		struct COMPONENT_VECTOR_PAIR {
 			std::vector<COMPONENT*> components;
+			std::vector<COMPONENT*> needInitializeComponents;
 			size_t destoryedComponentIndex = 0;
 		};
 
@@ -153,6 +173,13 @@ namespace MG {
 		{
 			for (auto& pair : s_StaticUninitFunctions) {
 				pair.function();
+			}
+		}
+
+		static void InitAll(Scene* scene)
+		{
+			for (auto& pair : s_InitAllFunctions) {
+				pair.function(scene);
 			}
 		}
 
@@ -184,8 +211,6 @@ namespace MG {
 			}
 		}
 
-		static inline std::unordered_map<std::string, Component* (*)()> s_InstanceFunctions{};
-
 		template <typename COMPONENT>
 		static COMPONENT* GetDestroyedComponent(Scene* scene)
 		{
@@ -203,6 +228,30 @@ namespace MG {
 			}
 			destoryedComponentIndex = size;
 			return nullptr;
+		}
+
+		template <typename COMPONENT>
+		static void Add(Scene* scene, COMPONENT* component)
+		{
+			if (component) {
+				auto& component_pair = Component::s_Components<COMPONENT>[scene];
+				auto& sceneComponents = component_pair.components;
+				auto& needInitializeComponents = component_pair.needInitializeComponents;
+				sceneComponents.push_back(component);
+				needInitializeComponents.push_back(component);
+				component->m_Index = sceneComponents.size() - 1;
+				component->m_Scene = scene;
+			}
+		}
+
+		template <typename COMPONENT>
+		static void AddInitialize(Scene* scene, COMPONENT* component)
+		{
+			if (component) {
+				auto& component_pair = Component::s_Components<COMPONENT>[scene];
+				auto& needInitializeComponents = component_pair.needInitializeComponents;
+				needInitializeComponents.push_back(component);
+			}
 		}
 
 		template <typename COMPONENT>
@@ -227,29 +276,22 @@ namespace MG {
 			for (auto component : sceneComponents) {
 				if (!component->m_Destroyed) {
 					result.push_back(component);
-					//return component;
 				}
 			}
 			return result;
 		}
 
-		template <typename COMPONENT, typename... Args>
-		static COMPONENT* Create(Scene* scene, Args&&... args)
-		{
-			COMPONENT* component = new COMPONENT(std::forward<Args>(args)...);
-			if (component) {
-				auto& sceneComponents = Component::s_Components<COMPONENT>[scene].components;
-				sceneComponents.push_back(component);
-			}
-			return component;
-		}
-
 		template <typename COMPONENT>
-		static void Add(Scene* scene, COMPONENT* component)
+		static void InitAll(Scene* scene)
 		{
-			if (component) {
-				auto& sceneComponents = Component::s_Components<COMPONENT>[scene].components;
-				sceneComponents.push_back(component);
+			auto& component_pair = Component::s_Components<COMPONENT>[scene];
+			auto& sceneComponents = component_pair.needInitializeComponents;
+			if (!sceneComponents.empty()) {
+				for (COMPONENT* component : sceneComponents)
+				{
+					component->Initialize();
+				}
+				sceneComponents.clear();
 			}
 		}
 
@@ -258,18 +300,10 @@ namespace MG {
 		{
 			auto& component_pair = Component::s_Components<COMPONENT>[scene];
 			auto& sceneComponents = component_pair.components;
-			size_t& destoryedComponentIndex = component_pair.destoryedComponentIndex;
-			size_t size = sceneComponents.size();
-			for (ptrdiff_t i = static_cast<ptrdiff_t>(size) - 1; i >= 0; i--) {
-				if (sceneComponents[i]) {
-					COMPONENT& component = *sceneComponents[i];
-					component.Initialize();
-					if (component.IsEnabled()) {
-						component.Update();
-					}
-					else if (component.IsDestroyed()) {
-						destoryedComponentIndex = i;
-					}
+			for (COMPONENT* component : sceneComponents)
+			{
+				if (component->IsEnabled()) {
+					component->Update();
 				}
 			}
 		}
@@ -333,6 +367,14 @@ namespace MG {
 		};
 
 		template <typename COMPONENT>
+		class BindInitAll {
+		public:
+			BindInitAll(void (*function)(Scene*) = Component::InitAll<COMPONENT>, int priority = 0) {
+				static bool binded = Component::AddInitAllFunction(function, priority);
+			}
+		};
+
+		template <typename COMPONENT>
 		class BindUpdateAll {
 		public:
 			BindUpdateAll(void (*function)(Scene*) = Component::UpdateAll<COMPONENT>, int priority = 0) {
@@ -364,7 +406,7 @@ namespace MG {
 			}
 		};
 
-
+		
 	};
 } // namespace MG
 
@@ -373,6 +415,9 @@ static inline MG::Component::BindStaticInit<COMPONENT> m_BindStaticInit{ __VA_AR
 
 #define BIND_STATIC_UNINIT(COMPONENT, ...) \
 static inline MG::Component::BindStaticUninit<COMPONENT> BindStaticUninit{ __VA_ARGS__ };
+
+#define BIND_INIT_ALL(COMPONENT, ...) \
+struct { MG::Component::BindInitAll<COMPONENT> m_BindInitAll{ __VA_ARGS__ }; };
 
 #define BIND_UPDATE_ALL(COMPONENT, ...) \
 struct { MG::Component::BindUpdateAll<COMPONENT> m_BindUpdateAll{ __VA_ARGS__ }; };
@@ -384,15 +429,23 @@ struct { MG::Component::BindDrawAll<COMPONENT> m_BindDrawAll{ __VA_ARGS__ }; };
 struct { MG::Component::BindDestroyAll<COMPONENT> m_BindDestroyAll{ __VA_ARGS__ }; };
 
 #define BIND_RELEASE_DESTROYED(COMPONENT, ...) \
-struct { MG::Component::BindRelaseDestroyed<COMPONENT> m_BindRelaseDestroyed{ __VA_ARGS__ }; };
+struct { MG::Component::BindRelaseDestroyed<COMPONENT> m_BindRelaseDestroyed{ __VA_ARGS__ }; };	 \
+void UpdateDestroyedIndex() override {									 						 \
+	auto& component_pair = Component::s_Components<COMPONENT>[m_Scene];							 \
+	if (m_Index < component_pair.destoryedComponentIndex) {										 \
+		component_pair.destoryedComponentIndex = m_Index;										 \
+	}																							 \
+};																								 
 
 #define BIND_COMPONENT(COMPONENT) \
+BIND_INIT_ALL(COMPONENT) \
 BIND_UPDATE_ALL(COMPONENT) \
 BIND_DRAW_ALL(COMPONENT) \
 BIND_DESTROY_ALL(COMPONENT) \
 BIND_RELEASE_DESTROYED(COMPONENT)
 
 #define BIND_COMPONENT_WITHOUT_DRAW(COMPONENT) \
+BIND_INIT_ALL(COMPONENT) \
 BIND_UPDATE_ALL(COMPONENT) \
 BIND_DESTROY_ALL(COMPONENT) \
 BIND_RELEASE_DESTROYED(COMPONENT)

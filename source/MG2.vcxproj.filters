@@ -52,6 +52,9 @@
     <Filter Include="ヘッダー ファイル\Component\Collider">
       <UniqueIdentifier>{75532d33-8001-454a-9dc8-1677032204d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Component\Collider">
+      <UniqueIdentifier>{1d292eaa-c495-46a1-8667-e30af82077a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="matrix4x4.h">
@@ -219,6 +222,9 @@
     <ClInclude Include="directionalLight.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
+    <ClInclude Include="collider.h">
+      <Filter>ヘッダー ファイル\Component\Collider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MGObject.cpp">
@@ -355,6 +361,12 @@
     </ClCompile>
     <ClCompile Include="spriteRenderer2D.cpp">
       <Filter>ソース ファイル\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="boxCollider.cpp">
+      <Filter>ソース ファイル\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="collider.cpp">
+      <Filter>ソース ファイル\Component\Collider</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
