@@ -14,8 +14,8 @@ RWStructuredBuffer<DRAW_INDEXED_INDIRECT_ARGS> DrawArgs : register(u0);
 RWStructuredBuffer<MESH_INSTANCE> ResultMeshInstance : register(u1);
 RWStructuredBuffer<uint> ResultMeshInstanceIndex : register(u2);
 
-StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t1);
-StructuredBuffer<float4x4> DynamicMatrixArray : register(t6);
+StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t0);
+StructuredBuffer<float4x4> DynamicMatrixArray : register(t1);
 
 uint OrderedUint(float f)
 {

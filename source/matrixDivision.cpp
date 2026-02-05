@@ -1,104 +1,55 @@
 #include "matrixDivision.h"
-
 #include "renderer.h"
 #include "MGUtility.h"
+#include "matrix4x4.h"
 
 namespace MG {
 
-	bool MatrixDivision::ReserveMeta(unsigned int newCapcity)
-	{
-		if (newCapcity < s_Meta.size()) return false;
-
-		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(META), newCapcity);
-		if (!newBuffer) return false;
-
-		ID3D11ShaderResourceView* newSrv = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
-		if (!newSrv) {
-			SAFE_RELEASE(newBuffer);
-			return false;
-		}
-
-		if (s_MetaBuffer) {
-			Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_MetaBuffer, 0, nullptr);
-		}
-
-		SAFE_RELEASE(s_MetaSRV);
-		SAFE_RELEASE(s_MetaBuffer);
-		s_MetaBuffer = newBuffer;
-		s_MetaSRV = newSrv;
-		s_MetaCapcity = newCapcity;
-		return true;
-	}
-	bool MatrixDivision::ReserveData(unsigned int newCapcity)
-	{
-		if (newCapcity < s_DataSize) return false;
-
-		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(Matrix4x4), newCapcity, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
-		if (!newBuffer) return false;
-
-		ID3D11ShaderResourceView* newSRV = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
-		ID3D11UnorderedAccessView* newUAV = Renderer::CreateStructuredUAV(newBuffer, newCapcity);
-		if (!newSRV || !newUAV) {
-			SAFE_RELEASE(newUAV);
-			SAFE_RELEASE(newSRV);
-			SAFE_RELEASE(newBuffer);
-			return false;
-		}
-
-		if (s_DataBuffer) {
-			Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_DataBuffer, 0, nullptr);
-		}
-
-		SAFE_RELEASE(s_DataUAV);
-		SAFE_RELEASE(s_DataSRV);
-		SAFE_RELEASE(s_DataBuffer);
-		s_DataBuffer = newBuffer;
-		s_DataSRV = newSRV;
-		s_DataUAV = newUAV;
-		s_DataCapcity = newCapcity;
-		return true;
-	}
-
 	void MatrixDivision::Pad()
 	{
-		
+		// 結果用バッファを作成
 		ID3D11Buffer* resultBuffer = Renderer::CreateStructuredBuffer(
 			sizeof(Matrix4x4), s_DataSize,
 			nullptr,
 			D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 		);
-		if (!resultBuffer) return;
-		ID3D11UnorderedAccessView* resultUAV = Renderer::CreateStructuredUAV(resultBuffer, s_DataSize);
+		ID3D11UnorderedAccessView* resultUAV = nullptr;
+		if (resultBuffer) {
+			resultUAV = Renderer::CreateStructuredUAV(resultBuffer, s_DataSize);
+		}
 		if (!resultUAV) {
 			SAFE_RELEASE(resultBuffer);
 			return;
 		}
 
-		std::vector<META*> sortedMeta(s_Meta.size());
-		for (unsigned int i = 0; i < s_Meta.size(); i++) {
-			sortedMeta[i] = &s_Meta[i];
+		// ソートしたブックマーク配列を作成
+		// ※ID順 != offset順
+		std::vector<BOOKMARK*> sortedBookmarks(s_Bookmarks.size());
+		for (unsigned int i = 0; i < s_Bookmarks.size(); i++) {
+			sortedBookmarks[i] = &s_Bookmarks[i];
 		}
-
-		std::sort(sortedMeta.begin(), sortedMeta.end(),
-			[](META* a, META* b) {
+		std::sort(sortedBookmarks.begin(), sortedBookmarks.end(),
+			[](BOOKMARK* a, BOOKMARK* b) {
 				return a->offset < b->offset;
 			}
 		);
 
+		// データの移動数を計算
 		unsigned int last = 0;
 		unsigned int totalPad = 0;
-		for (unsigned int i = 0; i < sortedMeta.size(); i++) {
-			if (sortedMeta[i]->offset > last) {
+		for (unsigned int i = 0; i < sortedBookmarks.size(); i++) {
+			if (sortedBookmarks[i]->offset > last) {
 				unsigned int start = last;
-				unsigned int count = sortedMeta[i]->offset - last;
+				unsigned int count = sortedBookmarks[i]->offset - last;
 				totalPad += count;
-				for (unsigned int j = i; j < sortedMeta.size(); j++) {
-					sortedMeta[j]->padding += count;
+				for (unsigned int j = i; j < sortedBookmarks.size(); j++) {
+					sortedBookmarks[j]->padding += count;
 				}
 			}
-			last = sortedMeta[i]->offset + sortedMeta[i]->count;
+			last = sortedBookmarks[i]->offset + sortedBookmarks[i]->count;
 		}
 
+		// 移動なしの場合即終了
 		if (totalPad == 0) {
 			SAFE_RELEASE(resultUAV);
 			SAFE_RELEASE(resultBuffer);
@@ -106,33 +57,36 @@ namespace MG {
 		}
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-		D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(META) * s_Meta.size());
+		D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(BOOKMARK) * s_Bookmarks.size());
 
-		// update meta
-		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
+		// データの移動数をブックマークに更新
+		deviceContext->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Bookmarks.data(), 0, 0);
 
-		// pad data
+		// データの移動（コンピュートシェーダ）
 		deviceContext->CSSetUnorderedAccessViews(0, 1, &resultUAV, nullptr);
-		deviceContext->CSSetShaderResources(0, 1, &s_MetaSRV);
+		deviceContext->CSSetShaderResources(0, 1, &s_BookmarkSRV);
 		deviceContext->CSSetShaderResources(1, 1, &s_DataSRV);
-		CS_CONSTANT constant{ s_Meta.size() };
+		CS_CONSTANT constant{ s_Bookmarks.size() };
 		Renderer::SetCSContant(constant);
 		deviceContext->CSSetShader(s_PadCS, nullptr, 0);
-		deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_Meta.size() / 64)), 1, 1);
+		deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_Bookmarks.size() / 64)), 1, 1);
+
 		// UAV解除
 		ID3D11UnorderedAccessView* nullUAV[] = { nullptr , nullptr};
 		deviceContext->CSSetUnorderedAccessViews(0, 2, nullUAV, nullptr);
+
+		// 結果を元バッファにコピー
 		Renderer::GetDeviceContext()->CopySubresourceRegion(s_DataBuffer, 0, 0, 0, 0, resultBuffer, 0, nullptr);
 
+		// 移動した分のデータ数を減らす
 		s_DataSize -= totalPad;
 
-		for (unsigned int i = 0; i < s_Meta.size(); i++) {
-			s_Meta[i].offset -= s_Meta[i].padding;
-			s_Meta[i].padding = 0;
+		// 移動後のブックマークデータを更新
+		for (unsigned int i = 0; i < s_Bookmarks.size(); i++) {
+			s_Bookmarks[i].offset -= s_Bookmarks[i].padding;
+			s_Bookmarks[i].padding = 0;
 		}
-
-		// update meta
-		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
+		deviceContext->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Bookmarks.data(), 0, 0);
 
 		SAFE_RELEASE(resultUAV);
 		SAFE_RELEASE(resultBuffer);
@@ -148,65 +102,110 @@ namespace MG {
 
 	void MatrixDivision::Uninit()
 	{
-		SAFE_RELEASE(s_MetaSRV);
-		SAFE_RELEASE(s_MetaBuffer);
+		SAFE_RELEASE(s_BookmarkSRV);
+		SAFE_RELEASE(s_BookmarkBuffer);
 		SAFE_RELEASE(s_DataUAV);
 		SAFE_RELEASE(s_DataSRV);
 		SAFE_RELEASE(s_DataBuffer);
 		SAFE_RELEASE(s_PadCS);
-		s_Meta.clear();
+		s_Bookmarks.clear();
 		s_EmptyIds.clear();
+		s_BookmarkCapcity = 0;
+		s_DataCapcity = 0;
+		s_DataSize = 0;
 	}
 
 	MatrixDivision MatrixDivision::Create(unsigned int count, const Matrix4x4* data) {
 		MatrixDivision key{};
-		META meta{};
-		meta.offset = s_DataSize;
-		meta.count = count;
-
-		if (s_Meta.size() + 1 > s_MetaCapcity) {
-			unsigned int newCapcity = s_MetaCapcity + META_INTERVAL;
-			if (!ReserveMeta(newCapcity)) {
-				return key;
-			}
-		}
-
-		if (s_DataSize + count > s_DataCapcity) {
-			unsigned int newCapcity = max(s_DataCapcity + count * 2, DATA_INTERVAL);
-			if (!ReserveData(newCapcity)) {
-				return key;
-			}
-		}
+		BOOKMARK bookmark{};
+		bookmark.offset = s_DataSize;
+		bookmark.count = count;
 
 		if (s_EmptyIds.empty()) {
-			s_Meta.push_back(meta);
-			key.m_Id = s_Meta.size() - 1;
+			s_Bookmarks.push_back(bookmark);
+			key.m_Id = s_Bookmarks.size() - 1;
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();
 			s_EmptyIds.erase(s_EmptyIds.begin());
-			s_Meta[key.m_Id] = meta;
+			s_Bookmarks[key.m_Id] = bookmark;
 		}
 
-		// update meta
+		// ブックマークバッファ確保
+		if (s_Bookmarks.capacity() > s_BookmarkCapcity) {
+			unsigned int newCapcity = s_Bookmarks.capacity();
+			ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newCapcity);
+			ID3D11ShaderResourceView* newSrv = nullptr;
+			if (newBuffer) {
+				newSrv = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
+			}
+			
+			if (newSrv) {
+				if (s_BookmarkBuffer) {
+					Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_BookmarkBuffer, 0, nullptr);
+				}
+				SAFE_RELEASE(s_BookmarkSRV);
+				SAFE_RELEASE(s_BookmarkBuffer);
+				s_BookmarkBuffer = newBuffer;
+				s_BookmarkSRV = newSrv;
+				s_BookmarkCapcity = newCapcity;
+			}
+			else {
+				SAFE_RELEASE(newBuffer);
+			}
+		}
+
+		// データバッファ確保
+		if (s_DataSize + count > s_DataCapcity) {
+			unsigned int newCapcity = max(s_DataCapcity + count * 2, DATA_INTERVAL);
+			ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(Matrix4x4), newCapcity, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
+			ID3D11ShaderResourceView* newSRV = nullptr;
+			ID3D11UnorderedAccessView* newUAV = nullptr;
+
+			if (newBuffer) {
+				newSRV = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
+				newUAV = Renderer::CreateStructuredUAV(newBuffer, newCapcity);
+			}
+
+			if (newSRV && newUAV) {
+				if (s_DataBuffer) {
+					Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_DataBuffer, 0, nullptr);
+				}
+				SAFE_RELEASE(s_DataUAV);
+				SAFE_RELEASE(s_DataSRV);
+				SAFE_RELEASE(s_DataBuffer);
+				s_DataBuffer = newBuffer;
+				s_DataSRV = newSRV;
+				s_DataUAV = newUAV;
+				s_DataCapcity = newCapcity;
+			}
+			else {
+				SAFE_RELEASE(newUAV);
+				SAFE_RELEASE(newSRV);
+				SAFE_RELEASE(newBuffer);
+			}
+		}
+
+		// ブックマークデータ転送
 		{
-			D3D11_BOX box = Renderer::GetRangeBox(sizeof(META) * key.m_Id, sizeof(META) * (key.m_Id + 1));
-			Renderer::GetDeviceContext()->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data() + key.m_Id, 0, 0);
+			D3D11_BOX box = Renderer::GetRangeBox(sizeof(BOOKMARK) * key.m_Id, sizeof(BOOKMARK) * (key.m_Id + 1));
+			Renderer::GetDeviceContext()->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Bookmarks.data() + key.m_Id, 0, 0);
 		}
 
-		// update data
+		// マトリックスデータ転送
 		if (data) {
-			D3D11_BOX box = Renderer::GetRangeBox(sizeof(Matrix4x4) * meta.offset, sizeof(Matrix4x4) * (meta.offset + meta.count));
+			D3D11_BOX box = Renderer::GetRangeBox(sizeof(Matrix4x4) * bookmark.offset, sizeof(Matrix4x4) * (bookmark.offset + bookmark.count));
 			Renderer::GetDeviceContext()->UpdateSubresource(s_DataBuffer, 0, &box, data, 0, 0);
 		}
+
 		s_DataSize += count;
 
 		return key;
 	}
 
 	void MatrixDivision::SetData(Matrix4x4* data) {
-		META& meta = s_Meta[m_Id];
-		D3D11_BOX box = Renderer::GetRangeBox(sizeof(Matrix4x4) * meta.offset, sizeof(Matrix4x4) * (meta.offset + meta.count));
+		BOOKMARK& bookmark = s_Bookmarks[m_Id];
+		D3D11_BOX box = Renderer::GetRangeBox(sizeof(Matrix4x4) * bookmark.offset, sizeof(Matrix4x4) * (bookmark.offset + bookmark.count));
 		Renderer::GetDeviceContext()->UpdateSubresource(s_DataBuffer, 0, &box, data, 0, 0);
 	}
 }

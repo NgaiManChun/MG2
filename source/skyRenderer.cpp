@@ -99,7 +99,7 @@ namespace MG {
 		SINGLE_CONSTANT constant{};
 		constant.worldMatrixId = GetGameObject()->GetWorldMatrix();
 
-		unsigned int originalNodeMatrixDivisionOffset = modelData.originalNodeMatrixDivision.GetMetaData().offset;
+		unsigned int originalNodeMatrixDivisionOffset = modelData.originalNodeMatrixDivision.GetBookmarkData().offset;
 
 		for (auto& pair : modelData.nodeMeshPairs) {
 			Mesh mesh = modelData.meshes[pair.meshOffset];

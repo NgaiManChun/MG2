@@ -175,8 +175,8 @@ namespace MG {
 				ModelInstance::GetSRV(),
 				AnimationSet::GetSRV(),
 				ModelAnimation::GetSRV(),
-				TransformDivision::GetMetaSRV(),
-				DynamicIndexDivision::GetMetaSRV()
+				TransformDivision::GetBookmarkSRV(),
+				DynamicIndexDivision::GetBookmarkSRV()
 			};
 			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)ModelInstance::GetCount() / 64)), 1, 1);
@@ -322,9 +322,9 @@ namespace MG {
 
 			ID3D11ShaderResourceView* srvArray[] = {
 				ModelInstance::GetSRV(),
-				DynamicIndexDivision::GetMetaSRV(),
+				DynamicIndexDivision::GetBookmarkSRV(),
 				DynamicIndexDivision::GetDataSRV(),
-				MatrixDivision::GetMetaSRV(),
+				MatrixDivision::GetBookmarkSRV(),
 				MatrixDivision::GetDataSRV(),
 				DynamicMatrix::GetSRV()
 			};
@@ -420,13 +420,9 @@ namespace MG {
 
 		ID3D11ShaderResourceView* srvArray[] = {
 			ModelInstance::GetSRV(),
-			DynamicIndexDivision::GetMetaSRV(),
-			DynamicIndexDivision::GetDataSRV(),
-			MatrixDivision::GetMetaSRV(),
-			MatrixDivision::GetDataSRV(),
 			DynamicMatrix::GetSRV()
 		};
-		deviceContext->CSSetShaderResources(1, ARRAYSIZE(srvArray), srvArray);
+		deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 		deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_MeshInstanceMax / 64)), 1, 1);
 
 		ID3D11UnorderedAccessView* nullUAVs[] = {
@@ -463,7 +459,7 @@ namespace MG {
 		ID3D11ShaderResourceView* srvArray[] = {
 			s_MeshInstanceSRV,
 			ModelInstance::GetSRV(),
-			MatrixDivision::GetMetaSRV(),
+			MatrixDivision::GetBookmarkSRV(),
 			MatrixDivision::GetDataSRV(),
 			s_MeshInstanceIndexSRV,
 			DynamicMatrix::GetSRV(),
@@ -505,7 +501,7 @@ namespace MG {
 			/*modelConstant.nodeCount = modelData.nodeCount;
 			modelConstant.maxInstance = modelInstances.size();*/
 			modelConstant.nodeMatrixDivisionId = modelData.originalNodeMatrixDivision;
-			modelConstant.nodeParentIndexDivisionOffset = modelData.nodeParentIndexDivision.GetMetaData().offset;
+			modelConstant.nodeParentIndexDivisionOffset = modelData.nodeParentIndexDivision.GetBookmarkData().offset;
 			Renderer::SetModelContant(modelConstant);
 			
 			auto& nodeMeshPairs = modelData.nodeMeshPairs;
@@ -522,7 +518,7 @@ namespace MG {
 					meshConstant.skinning = true;
 					//meshConstant.boneDivisionId = meshData.boneDivision;
 					//meshConstant.vertexBoneWeightDivisionId = meshData.vertexBoneWeightDivision;
-					meshConstant.boneDivisionOffset = meshData.boneDivision.GetMetaData().offset;
+					meshConstant.boneDivisionOffset = meshData.boneDivision.GetBookmarkData().offset;
 					meshConstant.vertexBoneWeightDivisionOffset = meshData.vertexBoneWeightDivision.GetMetaData().offset;
 				}
 				

@@ -153,9 +153,6 @@
     <ClInclude Include="MGSetup.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="divisionBuffer.h">
-      <Filter>ヘッダー ファイル\Buffer\Division</Filter>
-    </ClInclude>
     <ClInclude Include="vertexDivision.h">
       <Filter>ヘッダー ファイル\Buffer\Division</Filter>
     </ClInclude>
