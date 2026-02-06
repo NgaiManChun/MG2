@@ -238,6 +238,9 @@ namespace MG {
 		static ID3D11Buffer* CreateStructuredBuffer(unsigned int stride, unsigned int count, const void* data = nullptr, unsigned int bindFlag = D3D11_BIND_SHADER_RESOURCE);
 		static ID3D11ShaderResourceView* CreateStructuredSRV(ID3D11Buffer* buffer, unsigned int elementCount);
 		static ID3D11UnorderedAccessView* CreateStructuredUAV(ID3D11Buffer* buffer, unsigned int elementCount, unsigned int flags = 0);
+		static ID3D11Buffer* CreateByteAddressBuffer(unsigned int byteWidth, const void* data = nullptr, unsigned int bindFlag = D3D11_BIND_SHADER_RESOURCE);
+		static ID3D11ShaderResourceView* CreateByteAddressSRV(ID3D11Buffer* buffer, unsigned int byteWidth);
+		static ID3D11UnorderedAccessView* CreateByteAddressUAV(ID3D11Buffer* buffer, unsigned int byteWidth);
 
 		static ID3D11Texture2D* CreateTexture2D(
 			unsigned int width, unsigned int height,

@@ -45,6 +45,48 @@ private:
 public:
 	void Init() override {
 
+		/*Matrix4x4 data[3] = { Matrix4x4{}, Matrix4x4{}, Matrix4x4{} };
+		MatrixDivision d0 = MatrixDivision::Create(3, data);
+		for (int i = 0; i < 3; i++) { data[i] *= 10; }
+		MatrixDivision d1 = MatrixDivision::Create(3, data);
+		for (int i = 0; i < 3; i++) { data[i] *= 10; }
+		MatrixDivision d2 = MatrixDivision::Create(3, data);
+
+		d1.Release();
+		d0.Release();
+
+		MatrixDivision::Pad();
+
+		d2.Release();
+
+		for (int i = 0; i < 3; i++) { data[i] *= 10; }
+		MatrixDivision d3 = MatrixDivision::Create(3, data);
+
+		MatrixDivision::Pad();
+
+		static ID3D11Buffer* debugBuffer = ([](unsigned int stride, unsigned int count) {
+			D3D11_BUFFER_DESC desc = {};
+			desc.Usage = D3D11_USAGE_STAGING;
+			desc.BindFlags = 0;
+			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+			desc.StructureByteStride = stride;
+			desc.ByteWidth = stride * count;
+			ID3D11Buffer* debugBuffer;
+			Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &debugBuffer);
+			return debugBuffer;
+			})(sizeof(Matrix4x4), 1000);
+
+		Renderer::GetDeviceContext()->CopySubresourceRegion(debugBuffer, 0, 0, 0, 0, MatrixDivision::GetDataBuffer(), 0, nullptr);
+
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		if (Renderer::GetDeviceContext()->Map(debugBuffer, 0, D3D11_MAP_READ, 0, &mapped) == S_OK) {
+			Matrix4x4 data[1000];
+			memcpy(data, mapped.pData, sizeof(Matrix4x4) * 1000);
+			Renderer::GetDeviceContext()->Unmap(debugBuffer, 0);
+		}*/
+
+
 		m_Weapons[0] = Model::Create("asset\\model\\baseball_bat.mgm");
 		m_Weapons[1] = Model::Create("asset\\model\\wooden_axe.mgm");
 		m_Weapons[2] = Model::Create("asset\\model\\crowbar.mgm");
@@ -296,30 +338,7 @@ public:
 		
 		//vertexIndexDivisions[0].Release();
 		//DynamicIndexDivision::Pad();
-
-		//DynamicIndexDivision::Update();
-
-		/*static ID3D11Buffer* debugBuffer = ([](unsigned int stride, unsigned int count) {
-			D3D11_BUFFER_DESC desc = {};
-			desc.Usage = D3D11_USAGE_STAGING;
-			desc.BindFlags = 0;
-			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-			desc.StructureByteStride = stride;
-			desc.ByteWidth = stride * count;
-			ID3D11Buffer* debugBuffer;
-			Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &debugBuffer);
-			return debugBuffer;
-			})(sizeof(UINT), 20000);
-
-		Renderer::GetDeviceContext()->CopySubresourceRegion(debugBuffer, 0, 0, 0, 0, DynamicIndexDivision::GetDataBuffer(), 0, nullptr);
-
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		if (Renderer::GetDeviceContext()->Map(debugBuffer, 0, D3D11_MAP_READ, 0, &mapped) == S_OK) {
-			UINT data[20000];
-			memcpy(data, mapped.pData, sizeof(UINT) * 20000);
-			Renderer::GetDeviceContext()->Unmap(debugBuffer, 0);
-		}*/
+		
 	}
 
 	void Uninit() override 

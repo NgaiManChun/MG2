@@ -8,7 +8,6 @@ namespace MG {
 	{
 		auto& component_pair = Component::s_Components<SpriteRenderer2D>[scene];
 		auto& sceneComponents = component_pair.components;
-		size_t& destoryedComponentIndex = component_pair.destoryedComponentIndex;
 		size_t size = sceneComponents.size();
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();

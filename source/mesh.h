@@ -78,8 +78,8 @@ namespace MG {
 			DRAW_INDEXED_INDIRECT_ARGS drawArgs{};
 			drawArgs.indexCountPerInstance = meshDesc.vertexIndexCount;
 			drawArgs.instanceCount = 0;
-			drawArgs.startIndexLocation = data.vertexIndexDivision.GetMetaData().offset;
-			drawArgs.baseVertexLocation = data.vertexDivision.GetMetaData().offset;
+			drawArgs.startIndexLocation = data.vertexIndexDivision.GetBookmarkData().offset;
+			drawArgs.baseVertexLocation = data.vertexDivision.GetBookmarkData().offset;
 			drawArgs.startInstanceLocation = 0;
 
 			if (s_EmptyIds.empty()) {

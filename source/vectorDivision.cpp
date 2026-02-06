@@ -1,5 +1,4 @@
 #include "vectorDivision.h"
-
 #include "renderer.h"
 #include "MGUtility.h"
 
@@ -9,7 +8,7 @@ namespace MG {
 	{
 		if (newCapcity < s_Meta.size()) return false;
 
-		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(META), newCapcity);
+		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newCapcity);
 		if (!newBuffer) return false;
 
 		ID3D11ShaderResourceView* newSrv = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
@@ -74,13 +73,13 @@ namespace MG {
 			return;
 		}
 
-		std::vector<META*> sortedMeta(s_Meta.size());
+		std::vector<BOOKMARK*> sortedMeta(s_Meta.size());
 		for (unsigned int i = 0; i < s_Meta.size(); i++) {
 			sortedMeta[i] = &s_Meta[i];
 		}
 
 		std::sort(sortedMeta.begin(), sortedMeta.end(),
-			[](META* a, META* b) {
+			[](BOOKMARK* a, BOOKMARK* b) {
 				return a->offset < b->offset;
 			}
 		);
@@ -106,7 +105,7 @@ namespace MG {
 		}
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-		D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(META) * s_Meta.size());
+		D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(BOOKMARK) * s_Meta.size());
 
 		// update meta
 		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
@@ -160,7 +159,7 @@ namespace MG {
 
 	VectorDivision VectorDivision::Create(unsigned int count, const Vector4* data) {
 		VectorDivision key{};
-		META meta{};
+		BOOKMARK meta{};
 		meta.offset = s_DataSize;
 		meta.count = count;
 
@@ -190,7 +189,7 @@ namespace MG {
 
 		// update meta
 		{
-			D3D11_BOX box = Renderer::GetRangeBox(sizeof(META) * key.m_Id, sizeof(META) * (key.m_Id + 1));
+			D3D11_BOX box = Renderer::GetRangeBox(sizeof(BOOKMARK) * key.m_Id, sizeof(BOOKMARK) * (key.m_Id + 1));
 			Renderer::GetDeviceContext()->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data() + key.m_Id, 0, 0);
 		}
 
@@ -205,7 +204,7 @@ namespace MG {
 	}
 
 	void VectorDivision::SetData(Vector4* data) {
-		META& meta = s_Meta[m_Id];
+		BOOKMARK& meta = s_Meta[m_Id];
 		D3D11_BOX box = Renderer::GetRangeBox(sizeof(Vector4) * meta.offset, sizeof(Vector4) * (meta.offset + meta.count));
 		Renderer::GetDeviceContext()->UpdateSubresource(s_DataBuffer, 0, &box, data, 0, 0);
 	}

@@ -1,11 +1,14 @@
 #include "MGUtility.h"
 #include "renderer.h"
 #include "sceneManager.h"
+
 #include "boneDivision.h"
 #include "dynamicIndexDivision.h"
 #include "matrixDivision.h"
-
 #include "transformDivision.h"
+#include "vertexBoneWeightDivision.h"
+
+
 #include "vertexDivision.h"
 #include "vertexIndexDivision.h"
 #include "animationFollower.h"
@@ -19,14 +22,6 @@ namespace MG {
 		MGUtility::SetScreenHeight(initSceneHeight);
 		MGUtility::SetFPS(initFPS);
 
-		// バッファ系
-		BoneDivision::Init();
-		TransformDivision::Init();
-		MatrixDivision::Init();
-
-		VertexDivision::Init();
-		VertexIndexDivision::Init();
-
 		SceneManager::Init();
 		SceneManager::AddScene(initScene);
 	}
@@ -38,10 +33,10 @@ namespace MG {
 		BoneDivision::Uninit();
 		DynamicIndexDivision::Uninit();
 		MatrixDivision::Uninit();
-
-		VertexIndexDivision::Uninit();
-		VertexDivision::Uninit();
 		TransformDivision::Uninit();
+		VertexBoneWeightDivision::Uninit();
+		VertexDivision::Uninit();
+		VertexIndexDivision::Uninit();
 		
 		AnimationFollower::Uninit();
 

@@ -539,6 +539,57 @@ namespace MG {
 		return newUAV;
 	}
 
+	ID3D11Buffer* Renderer::CreateByteAddressBuffer(unsigned int byteWidth, const void* data, unsigned int bindFlag)
+	{
+		ID3D11Buffer* newBuffer = nullptr;
+		D3D11_BUFFER_DESC desc = {};
+		desc.BindFlags = bindFlag;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.ByteWidth = byteWidth;
+		desc.StructureByteStride = 0;
+
+		if (data) {
+			D3D11_SUBRESOURCE_DATA subResourceData = {};
+			subResourceData.SysMemPitch = 0;
+			subResourceData.SysMemSlicePitch = 0;
+			subResourceData.pSysMem = data;
+
+			Renderer::GetDevice()->CreateBuffer(&desc, &subResourceData, &newBuffer);
+			return newBuffer;
+		}
+
+		Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &newBuffer);
+		return newBuffer;
+	}
+
+	ID3D11ShaderResourceView* Renderer::CreateByteAddressSRV(ID3D11Buffer* buffer, unsigned int byteWidth)
+	{
+		ID3D11ShaderResourceView* newSRV = nullptr;
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		srvDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+		srvDesc.BufferEx.NumElements = byteWidth / 4;
+		srvDesc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+		Renderer::GetDevice()->CreateShaderResourceView(buffer, &srvDesc, &newSRV);
+		return newSRV;
+	}
+
+	ID3D11UnorderedAccessView* Renderer::CreateByteAddressUAV(ID3D11Buffer* buffer, unsigned int byteWidth)
+	{
+		ID3D11UnorderedAccessView* newUAV = nullptr;
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+		uavDesc.Buffer.NumElements = byteWidth / 4;
+		uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+		Renderer::GetDevice()->CreateUnorderedAccessView(buffer, &uavDesc, &newUAV);
+		return newUAV;
+	}
+
+	
+
 	ID3D11Texture2D* Renderer::CreateTexture2D(unsigned int width, unsigned int height, DXGI_FORMAT format, unsigned int bindFlags)
 	{
 		ID3D11Texture2D* texture = nullptr;

@@ -519,7 +519,7 @@ namespace MG {
 					//meshConstant.boneDivisionId = meshData.boneDivision;
 					//meshConstant.vertexBoneWeightDivisionId = meshData.vertexBoneWeightDivision;
 					meshConstant.boneDivisionOffset = meshData.boneDivision.GetBookmarkData().offset;
-					meshConstant.vertexBoneWeightDivisionOffset = meshData.vertexBoneWeightDivision.GetMetaData().offset;
+					meshConstant.vertexBoneWeightDivisionOffset = meshData.vertexBoneWeightDivision.GetBookmarkData().offset;
 				}
 				
 				Renderer::SetMeshContant(meshConstant);

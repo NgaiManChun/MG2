@@ -46,14 +46,17 @@
     <Filter Include="ソース ファイル\Object">
       <UniqueIdentifier>{4c36fb15-e446-43e5-aa88-f9c0c4006cab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shader\PaddingCS">
-      <UniqueIdentifier>{a43ed9de-3ccf-4d32-a229-a6231729ed88}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Component\Collider">
       <UniqueIdentifier>{75532d33-8001-454a-9dc8-1677032204d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Component\Collider">
       <UniqueIdentifier>{1d292eaa-c495-46a1-8667-e30af82077a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\CS">
+      <UniqueIdentifier>{768db814-e807-4d31-8190-6ed3a2948382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\CS\PaddingCS">
+      <UniqueIdentifier>{a43ed9de-3ccf-4d32-a229-a6231729ed88}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -198,9 +201,6 @@
     <ClInclude Include="particleRenderer.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
-    <ClInclude Include="vectorDivision.h">
-      <Filter>ヘッダー ファイル\Buffer\Division</Filter>
-    </ClInclude>
     <ClInclude Include="collision.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -221,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="collider.h">
       <Filter>ヘッダー ファイル\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="buffer.h">
+      <Filter>ヘッダー ファイル\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="vectorDivision.h">
+      <Filter>ヘッダー ファイル\Buffer\Division</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +371,9 @@
     <ClCompile Include="collider.cpp">
       <Filter>ソース ファイル\Component\Collider</Filter>
     </ClCompile>
+    <ClCompile Include="buffer.cpp">
+      <Filter>ソース ファイル\Buffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MG.vcxproj" />
@@ -391,53 +400,59 @@
     <FxCompile Include="shader\fullScreenVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="shader\expandMeshInstanceCS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\animationCS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\frustumCullingCS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\offsetMeshInstanceCS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="shader\skyVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="shader\resetInstanceCountCS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="shader\spriteVS.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\particleUpdateCS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="shader\particleVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="shader\padVertexIndexCS.hlsl">
-      <Filter>shader\PaddingCS</Filter>
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
     <FxCompile Include="shader\padBoneCS.hlsl">
-      <Filter>shader\PaddingCS</Filter>
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
     <FxCompile Include="shader\padMatrixCS.hlsl">
-      <Filter>shader\PaddingCS</Filter>
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
     <FxCompile Include="shader\padTransformCS.hlsl">
-      <Filter>shader\PaddingCS</Filter>
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
     <FxCompile Include="shader\padVertexCS.hlsl">
-      <Filter>shader\PaddingCS</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\animationFollowCS.hlsl">
-      <Filter>shader</Filter>
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
     <FxCompile Include="shader\outlineGS.hlsl">
       <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\animationCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\animationFollowCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\expandMeshInstanceCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\frustumCullingCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\offsetMeshInstanceCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\particleUpdateCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\resetInstanceCountCS.hlsl">
+      <Filter>shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\padVertexBoneWeightCS.hlsl">
+      <Filter>shader\CS\PaddingCS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\paddingCS.hlsl">
+      <Filter>shader\CS\PaddingCS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

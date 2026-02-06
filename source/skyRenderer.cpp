@@ -121,9 +121,9 @@ namespace MG {
 			};
 			deviceContext->PSSetShaderResources(0, ARRAYSIZE(textureSRVs), textureSRVs);
 			
-			auto& vertexIndexData = meshData.vertexIndexDivision.GetMetaData();
+			auto& vertexIndexData = meshData.vertexIndexDivision.GetBookmarkData();
 
-			deviceContext->DrawIndexed(vertexIndexData.count, vertexIndexData.offset, meshData.vertexDivision.GetMetaData().offset);
+			deviceContext->DrawIndexed(vertexIndexData.count, vertexIndexData.offset, meshData.vertexDivision.GetBookmarkData().offset);
 
 		}
 

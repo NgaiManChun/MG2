@@ -45,7 +45,6 @@ namespace MG {
 	};
 
 	
-	
 	static constexpr const char MODEL_PREFIX[4] = "MGM";
 	static constexpr const char MODEL_VERSION[8] = "1.0";
 	static constexpr const char ANIMATION_PREFIX[4] = "MGA";
@@ -63,25 +62,6 @@ namespace MG {
 		size_t nodeNameSize;
 		size_t dataSize;
 	};
-	// 
-	// TEXTURE_META* textureMeta;
-	// unsigned char* textureData;
-	// 
-	// MATERIAL_DATA* materials;
-	// 
-	// VERTEX* vertexes;
-	// unsigned int* vertexIndexes;
-	// BONE* bones;
-	// VERTEX_BONE_WEIGHT* vertexBoneWeights;
-	// MESH_DATA* meshes;
-	// 
-	// Matrix4x4* nodeMatrixes;
-	// unsigned int* nodeParents;
-	// NODE_MESH_PAIR* nodeMeshPairs;
-	// char* nodeNames;
-	//
-	// 
-
 
 	struct TEXTURE_META
 	{
@@ -201,13 +181,6 @@ namespace MG {
 		size_t channelNameLength;
 		size_t dataSize;
 	};
-	// 
-	// ANIMATION_KEY_VECTOR* positionKeys;
-	// ANIMATION_KEY_VECTOR* scaleKeys;
-	// ANIMATION_KEY_QUATERNION* rotationKeys;
-	// ANIMATION_CHANNEL* channels;
-	// char* nodeNames;
-	//
 
 	struct DRAW_INDEXED_INDIRECT_ARGS {
 		unsigned int indexCountPerInstance;
@@ -240,6 +213,12 @@ namespace MG {
 	{
 		Vector3 min;
 		Vector3 max;
+	};
+
+	struct BOOKMARK {
+		unsigned int offset;
+		unsigned int count;
+		unsigned int padding;
 	};
 
 }; // namespace MG

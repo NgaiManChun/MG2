@@ -2,6 +2,7 @@
 #include <vector>
 #include <set>
 #include "vector4.h"
+#include "buffer.h"
 
 struct ID3D11Buffer;
 struct ID3D11ShaderResourceView;
@@ -10,13 +11,8 @@ struct ID3D11ComputeShader;
 
 namespace MG {
 	class VectorDivision {
-		struct META {
-			unsigned int offset;
-			unsigned int count;
-			unsigned int padding;
-		};
 	private:
-		static inline std::vector<META> s_Meta{};
+		static inline std::vector<BOOKMARK> s_Meta{};
 		static inline std::set<unsigned int> s_EmptyIds{};
 
 		static inline ID3D11Buffer* s_MetaBuffer = nullptr;
@@ -47,7 +43,7 @@ namespace MG {
 		unsigned int m_Id = UINT_MAX;
 	public:
 		void SetData(Vector4* data);
-		const META& GetMetaData() const { return s_Meta[m_Id]; }
+		const BOOKMARK& GetMetaData() const { return s_Meta[m_Id]; }
 
 		void Release() {
 			if (m_Id != UINT_MAX) {
