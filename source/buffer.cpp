@@ -72,14 +72,7 @@ namespace MG::Buffer {
 		ID3D11Buffer* returnBookmarkBuffer
 	)
 	{
-		static unsigned int s_BookmarkCapcity = 0;
-		static unsigned int s_DataCapcity = 0;
-		static ID3D11Buffer* s_BookmarkBuffer = nullptr;
-		static ID3D11Buffer* s_InputBuffer = nullptr;
-		static ID3D11Buffer* s_ResultBuffer = nullptr;
-		static ID3D11ShaderResourceView* s_BookmarkSRV = nullptr;
-		static ID3D11ShaderResourceView* s_InputSRV = nullptr;
-		static ID3D11UnorderedAccessView* s_ResultUAV = nullptr;
+		
 		static ID3D11ComputeShader* s_PaddingCS = Renderer::LoadComputeShader("complied_shader\\paddingCS.cso");
 
 		unsigned int bookmarkCount = bookmarks.size();
@@ -180,104 +173,6 @@ namespace MG::Buffer {
 
 		return dataCount - totalPad;
 	}
-
-	//unsigned int DivisionPadByCS(unsigned int stride, unsigned int dataCount, 
-	//	std::vector<BOOKMARK>& bookmarks, 
-	//	ID3D11Buffer* bookmarkBuffer,
-	//	ID3D11ShaderResourceView* bookmarkSRV,
-	//	ID3D11Buffer* dataBuffer,
-	//	ID3D11ShaderResourceView* dataSRV,
-	//	ID3D11ComputeShader* padCS
-	//	)
-	//{
-	//	// 結果用バッファを作成
-	//	ID3D11Buffer* resultBuffer = Renderer::CreateStructuredBuffer(
-	//		stride, dataCount,
-	//		nullptr,
-	//		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
-	//	);
-	//	ID3D11UnorderedAccessView* resultUAV = nullptr;
-	//	if (resultBuffer) {
-	//		resultUAV = Renderer::CreateStructuredUAV(resultBuffer, dataCount);
-	//	}
-	//	if (!resultUAV) {
-	//		SAFE_RELEASE(resultBuffer);
-	//		return dataCount;
-	//	}
-
-	//	// ソートしたブックマーク配列を作成
-	//	// ※ID順 != offset順
-	//	size_t bookmarkCount = bookmarks.size();
-	//	std::vector<BOOKMARK*> sortedBookmarks(bookmarkCount);
-	//	for (unsigned int i = 0; i < bookmarkCount; i++) {
-	//		sortedBookmarks[i] = &bookmarks[i];
-	//	}
-	//	std::sort(sortedBookmarks.begin(), sortedBookmarks.end(),
-	//		[](BOOKMARK* a, BOOKMARK* b) {
-	//			return a->offset < b->offset;
-	//		}
-	//	);
-
-	//	// データの移動数を計算
-	//	unsigned int last = 0;
-	//	unsigned int totalPad = 0;
-	//	for (unsigned int i = 0; i < sortedBookmarks.size(); i++) {
-	//		if (sortedBookmarks[i]->offset > last) {
-	//			unsigned int start = last;
-	//			unsigned int count = sortedBookmarks[i]->offset - last;
-	//			totalPad += count;
-	//			for (unsigned int j = i; j < sortedBookmarks.size(); j++) {
-	//				sortedBookmarks[j]->padding += count;
-	//			}
-	//		}
-	//		last = sortedBookmarks[i]->offset + sortedBookmarks[i]->count;
-	//	}
-
-	//	// 移動なしの場合即終了
-	//	if (totalPad == 0) {
-	//		SAFE_RELEASE(resultUAV);
-	//		SAFE_RELEASE(resultBuffer);
-	//		return dataCount;
-	//	}
-
-	//	ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-	//	D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(BOOKMARK) * bookmarkCount);
-
-	//	// データの移動数をブックマークに更新
-	//	deviceContext->UpdateSubresource(bookmarkBuffer, 0, &box, bookmarks.data(), 0, 0);
-
-	//	// データの移動（コンピュートシェーダ）
-	//	ID3D11ShaderResourceView* srvArray[] = {
-	//			bookmarkSRV,
-	//			dataSRV
-	//	};
-	//	CS_CONSTANT constant{ bookmarkCount };
-	//	deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
-	//	deviceContext->CSSetUnorderedAccessViews(0, 1, &resultUAV, nullptr);
-	//	Renderer::SetCSContant(constant);
-	//	deviceContext->CSSetShader(padCS, nullptr, 0);
-	//	deviceContext->Dispatch(static_cast<UINT>(ceil((float)bookmarkCount / 64)), 1, 1);
-
-	//	// UAV解除
-	//	ID3D11UnorderedAccessView* nullUAV[] = { nullptr , nullptr };
-	//	deviceContext->CSSetUnorderedAccessViews(0, 2, nullUAV, nullptr);
-
-	//	// 結果を元バッファにコピー
-	//	Renderer::GetDeviceContext()->CopySubresourceRegion(dataBuffer, 0, 0, 0, 0, resultBuffer, 0, nullptr);
-
-	//	// 移動後のブックマークデータを更新
-	//	for (unsigned int i = 0; i < bookmarkCount; i++) {
-	//		bookmarks[i].offset -= bookmarks[i].padding;
-	//		bookmarks[i].padding = 0;
-	//	}
-	//	deviceContext->UpdateSubresource(bookmarkBuffer, 0, &box, bookmarks.data(), 0, 0);
-
-	//	SAFE_RELEASE(resultUAV);
-	//	SAFE_RELEASE(resultBuffer);
-
-	//	return dataCount - totalPad;
-
-	//}
 	
 } // namespace MG::Buffer
 

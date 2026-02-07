@@ -1,6 +1,8 @@
 #include "renderer.h"
 #include <io.h>
 #include "MGUtility.h"
+#include "csvResource.h"
+#include <unordered_map>
 
 #include <dxgi1_6.h>
 #include <d3d11.h>
@@ -291,25 +293,22 @@ namespace MG {
 		s_DeviceContext->CSSetConstantBuffers(7, 1, &s_TimeConstantBuffer);
 		
 
+		{
+
+			enum VERTEX_SHADER {
+				VERTEX_SHADER_MODEL
+			};
+
+			auto shaderSet = Renderer::LoadVertexShaderSet("complied_shader\\modelVS.cso", "inputLayout\\general.csv");
+			s_VertexShaderSets[VERTEX_SHADER_MODEL] = { shaderSet.vertexShader, shaderSet.inputLayout };
+		}
+
 		// シェーダ
 		{
 			auto shaderSet = Renderer::LoadVertexShader("complied_shader\\textureCopyVS.cso", nullptr, 0);
 			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\textureCopyPS.cso");
 			s_Shaders[SHADER_TYPE_TEXTURE_COPY] = shaderSet;
 
-			/*
-			struct VS_IN
-			{
-				float3 position : POSITION0;
-				float3 normal : NORMAL0;
-				float3 tangent : TANGENT0;
-				float3 bitangent : BINORMAL0;
-				float2 texCoord : TEXCOORD0;
-				float4 color : COLOR0;
-    
-				uint vertexId : SV_VertexID;
-			};
-			*/
 			D3D11_INPUT_ELEMENT_DESC layout[] =
 			{
 				{ "POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0,  0,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -319,7 +318,7 @@ namespace MG {
 				{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,		0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				{ "COLOR",			0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			};
-			shaderSet = Renderer::LoadVertexShader("complied_shader\\unlitTextureVS.cso", layout, ARRAYSIZE(layout));
+			shaderSet = Renderer::LoadVertexShader("complied_shader\\modelVS.cso", layout, ARRAYSIZE(layout));
 			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\unlitTexturePS.cso");
 			s_Shaders[SHADER_TYPE_UNLIT] = shaderSet;
 
@@ -689,6 +688,56 @@ namespace MG {
 		return shaderSet;
 	}
 
+	VERTEX_SHADER_SET Renderer::LoadVertexShaderSet(const char* filename, const char* layoutCSV)
+	{
+		ID3D11VertexShader* vertexShader = nullptr;
+		ID3D11InputLayout* inputLayout = nullptr;
+
+		FILE* file;
+		long int fsize;
+
+		file = fopen(filename, "rb");
+		assert(file);
+
+		fsize = _filelength(_fileno(file));
+		unsigned char* buffer = new unsigned char[fsize];
+		fread(buffer, fsize, 1, file);
+		fclose(file);
+
+		s_Device->CreateVertexShader(buffer, fsize, NULL, &vertexShader);
+
+		if (layoutCSV) {
+			CSVResource csv(layoutCSV);
+			std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
+
+			for (auto row : csv.WithoutHeader()) {
+				D3D11_INPUT_ELEMENT_DESC element{};
+				element.SemanticName = row["SemanticName"];
+				element.SemanticIndex = row["SemanticIndex"];
+				element.Format = GetDXGIFormatByName(row["Format"]);
+				element.InputSlot = row["InputSlot"];
+				element.AlignedByteOffset = row["AlignedByteOffset"];
+				element.InputSlotClass = GetInputClassByName(row["InputSlotClass"]);
+				element.InstanceDataStepRate = row["InstanceDataStepRate"];
+				layoutElements.push_back(element);
+			}
+
+			s_Device->CreateInputLayout(layoutElements.data(),
+				layoutElements.size(),
+				buffer,
+				fsize,
+				&inputLayout);
+		}
+
+		delete[] buffer;
+
+		VERTEX_SHADER_SET vertexShaderSet{};
+		vertexShaderSet.vertexShader = vertexShader;
+		vertexShaderSet.inputLayout = inputLayout;
+
+		return vertexShaderSet;
+	}
+
 	ID3D11PixelShader* Renderer::LoadPixelShader(const char* filename)
 	{
 		ID3D11PixelShader* pixelShader = nullptr;
@@ -758,6 +807,68 @@ namespace MG {
 	void Renderer::SetMainRenderTarget()
 	{
 		s_DeviceContext->OMSetRenderTargets(1, &s_RenderTargetView, s_DepthStencilView);
+	}
+
+	D3D11_INPUT_CLASSIFICATION Renderer::GetInputClassByName(const char* name)
+	{
+		static std::unordered_map<std::string, D3D11_INPUT_CLASSIFICATION> inputClasses{
+			{ "D3D11_INPUT_PER_VERTEX_DATA", D3D11_INPUT_PER_VERTEX_DATA },
+			{ "D3D11_INPUT_PER_INSTANCE_DATA", D3D11_INPUT_PER_INSTANCE_DATA }
+		};
+		if (inputClasses.count(name) > 0) {
+			return inputClasses[name];
+		}
+		return D3D11_INPUT_PER_VERTEX_DATA;
+	}
+
+	DXGI_FORMAT Renderer::GetDXGIFormatByName(const char* name)
+	{
+		static std::unordered_map<std::string, DXGI_FORMAT> formats{
+			{ "DXGI_FORMAT_UNKNOWN", DXGI_FORMAT_UNKNOWN },
+			{ "DXGI_FORMAT_R32G32B32A32_TYPELESS", DXGI_FORMAT_R32G32B32A32_TYPELESS },
+			{ "DXGI_FORMAT_R32G32B32A32_FLOAT",    DXGI_FORMAT_R32G32B32A32_FLOAT },
+			{ "DXGI_FORMAT_R32G32B32A32_UINT",     DXGI_FORMAT_R32G32B32A32_UINT },
+			{ "DXGI_FORMAT_R32G32B32A32_SINT",     DXGI_FORMAT_R32G32B32A32_SINT },
+			{ "DXGI_FORMAT_R32G32B32_TYPELESS", DXGI_FORMAT_R32G32B32_TYPELESS },
+			{ "DXGI_FORMAT_R32G32B32_FLOAT",    DXGI_FORMAT_R32G32B32_FLOAT },
+			{ "DXGI_FORMAT_R32G32B32_UINT",     DXGI_FORMAT_R32G32B32_UINT },
+			{ "DXGI_FORMAT_R32G32B32_SINT",     DXGI_FORMAT_R32G32B32_SINT },
+			{ "DXGI_FORMAT_R16G16B16A16_TYPELESS", DXGI_FORMAT_R16G16B16A16_TYPELESS },
+			{ "DXGI_FORMAT_R16G16B16A16_FLOAT",    DXGI_FORMAT_R16G16B16A16_FLOAT },
+			{ "DXGI_FORMAT_R16G16B16A16_UNORM",    DXGI_FORMAT_R16G16B16A16_UNORM },
+			{ "DXGI_FORMAT_R16G16B16A16_UINT",     DXGI_FORMAT_R16G16B16A16_UINT },
+			{ "DXGI_FORMAT_R16G16B16A16_SNORM",    DXGI_FORMAT_R16G16B16A16_SNORM },
+			{ "DXGI_FORMAT_R16G16B16A16_SINT",     DXGI_FORMAT_R16G16B16A16_SINT },
+			{ "DXGI_FORMAT_R32G32_TYPELESS", DXGI_FORMAT_R32G32_TYPELESS },
+			{ "DXGI_FORMAT_R32G32_FLOAT",    DXGI_FORMAT_R32G32_FLOAT },
+			{ "DXGI_FORMAT_R32G32_UINT",     DXGI_FORMAT_R32G32_UINT },
+			{ "DXGI_FORMAT_R32G32_SINT",     DXGI_FORMAT_R32G32_SINT },
+			{ "DXGI_FORMAT_R32_TYPELESS", DXGI_FORMAT_R32_TYPELESS },
+			{ "DXGI_FORMAT_R32_FLOAT",    DXGI_FORMAT_R32_FLOAT },
+			{ "DXGI_FORMAT_R32_UINT",     DXGI_FORMAT_R32_UINT },
+			{ "DXGI_FORMAT_R32_SINT",     DXGI_FORMAT_R32_SINT },
+			{ "DXGI_FORMAT_R16_TYPELESS", DXGI_FORMAT_R16_TYPELESS },
+			{ "DXGI_FORMAT_R16_FLOAT",    DXGI_FORMAT_R16_FLOAT },
+			{ "DXGI_FORMAT_R16_UNORM",    DXGI_FORMAT_R16_UNORM },
+			{ "DXGI_FORMAT_R16_UINT",     DXGI_FORMAT_R16_UINT },
+			{ "DXGI_FORMAT_R16_SNORM",    DXGI_FORMAT_R16_SNORM },
+			{ "DXGI_FORMAT_R16_SINT",     DXGI_FORMAT_R16_SINT },
+			{ "DXGI_FORMAT_R8_TYPELESS", DXGI_FORMAT_R8_TYPELESS },
+			{ "DXGI_FORMAT_R8_UNORM",    DXGI_FORMAT_R8_UNORM },
+			{ "DXGI_FORMAT_R8_UINT",     DXGI_FORMAT_R8_UINT },
+			{ "DXGI_FORMAT_R8_SNORM",    DXGI_FORMAT_R8_SNORM },
+			{ "DXGI_FORMAT_R8_SINT",     DXGI_FORMAT_R8_SINT },
+			{ "DXGI_FORMAT_A8_UNORM", DXGI_FORMAT_A8_UNORM },
+			{ "DXGI_FORMAT_B8G8R8A8_UNORM",       DXGI_FORMAT_B8G8R8A8_UNORM },
+			{ "DXGI_FORMAT_B8G8R8A8_TYPELESS",    DXGI_FORMAT_B8G8R8A8_TYPELESS },
+			{ "DXGI_FORMAT_B8G8R8A8_UNORM_SRGB",  DXGI_FORMAT_B8G8R8A8_UNORM_SRGB },
+			{ "DXGI_FORMAT_FORCE_UINT", DXGI_FORMAT_FORCE_UINT },
+		};
+
+		if (formats.count(name) > 0) {
+			return formats[name];
+		}
+		return DXGI_FORMAT_UNKNOWN;
 	}
 } // namespace MG
 

@@ -72,6 +72,7 @@ namespace MG {
 
 		static inline ID3D11Texture2D* s_DepthTexture = nullptr;
 		static inline ID3D11DepthStencilView* s_DSV = nullptr;
+		static inline ID3D11ShaderResourceView* s_DepthSRV = nullptr;
 		
 		static inline ID3D11Buffer* s_DebugBuffer = nullptr;
 		

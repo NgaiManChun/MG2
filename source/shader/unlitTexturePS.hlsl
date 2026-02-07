@@ -14,7 +14,7 @@ void main(in PS_IN In, out float4 outColor : SV_Target0, out float4 outNormal : 
     outColor *= MaterialArray[In.materialId].base;
     clip(outColor.a - 0.01f);
     outNormal = float4(normalize(In.normal), 1.0f);
-    outWorld = float4(In.worldPosition.xyz, 1.0f);
+    outWorld = In.worldPosition;
     
 
 }

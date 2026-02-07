@@ -115,8 +115,16 @@ namespace MG {
 		s_DirectionalShadowRTV = Renderer::CreateTextureRTV(s_DirectionalShadowTexture);*/
 		
 
-		s_DepthTexture = Renderer::CreateTexture2D(MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight(), DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_BIND_DEPTH_STENCIL);
-		s_DSV = Renderer::CreateTextureDSV(s_DepthTexture);
+		/*s_DepthTexture = Renderer::CreateTexture2D(
+			MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight(), 
+			DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_BIND_DEPTH_STENCIL
+		);*/
+		s_DepthTexture = Renderer::CreateTexture2D(
+			MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight(),
+			DXGI_FORMAT_R24G8_TYPELESS, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
+		);
+		s_DSV = Renderer::CreateTextureDSV(s_DepthTexture, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		s_DepthSRV = Renderer::CreateTextureSRV(s_DepthTexture, DXGI_FORMAT_R24_UNORM_X8_TYPELESS);
 	}
 
 	void ModelRenderer::StaticUninit()
@@ -666,7 +674,7 @@ namespace MG {
 				s_NormalRTV,
 				s_WorldPositionRTV
 			};
-			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, Renderer::GetMainDepthStencilView());
+			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, s_DSV);
 
 
 			Renderer::SetViewport(static_cast<float>(MGUtility::GetScreenWidth()), static_cast<float>(MGUtility::GetScreenHeight()));
@@ -693,7 +701,8 @@ namespace MG {
 			s_ColorSRV,
 			s_NormalSRV,
 			s_WorldPositionSRV,
-			s_DirectionalShadowSRV
+			s_DirectionalShadowSRV,
+			s_DepthSRV
 		};
 		deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 

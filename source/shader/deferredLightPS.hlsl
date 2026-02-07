@@ -5,6 +5,7 @@ Texture2D ColorTexture : register(t0);
 Texture2D NormalTexture : register(t1);
 Texture2D WorldPositionTexture : register(t2);
 Texture2D DirectionalShadowMapTexture : register(t3);
+Texture2D DepthTexture : register(t4);
 
 void main(in PS_IN In, out float4 outColor : SV_Target)
 {
@@ -72,6 +73,25 @@ void main(in PS_IN In, out float4 outColor : SV_Target)
     //light *= (abs(dot(cameraV, normal)) < 0.4f) ? 0.1f : 1.0f;
     //light *= (dot(-cameraV, normal) < 0.05f) ? 0.1f : 1.0f;
     
-        outColor.rgb *= light;
+    outColor.rgb *= light;
+
+    //float4 fog = float4(0.3f, 0.3f, 0.3f, 400.0f);
+    
+    //float depth = DepthTexture.Sample(SamplerState0, In.texCoord).r;
+    //float near = 0.1f;
+    //float far = ProjectionFar;
+    //float distance = (near * far) / (far - depth * (far - near));
+    ////if (distance > 20.0f)
+    ////{
+    ////    outColor.rgb += float3(0.0f, 1.0f, 0.0f);
+    ////}
+    
+
+    //outColor.rgb += fog.rgb * saturate(distance / fog.w);
+    //if (outColor.a == 0.0f)
+    //{
+    //    outColor.a = 0.2f;
+    //    outColor.rgb = 1.0f;
+    //}
 
 }

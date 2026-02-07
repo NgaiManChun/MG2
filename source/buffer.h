@@ -15,6 +15,15 @@ operator unsigned int() const { return m_Id; }
 
 namespace MG::Buffer {
 
+	static inline unsigned int s_BookmarkCapcity = 0;
+	static inline unsigned int s_DataCapcity = 0;
+	static inline ID3D11Buffer* s_BookmarkBuffer = nullptr;
+	static inline ID3D11Buffer* s_InputBuffer = nullptr;
+	static inline ID3D11Buffer* s_ResultBuffer = nullptr;
+	static inline ID3D11ShaderResourceView* s_BookmarkSRV = nullptr;
+	static inline ID3D11ShaderResourceView* s_InputSRV = nullptr;
+	static inline ID3D11UnorderedAccessView* s_ResultUAV = nullptr;
+
 	bool NewVertexBufferCopy(unsigned int stride, unsigned int capcity, ID3D11Buffer*& buffer);
 	bool NewBufferCopy(unsigned int stride, unsigned int capcity, ID3D11Buffer*& buffer, ID3D11ShaderResourceView*& srv);
 	bool NewBufferCopy(unsigned int stride, unsigned int capcity, ID3D11Buffer*& buffer, ID3D11ShaderResourceView*& srv, ID3D11UnorderedAccessView*& uav);
@@ -26,15 +35,5 @@ namespace MG::Buffer {
 		ID3D11Buffer* dataBuffer,
 		ID3D11Buffer* returnBookmarkBuffer = nullptr
 	);
-
-	
-	/*unsigned int DivisionPadByCS(unsigned int stride, unsigned int dataCount,
-		std::vector<BOOKMARK>& bookmarks,
-		ID3D11Buffer* bookmarkBuffer,
-		ID3D11ShaderResourceView* bookmarkSRV,
-		ID3D11Buffer* dataBuffer,
-		ID3D11ShaderResourceView* dataSRV,
-		ID3D11ComputeShader* padCS
-	);*/
 
 } // namespace MG::Buffer

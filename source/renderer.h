@@ -19,7 +19,6 @@ namespace MG {
 		UINT forceLOD;
 		XMFLOAT3 cameraForward;
 		XMFLOAT4 frustumPoints[4];
-		//UINT flags[2];
 	};
 
 	struct LIGHT_CONSTANT
@@ -117,6 +116,11 @@ namespace MG {
 		RASTERIZER_STATE_MAX
 	};
 
+	struct VERTEX_SHADER_SET {
+		ID3D11VertexShader* vertexShader;
+		ID3D11InputLayout* inputLayout;
+	};
+
 	struct SHADER_SET {
 		ID3D11VertexShader* vertexShader;
 		ID3D11PixelShader* pixelShader;
@@ -131,12 +135,6 @@ namespace MG {
 		SHADER_TYPE_DEFERRED_LIGHT
 	};
 
-	
-
-
-	typedef unsigned int TEXTURE_SLOT;
-
-	
 	// カスタムノードアトリビュート(instance)
 	const constexpr unsigned int INSTANCE_TYPE_NONE = (0);
 	const constexpr unsigned int INSTANCE_TYPE_COLLISION_POINT = (0xFFFF);
@@ -145,14 +143,6 @@ namespace MG {
 	const constexpr unsigned int INSTANCE_TYPE_COLLISION_BOX = (0xFFFC);
 	const constexpr unsigned int INSTANCE_TYPE_COLLISION_CAPSULE = (0xFFFB);
 
-	const constexpr unsigned int SLOT_DYNAMIC_MATRIX = 0;
-	const constexpr unsigned int SLOT_MATERIAL = 1;
-	const constexpr unsigned int SLOT_MODEL_INSTANCE = 2;
-	const constexpr unsigned int SLOT_MODEL_INSTANCE_MATERIALS = 3;
-	const constexpr unsigned int SLOT_NODE_MATRIX = 4;
-	const constexpr unsigned int SLOT_MESH_INSTANCE = 5;
-
-	const constexpr unsigned int SLOT_TEXTURE = 10;
 
 	class Renderer
 	{
@@ -176,21 +166,18 @@ namespace MG {
 		static inline ID3D11Buffer* s_ParticleConstantBuffer = nullptr;
 		static inline ID3D11Buffer* s_TimeConstantBuffer = nullptr;
 		
-
 		// 各種ステート
 		static inline ID3D11DepthStencilState* s_DepthStates[DEPTH_STATE_MAX];
 		static inline ID3D11BlendState* s_BlendStates[BLEND_STATE_MAX];
 		static inline ID3D11RasterizerState* s_RasterizerStates[RASTERIZER_STATE_MAX];
 
+
+		static inline std::unordered_map<size_t, VERTEX_SHADER_SET> s_VertexShaderSets{};
+		static inline std::unordered_map<size_t, ID3D11PixelShader*> s_PixelShaders{};
+		static inline std::unordered_map<size_t, ID3D11ComputeShader*> s_ComputeShaders{};
+		static inline std::unordered_map<size_t, ID3D11InputLayout*> s_InputLayouts{};
+
 		static inline std::unordered_map<SHADER_TYPE, SHADER_SET> s_Shaders{};
-		
-		static inline D3D11_INPUT_ELEMENT_DESC s_Layout[] =
-		{
-			{ "MESHID",			0, DXGI_FORMAT_R32_UINT, 0,	 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			{ "MODELINSTANCEID",0, DXGI_FORMAT_R32_UINT, 0,	 4, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			{ "LOCALID",		0, DXGI_FORMAT_R32_UINT, 0,	12, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			{ "MATERIALID",		0, DXGI_FORMAT_R32_UINT, 0,	16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		};
 
 	public:
 
@@ -254,11 +241,15 @@ namespace MG {
 
 		static SHADER_SET GetShaderSet(SHADER_TYPE type) { return s_Shaders[type]; }
 		static SHADER_SET LoadVertexShader(const char* filename, D3D11_INPUT_ELEMENT_DESC* layout, UINT numElements);
+		static VERTEX_SHADER_SET LoadVertexShaderSet(const char* filename, const char* layoutCSV);
 		static ID3D11PixelShader* LoadPixelShader(const char* filename);
 		static ID3D11ComputeShader* LoadComputeShader(const char* filename);
 		static ID3D11GeometryShader* LoadGeometryShader(const char* filename);
 
 		static void SetMainRenderTarget();
+
+		static D3D11_INPUT_CLASSIFICATION GetInputClassByName(const char* name);
+		static DXGI_FORMAT GetDXGIFormatByName(const char* name);
 
 	};
 } // namespace MG

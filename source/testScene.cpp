@@ -18,6 +18,7 @@
 #include "spotLight.h"
 #include "boxCollider.h"
 #include "sphereCollider.h"
+#include "csvResource.h"
 
 using namespace MG;
 
@@ -44,6 +45,8 @@ private:
 	std::vector<Vector3> m_EnemyDirections;
 public:
 	void Init() override {
+
+		
 
 		/*Matrix4x4 data[3] = { Matrix4x4{}, Matrix4x4{}, Matrix4x4{} };
 		MatrixDivision d0 = MatrixDivision::Create(3, data);
