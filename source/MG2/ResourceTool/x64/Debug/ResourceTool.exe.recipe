@@ -2,10 +2,62 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\x64\Debug\ResourceTool.exe</FullPath>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\ResourceTool.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
-  <ContentFiles />
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\animationCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\animationFollowCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\expandMeshInstanceCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\frustumCullingCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\offsetMeshInstanceCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\outlineGS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\paddingCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\particleUpdateCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\particleVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\resetInstanceCountCS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\skyVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\spriteVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\testPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\modelVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\deferredLightPS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\fullScreenVS.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\jun_n\Desktop\GitHub\MG2\source\MG2Game\x64\Debug\complied_shader\unlitTexturePS.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
   <SatelliteDlls />
   <NonRecipeFileRefs />
 </Project>

@@ -43,5 +43,7 @@ int main(int argc, char* argv[])
 		resource.Add(path.string().data(), name.data());
 	}
 
+	resource.Write(inputDir);
+
 	return 0;
 }
