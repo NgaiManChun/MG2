@@ -173,6 +173,18 @@ namespace MG::Buffer {
 
 		return dataCount - totalPad;
 	}
+
+	void Uninit()
+	{
+		SAFE_RELEASE(s_BookmarkSRV);
+		SAFE_RELEASE(s_InputSRV);
+		SAFE_RELEASE(s_ResultUAV);
+		SAFE_RELEASE(s_BookmarkBuffer);
+		SAFE_RELEASE(s_InputBuffer);
+		SAFE_RELEASE(s_ResultBuffer);
+		s_BookmarkCapcity = 0;
+		s_DataCapcity = 0;
+	}
 	
 } // namespace MG::Buffer
 

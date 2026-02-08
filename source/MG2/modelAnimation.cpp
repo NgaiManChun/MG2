@@ -6,13 +6,14 @@
 
 namespace MG {
 
-
 	void ModelAnimation::Uninit()
 	{
 		SAFE_RELEASE(s_SRV);
 		SAFE_RELEASE(s_Buffer);
 		s_Data.clear();
 		s_EmptyIds.clear();
+		s_Capcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 	void ModelAnimation::Update()
@@ -29,6 +30,7 @@ namespace MG {
 				}
 			}
 		}
+
 		if (s_NeedUpdateBuffer && s_SRV) {
 			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DATA) * s_Data.size());
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);
@@ -49,11 +51,11 @@ namespace MG {
 		data.duration = animation.GetDuration();
 		data.loop = loop;
 
+		// ˜A‘±Transform‚ğì¬
 		std::vector<TRANSFORM> transforms(data.nodeCount * data.frameCount);
 		auto& animationData = animation.GetData();
 		auto& channels = animationData.channels;
 		auto& namedNodeIndexes = model.GetData().namedNodeIndexes;
-
 		for (unsigned int frame = 0; frame < data.frameCount; frame++) {
 			unsigned int frameOffset = frame * data.nodeCount;
 			for (auto& channel : channels) {

@@ -129,9 +129,6 @@
     <ClInclude Include="model.h">
       <Filter>ヘッダー ファイル\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="dataType.h">
-      <Filter>ヘッダー ファイル\Buffer</Filter>
-    </ClInclude>
     <ClInclude Include="texture.h">
       <Filter>ヘッダー ファイル\Buffer</Filter>
     </ClInclude>
@@ -230,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="spotLight.h">
       <Filter>Backup</Filter>
+    </ClInclude>
+    <ClInclude Include="dataType.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

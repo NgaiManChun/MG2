@@ -7,7 +7,6 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
-#include "dataType.h"
 #include "buffer.h"
 
 namespace MG {

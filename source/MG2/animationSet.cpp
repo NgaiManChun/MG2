@@ -4,27 +4,27 @@
 
 namespace MG {
 
-
 	void AnimationSet::Uninit()
 	{
 		SAFE_RELEASE(s_SRV);
 		SAFE_RELEASE(s_Buffer);
-
 		SAFE_RELEASE(s_ResultSRV);
 		SAFE_RELEASE(s_ResultUAV);
 		SAFE_RELEASE(s_ResultBuffer);
-
 		s_Data.clear();
 		s_EmptyIds.clear();
+		s_Capcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 	void AnimationSet::Update()
 	{
 		if (s_NeedUpdateBuffer) {
+
+			// バッファ確保
 			if (s_Data.capacity() > s_Capcity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_Buffer);
-
 				SAFE_RELEASE(s_ResultSRV);
 				SAFE_RELEASE(s_ResultUAV);
 				SAFE_RELEASE(s_ResultBuffer);
@@ -36,7 +36,7 @@ namespace MG {
 					s_NeedUpdateBuffer = false;
 				}
 
-				s_ResultBuffer = Renderer::CreateStructuredBuffer(sizeof(RESULT), s_Data.capacity(), nullptr, 
+				s_ResultBuffer = Renderer::CreateStructuredBuffer(RESULT_STRIDE, s_Data.capacity(), nullptr,
 					D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
 				if (s_ResultBuffer) {
 					s_ResultSRV = Renderer::CreateStructuredSRV(s_ResultBuffer, s_Data.capacity());
@@ -44,6 +44,7 @@ namespace MG {
 				}
 			}
 		}
+
 		if (s_NeedUpdateBuffer && s_SRV) {
 			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DATA) * s_Data.size());
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);

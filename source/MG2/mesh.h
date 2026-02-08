@@ -1,15 +1,16 @@
+// =======================================================
+// mesh.h
+// 
+// メッシュのバッファ
+// =======================================================
 #pragma once
 #include <vector>
 #include <set>
-#include "dataType.h"
 #include "vertexDivision.h"
 #include "vertexIndexDivision.h"
 #include "boneDivision.h"
 #include "vertexBoneWeightDivision.h"
-
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
-struct ID3D11UnorderedAccessView;
+#include "buffer.h"
 
 namespace MG {
 	class Mesh {
@@ -23,15 +24,12 @@ namespace MG {
 			Vector3 max;
 			BoneDivision boneDivision;
 			VertexBoneWeightDivision vertexBoneWeightDivision;
-			//bool hasBone;
-			//bool enabled;
 		};
 		
 	private:
 		static inline std::vector<DATA> s_Data;
 		static inline std::vector<DRAW_INDEXED_INDIRECT_ARGS> s_DrawArgs;
 		static inline std::set<unsigned int> s_EmptyIds{};
-
 		static inline ID3D11Buffer* s_DrawArgsBuffer = nullptr;
 		static inline ID3D11UnorderedAccessView* s_DrawArgsUAV = nullptr;
 		static inline ID3D11ShaderResourceView* s_DrawArgsSRV = nullptr;
@@ -40,23 +38,12 @@ namespace MG {
 		static inline bool s_NeedUpdateBuffer = false;
 
 	public:
-		static ID3D11Buffer* GetDrawArgsBuffer() {
-			return s_DrawArgsBuffer;
-		}
-		static ID3D11UnorderedAccessView* GetDrawArgsUAV() {
-			return s_DrawArgsUAV;
-		}
-		static ID3D11ShaderResourceView* GetDrawArgsSRV() {
-			return s_DrawArgsSRV;
-		}
-		static ID3D11Buffer* GetDrawArgsIndirectBuffer() {
-			return s_DrawArgsIndirectBuffer;
-		}
-		static unsigned int GetDrawArgsCount() {
-			return static_cast<unsigned int>(s_DrawArgs.size());
-		}
-		static void Update();
-		static void Uninit();
+		static ID3D11Buffer* GetDrawArgsBuffer() { return s_DrawArgsBuffer; }
+		static ID3D11UnorderedAccessView* GetDrawArgsUAV() { return s_DrawArgsUAV; }
+		static ID3D11ShaderResourceView* GetDrawArgsSRV() { return s_DrawArgsSRV; }
+		static ID3D11Buffer* GetDrawArgsIndirectBuffer() { return s_DrawArgsIndirectBuffer; }
+		static unsigned int GetDrawArgsCount() { return static_cast<unsigned int>(s_DrawArgs.size()); }
+		
 		static Mesh Create(const MESH_DESC& meshDesc) {
 			Mesh key = {};
 
@@ -71,10 +58,8 @@ namespace MG {
 				data.boneDivision = BoneDivision::Create(meshDesc.boneCount, meshDesc.bones);
 				data.vertexBoneWeightDivision = VertexBoneWeightDivision::Create(meshDesc.vertexCount, meshDesc.vertexBoneWeights);
 			}
-			
-			//data.hasBone = (meshDesc.boneCount > 0);
-			//data.enabled = true;
 
+			// メッシュ分のIndirectArgsを用意する
 			DRAW_INDEXED_INDIRECT_ARGS drawArgs{};
 			drawArgs.indexCountPerInstance = meshDesc.vertexIndexCount;
 			drawArgs.instanceCount = 0;
@@ -96,15 +81,21 @@ namespace MG {
 			s_NeedUpdateBuffer = true;
 			return key;
 		}
+
+		static void Update();
+		static void Uninit();
+
 	private:
 		unsigned int m_Id = UINT_MAX;
+
 	public:
+		BUFFER_HANDLE_OPERATOR(Mesh)
 
 		const DATA& GetData() const { return s_Data[m_Id]; }
-
 		const DRAW_INDEXED_INDIRECT_ARGS& GetArgs() const { return s_DrawArgs[m_Id]; }
 
-		void Release() {
+		void Release() 
+		{
 			if (m_Id != UINT_MAX) {
 				s_Data[m_Id].vertexDivision.Release();
 				s_Data[m_Id].vertexIndexDivision.Release();
@@ -116,14 +107,6 @@ namespace MG {
 				s_EmptyIds.insert(m_Id);
 				m_Id = UINT_MAX;
 			}
-		}
-
-		operator bool() const {
-			return m_Id != UINT_MAX;
-		}
-
-		operator unsigned int() const {
-			return m_Id;
 		}
 	};
 

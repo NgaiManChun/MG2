@@ -7,11 +7,14 @@
 #include "matrixDivision.h"
 #include "transformDivision.h"
 #include "vertexBoneWeightDivision.h"
-
-
 #include "vertexDivision.h"
 #include "vertexIndexDivision.h"
+#include "animation.h"
 #include "animationFollower.h"
+#include "animationSet.h"
+#include "dynamicMatrix.h"
+
+#include "buffer.h"
 
 namespace MG {
 	void Setup(HWND hWnd, const char* initScene, unsigned int initSceneWidth, unsigned int initSceneHeight, unsigned int initFPS) {
@@ -37,8 +40,13 @@ namespace MG {
 		VertexBoneWeightDivision::Uninit();
 		VertexDivision::Uninit();
 		VertexIndexDivision::Uninit();
-		
+		Animation::Uninit();
 		AnimationFollower::Uninit();
+		AnimationSet::Uninit();
+		DynamicMatrix::Uninit();
+		Material::Uninit();
+
+		Buffer::Uninit();
 
 		Renderer::Uninit();
 	}

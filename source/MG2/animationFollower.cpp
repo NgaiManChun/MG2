@@ -17,8 +17,9 @@ namespace MG {
 	void AnimationFollower::Update()
 	{
 		if (s_NeedUpdateBuffer) {
+
+			// バッファ確保
 			if (s_Data.capacity() > s_Capcity) {
-				// バッファ確保
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_Buffer);
 				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), s_Data.capacity(), s_Data.data());

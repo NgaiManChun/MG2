@@ -8,12 +8,23 @@ StructuredBuffer<MATERIAL> MaterialArray : register(t3);
 
 void main(in PS_IN In, out float4 outColor : SV_Target0, out float4 outNormal : SV_Target1, out float4 outWorld : SV_Target2)
 {
+    MATERIAL material = MaterialArray[In.materialId];
     outColor = In.color;
-    outColor *= BaseTexture.Sample(SamplerState0, In.texCoord);
-    outColor.a *= OpacityTexture.Sample(SamplerState0, In.texCoord).a;
-    outColor *= MaterialArray[In.materialId].base;
+    outColor *= material.base;
+    
+    if (material.baseTextureId != 0xffffffff)
+    {
+        outColor *= BaseTexture.Sample(SamplerState0, In.texCoord);
+    }
+    
+    if (material.opacityTextureId != 0xffffffff)
+    {
+        outColor.a *= OpacityTexture.Sample(SamplerState0, In.texCoord).a;
+    }
     clip(outColor.a - 0.01f);
+    
     outNormal = float4(normalize(In.normal), 1.0f);
+    
     outWorld = In.worldPosition;
     
 

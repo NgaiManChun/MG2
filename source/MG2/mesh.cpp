@@ -27,34 +27,12 @@ namespace MG {
 				subResourceData.SysMemSlicePitch = 0;
 				subResourceData.pSysMem = s_DrawArgs.data();
 				Renderer::GetDevice()->CreateBuffer(&desc, &subResourceData, &s_DrawArgsIndirectBuffer);
-
-				
-
-				/*D3D11_BUFFER_DESC desc = {};
-				desc.ByteWidth = sizeof(DRAW_INDEXED_INDIRECT_ARGS) * s_DrawArgs.capacity();
-				desc.Usage = D3D11_USAGE_DEFAULT;
-				desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
-				desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS | D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
-				D3D11_SUBRESOURCE_DATA subResourceData = {};
-				subResourceData.SysMemPitch = 0;
-				subResourceData.SysMemSlicePitch = 0;
-				subResourceData.pSysMem = s_DrawArgs.data();
-				Renderer::GetDevice()->CreateBuffer(&desc, &subResourceData, &s_DrawArgsBuffer);
-				if (s_DrawArgsBuffer) {
-					D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-					uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-					uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-					uavDesc.Buffer.FirstElement = 0;
-					uavDesc.Buffer.NumElements = sizeof(DRAW_INDEXED_INDIRECT_ARGS) / 4 * s_DrawArgs.capacity();
-					uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
-					Renderer::GetDevice()->CreateUnorderedAccessView(s_DrawArgsBuffer, &uavDesc, &s_DrawArgsUAV);
-					s_DrawArgsBufferCapcity = s_Data.capacity();
-					s_NeedUpdateBuffer = false;
-				}*/
+				s_DrawArgsBufferCapcity = s_DrawArgs.capacity();
+				s_NeedUpdateBuffer = false;
 			}
 		}
+
 		if (s_DrawArgsBuffer) {
-			//D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DRAW_INDEXED_INDIRECT_ARGS) * s_DrawArgs.size());
 			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DRAW_INDEXED_INDIRECT_ARGS) * s_DrawArgs.size());
 			Renderer::GetDeviceContext()->UpdateSubresource(s_DrawArgsBuffer, 0, &box, s_DrawArgs.data(), 0, 0);
 			s_NeedUpdateBuffer = false;
@@ -74,6 +52,8 @@ namespace MG {
 		s_Data.clear();
 		s_DrawArgs.clear();
 		s_EmptyIds.clear();
+		s_DrawArgsBufferCapcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 } // namespace MG

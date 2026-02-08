@@ -1,11 +1,13 @@
+// =======================================================
+// modelAnimation.h
+// 
+// モデルに適用したアニメーションのバッファ
+// =======================================================
 #pragma once
 #include <vector>
 #include <set>
-#include "dataType.h"
 #include "transformDivision.h"
-
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
+#include "buffer.h"
 
 namespace MG {
 	class ModelAnimation {
@@ -27,31 +29,29 @@ namespace MG {
 		static inline ID3D11ShaderResourceView* s_SRV = nullptr;
 		static inline unsigned int s_Capcity = 0;
 		static inline bool s_NeedUpdateBuffer = false;
+
 	public:
 		static ID3D11ShaderResourceView* GetSRV() { return s_SRV; }
+
 		static void Uninit();
 		static void Update();
 		static ModelAnimation Create(unsigned int modelId, unsigned int animationId, bool loop = false);
+
 	private:
 		unsigned int m_Id = UINT_MAX;
+
 	public:
+		BUFFER_HANDLE_OPERATOR(ModelAnimation)
 
 		const DATA& GetData() const { return s_Data[m_Id]; }
 
-		void Release() {
+		void Release() 
+		{
 			if (m_Id != UINT_MAX) {
 				s_Data[m_Id].transformDivision.Release();
 				s_EmptyIds.insert(m_Id);
 				m_Id = UINT_MAX;
 			}
-		}
-
-		operator bool() const {
-			return m_Id != UINT_MAX;
-		}
-
-		operator unsigned int() const {
-			return m_Id;
 		}
 
 	};

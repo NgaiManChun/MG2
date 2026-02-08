@@ -4,7 +4,6 @@
 
 namespace MG {
 
-
 	void ModelInstance::Uninit()
 	{
 		SAFE_RELEASE(s_SRV);
@@ -12,6 +11,7 @@ namespace MG {
 		s_Data.clear();
 		s_EmptyIds.clear();
 		s_Capcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 	void ModelInstance::Update()
@@ -36,4 +36,5 @@ namespace MG {
 		}
 		
 	}
+
 } // namespace MG

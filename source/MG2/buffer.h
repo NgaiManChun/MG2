@@ -1,3 +1,8 @@
+// =======================================================
+// buffer.h
+// 
+// バッファクラスの共通関数
+// =======================================================
 #pragma once
 #include <vector>
 #include "dataType.h"
@@ -5,7 +10,6 @@
 struct ID3D11Buffer;
 struct ID3D11ShaderResourceView;
 struct ID3D11UnorderedAccessView;
-struct ID3D11ComputeShader;
 
 #define BUFFER_HANDLE_OPERATOR(TYPE)							   \
 operator bool() const { return m_Id != UINT_MAX; }				   \
@@ -38,5 +42,7 @@ namespace MG::Buffer {
 		ID3D11Buffer* dataBuffer,
 		ID3D11Buffer* returnBookmarkBuffer = nullptr
 	);
+
+	void Uninit();
 
 } // namespace MG::Buffer

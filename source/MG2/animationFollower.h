@@ -9,7 +9,6 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
-#include "dataType.h"
 #include "dynamicMatrix.h"
 #include "modelInstance.h"
 #include "buffer.h"

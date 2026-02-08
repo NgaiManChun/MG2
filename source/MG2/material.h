@@ -1,11 +1,13 @@
+// =======================================================
+// material.h
+// 
+// マテリアルのバッファ
+// =======================================================
 #pragma once
 #include <vector>
 #include <set>
-#include "dataType.h"
 #include "texture.h"
-
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
+#include "buffer.h"
 
 namespace MG {
 	class Material {
@@ -23,8 +25,8 @@ namespace MG {
 			Texture opacityTexture;
 			MATERIAL_TYPE type;
 			unsigned int opaque;
-
 		};
+
 	private:
 		static inline std::vector<MATERIAL> s_Data;
 		static inline std::set<unsigned int> s_EmptyIds{};
@@ -32,12 +34,12 @@ namespace MG {
 		static inline ID3D11ShaderResourceView* s_SRV = nullptr;
 		static inline unsigned int s_Capcity = 0;
 		static inline bool s_NeedUpdateBuffer = false;
+
 	public:
-		static void Uninit();
-		static void Update();
 		static ID3D11ShaderResourceView* const GetSRV() { return s_SRV; }
 
-		static Material Create(const MATERIAL& data = {}) {
+		static Material Create(const MATERIAL& data = {}) 
+		{
 			Material key = {};
 			if (s_EmptyIds.empty()) {
 				s_Data.push_back(data);
@@ -53,9 +55,16 @@ namespace MG {
 
 			return key;
 		}
+
+		static void Uninit();
+		static void Update();
+
 	private:
 		unsigned int m_Id = UINT_MAX;
+
 	public:
+		BUFFER_HANDLE_OPERATOR(Material)
+
 		void SetData(const MATERIAL& data) {
 			s_Data[m_Id] = data;
 			s_NeedUpdateBuffer = true;
@@ -70,13 +79,6 @@ namespace MG {
 			}
 		}
 
-		operator bool() const {
-			return m_Id != UINT_MAX;
-		}
-
-		operator unsigned int() const {
-			return m_Id;
-		}
 	};
 
 }

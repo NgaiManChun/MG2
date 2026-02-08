@@ -1,5 +1,4 @@
 #include "dynamicMatrix.h"
-
 #include "renderer.h"
 #include "MGUtility.h"
 
@@ -12,11 +11,15 @@ namespace MG {
 		SAFE_RELEASE(s_Buffer);
 		s_Data.clear();
 		s_EmptyIds.clear();
+		s_Capcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 	void DynamicMatrix::Update()
 	{
 		if (s_NeedUpdateBuffer) {
+
+			// バッファ確保
 			if (s_Data.capacity() > s_Capcity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_UAV);
@@ -32,6 +35,7 @@ namespace MG {
 				}
 			}
 		}
+
 		if (s_NeedUpdateBuffer && s_SRV) {
 			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(Matrix4x4) * s_Data.size());
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);

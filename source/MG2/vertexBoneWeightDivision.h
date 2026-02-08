@@ -7,7 +7,6 @@
 #pragma once
 #include <vector>
 #include <set>
-#include "dataType.h"
 #include "buffer.h"
 
 namespace MG {
