@@ -1,12 +1,4 @@
-source/MG2/MG2/
-source/MG2/x64/
-source/MG2/fbx/x64/
-source/MG2/ResourceTool/x64/
-source/MG2/ResourceTool/x64/Debug/
 source/MG2/.vs/
-source/MG2Game/MG2Game/
-source/MG2Game/x64/
 source/MG2Game/.vs/
-*/.vs/
-*/Debug/
-source\MG2\ResourceTool\x64\Debug\ResourceTool.exe.recipe
+Debug/
+x64/
