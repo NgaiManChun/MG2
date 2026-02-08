@@ -34,6 +34,9 @@
     <Filter Include="ヘッダー ファイル\Component">
       <UniqueIdentifier>{95b8f9cc-b905-49e5-9c1f-96d3e7020f82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InputLayout">
+      <UniqueIdentifier>{b27ed5c2-db25-4187-9fcc-713e8094714f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -163,5 +166,10 @@
     <ClInclude Include="character.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="inputLayout\custom.csv">
+      <Filter>InputLayout</Filter>
+    </None>
   </ItemGroup>
 </Project>

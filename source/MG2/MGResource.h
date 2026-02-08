@@ -20,6 +20,10 @@ namespace MG {
 		struct ResourceFile {
 			unsigned char* data;
 			size_t size;
+
+			operator bool() const {
+				return size;
+			}
 		};
 		static MGResource Load(const char* filename);
 		static constexpr const char MODEL_VERSION[8] = "1.0";
@@ -31,6 +35,7 @@ namespace MG {
 		void Add(const char* filename, const char* rename = nullptr);
 		void Remove(const char* filename);
 		ResourceFile GetFile(const char* filename);
+		const std::unordered_map<std::string, ResourceFile>& GetAllFiles() { return m_Files; }
 		void Write(const char* filename);
 		void Release();
 	};

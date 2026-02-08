@@ -191,15 +191,12 @@ namespace MG {
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
-		static SHADER_SET shaderSet = ([]() {
-			SHADER_SET shaderSet = Renderer::LoadVertexShader("complied_shader\\particleVS.cso", nullptr, 0);
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\unlitTexturePS.cso");
-			return shaderSet;
-		})();
+		static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/particleVS.cso").vertexShader;
+		static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
 		
-		deviceContext->VSSetShader(shaderSet.vertexShader, NULL, 0);
-		deviceContext->IASetInputLayout(shaderSet.inputLayout);
-		deviceContext->PSSetShader(shaderSet.pixelShader, NULL, 0);
+		deviceContext->VSSetShader(vertexShader, NULL, 0);
+		deviceContext->IASetInputLayout(nullptr);
+		deviceContext->PSSetShader(pixelShader, NULL, 0);
 
 		scene->GetMainCamera()->Apply();
 

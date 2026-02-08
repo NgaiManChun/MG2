@@ -73,7 +73,7 @@ namespace MG::Buffer {
 	)
 	{
 		
-		static ID3D11ComputeShader* s_PaddingCS = Renderer::LoadComputeShader("complied_shader\\paddingCS.cso");
+		static ID3D11ComputeShader* s_PaddingCS = Renderer::GetComputeShader("CS\\paddingCS.cso");
 
 		unsigned int bookmarkCount = bookmarks.size();
 		if (bookmarkCount > s_BookmarkCapcity) {

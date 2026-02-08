@@ -41,33 +41,23 @@ namespace MG {
 
 	void SkyRenderer::Draw()
 	{
+		if (!m_Model)
+			return;
+
 		GameObject* gameObject = GetGameObject();
 		Camera* camera = gameObject->GetScene()->GetMainCamera();
 		gameObject->SetPosition(camera->GetPosition());
 		DynamicMatrix::Update();
 		camera->Apply();
 
-		static SHADER_SET shaderSet = ([this]() -> SHADER_SET {
-			D3D11_INPUT_ELEMENT_DESC layout[] =
-			{
-				{ "POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0,  0,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TANGENT"	,		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 24,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "BINORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,		0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "COLOR",			0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			};
-			auto shaderSet = Renderer::LoadVertexShader("complied_shader\\skyVS.cso", layout, ARRAYSIZE(layout));
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\testPS.cso");
-			return shaderSet;
-		})();
-
-		
+		static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelSimpleVS.cso");
+		static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
+		static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-		deviceContext->VSSetShader(shaderSet.vertexShader, NULL, 0);
-		deviceContext->IASetInputLayout(shaderSet.inputLayout);
-		deviceContext->PSSetShader(shaderSet.pixelShader, NULL, 0);
+		deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
+		deviceContext->IASetInputLayout(inputLayout);
+		deviceContext->PSSetShader(pixelShader, NULL, 0);
 
 		UINT strides[] = {
 			sizeof(VERTEX)
@@ -113,11 +103,11 @@ namespace MG {
 			constant.materialId = material;
 			Renderer::SetSingleContant(constant);
 
-			
 			ID3D11ShaderResourceView* textureSRVs[] = {
 				materialData.baseTexture.GetSRV(),
 				materialData.normalTexture.GetSRV(),
-				materialData.opacityTexture.GetSRV()
+				materialData.opacityTexture.GetSRV(),
+				Material::GetSRV()
 			};
 			deviceContext->PSSetShaderResources(0, ARRAYSIZE(textureSRVs), textureSRVs);
 			

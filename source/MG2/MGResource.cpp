@@ -1,6 +1,5 @@
 #include "MGResource.h"
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <windows.h>
 

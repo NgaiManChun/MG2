@@ -15,7 +15,6 @@
 #include "MGUtility.h"
 #include "timeline.h"
 #include "character.h"
-#include "spotLight.h"
 #include "boxCollider.h"
 #include "sphereCollider.h"
 #include "csvResource.h"
@@ -47,6 +46,9 @@ private:
 	std::vector<Vector3> m_EnemyDirections;
 public:
 	void Init() override {
+
+		MGResource resource("config.pak");
+		int x = 0;
 
 		/*MGResource resource;
 		resource.Add("inputLayout\\general.csv");

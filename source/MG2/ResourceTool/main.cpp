@@ -36,14 +36,19 @@ int main(int argc, char* argv[])
 
 	std::vector<fs::path> filePaths = CollectFiles(inputDir);
 
-	MGResource resource;
+	fs::path inputPath(inputDir);
+
+	MGResource resource(outputPak);
 
 	for (auto path : filePaths) {
-		std::string name = path.filename().string();
-		resource.Add(path.string().data(), name.data());
+		fs::path relative = fs::relative(path, inputDir);
+		std::string relative_path = relative.generic_string();
+		resource.Add(path.string().data(), relative_path.data());
 	}
 
-	resource.Write(inputDir);
+	resource.Write(outputPak);
+
+	resource.Release();
 
 	return 0;
 }

@@ -169,7 +169,7 @@ namespace MG {
 
 		// アニメーション
 		{
-			static ID3D11ComputeShader* animationCS = Renderer::LoadComputeShader("complied_shader\\animationCS.cso");
+			static ID3D11ComputeShader* animationCS = Renderer::GetComputeShader("CS/animationCS.cso");
 			deviceContext->CSSetShader(animationCS, NULL, 0);
 
 			CS_CONSTANT constant{};
@@ -198,7 +198,7 @@ namespace MG {
 		// AnimationFollower
 		{
 
-			static ID3D11ComputeShader* animationFollowCS = Renderer::LoadComputeShader("complied_shader\\animationFollowCS.cso");
+			static ID3D11ComputeShader* animationFollowCS = Renderer::GetComputeShader("CS/animationFollowCS.cso");
 			deviceContext->CSSetShader(animationFollowCS, NULL, 0);
 
 			CS_CONSTANT constant{};
@@ -320,7 +320,7 @@ namespace MG {
 
 		// Model Instance×Meshを展開する
 		{
-			static ID3D11ComputeShader* expandMeshInstanceCS = Renderer::LoadComputeShader("complied_shader\\expandMeshInstanceCS.cso");
+			static ID3D11ComputeShader* expandMeshInstanceCS = Renderer::GetComputeShader("CS/expandMeshInstanceCS.cso");
 			deviceContext->CSSetShader(expandMeshInstanceCS, NULL, 0);
 
 			unsigned int counter = 0; // AppendBufferをリセット
@@ -381,7 +381,7 @@ namespace MG {
 		
 		
 		// 各DrawArgのinstanceStartLocationをセット
-		static ID3D11ComputeShader* offsetMeshInstanceCS = Renderer::LoadComputeShader("complied_shader\\offsetMeshInstanceCS.cso");
+		static ID3D11ComputeShader* offsetMeshInstanceCS = Renderer::GetComputeShader("CS/offsetMeshInstanceCS.cso");
 		deviceContext->CSSetShader(offsetMeshInstanceCS, NULL, 0);
 		CS_CONSTANT constant{};
 		constant.CSMaxX = Mesh::GetDrawArgsCount();
@@ -404,7 +404,7 @@ namespace MG {
 			};
 			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 
-			static ID3D11ComputeShader* resetInstanceCountCS = Renderer::LoadComputeShader("complied_shader\\resetInstanceCountCS.cso");
+			static ID3D11ComputeShader* resetInstanceCountCS = Renderer::GetComputeShader("CS/resetInstanceCountCS.cso");
 			deviceContext->CSSetShader(resetInstanceCountCS, NULL, 0);
 
 			CS_CONSTANT constant{};
@@ -419,7 +419,7 @@ namespace MG {
 				s_MeshInstanceIndexUAV
 		};
 		deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
-		static ID3D11ComputeShader* frustumCullingCS = Renderer::LoadComputeShader("complied_shader\\frustumCullingCS.cso");
+		static ID3D11ComputeShader* frustumCullingCS = Renderer::GetComputeShader("CS/frustumCullingCS.cso");
 		deviceContext->CSSetShader(frustumCullingCS, NULL, 0);
 
 		CS_CONSTANT constant{};
@@ -646,9 +646,11 @@ namespace MG {
 
 			Renderer::SetViewport(400.0f, 400.0f);
 
-			auto shaderSet = Renderer::GetShaderSet(SHADER_TYPE_UNLIT);
-			deviceContext->VSSetShader(shaderSet.vertexShader, NULL, 0);
-			deviceContext->IASetInputLayout(shaderSet.inputLayout);
+			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
+			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
+
+			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
+			deviceContext->IASetInputLayout(inputLayout);
 			deviceContext->PSSetShader(nullptr, NULL, 0);
 
 			Renderer::SetDepthState(DEPTH_STATE_COMPARISON_LESS);
@@ -679,17 +681,20 @@ namespace MG {
 
 			Renderer::SetViewport(static_cast<float>(MGUtility::GetScreenWidth()), static_cast<float>(MGUtility::GetScreenHeight()));
 
-			auto shaderSet = Renderer::GetShaderSet(SHADER_TYPE_UNLIT);
-			deviceContext->VSSetShader(shaderSet.vertexShader, NULL, 0);
-			deviceContext->IASetInputLayout(shaderSet.inputLayout);
-			deviceContext->PSSetShader(shaderSet.pixelShader, NULL, 0);
+			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
+			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
+			static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
+			static ID3D11GeometryShader* outlineGS = Renderer::GetGeometryShader("GS/outlineGS.cso");
+
+			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
+			deviceContext->IASetInputLayout(inputLayout);
+			deviceContext->PSSetShader(pixelShader, NULL, 0);
+			deviceContext->GSSetShader(outlineGS, NULL, 0);
 
 			Renderer::SetDepthState(DEPTH_STATE_COMPARISON_LESS);
 
-			//
-			static ID3D11GeometryShader* outlineGS = Renderer::LoadGeometryShader("complied_shader\\outlineGS.cso");
-			deviceContext->GSSetShader(outlineGS, NULL, 0);
 			DrawAll(scene);
+
 			deviceContext->GSSetShader(nullptr, NULL, 0);
 		}
 
@@ -706,10 +711,12 @@ namespace MG {
 		};
 		deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
-		auto shaderSet = Renderer::GetShaderSet(SHADER_TYPE_DEFERRED_LIGHT);
-		deviceContext->VSSetShader(shaderSet.vertexShader, NULL, 0);
-		deviceContext->IASetInputLayout(shaderSet.inputLayout);
-		deviceContext->PSSetShader(shaderSet.pixelShader, NULL, 0);
+		static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/fullScreenVS.cso").vertexShader;
+		static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/deferredLightPS.cso");
+
+		deviceContext->VSSetShader(vertexShader, NULL, 0);
+		deviceContext->IASetInputLayout(nullptr);
+		deviceContext->PSSetShader(pixelShader, NULL, 0);
 
 		LIGHT_CONSTANT lightConstant{};
 		lightConstant.ambient = Vector4(scene->GetAmbient());

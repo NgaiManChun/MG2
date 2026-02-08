@@ -118,25 +118,7 @@ namespace MG {
 
 	struct VERTEX_SHADER_SET {
 		ID3D11VertexShader* vertexShader;
-		ID3D11InputLayout* inputLayout;
-	};
-
-	struct SHADER_SET {
-		ID3D11VertexShader* vertexShader;
-		ID3D11PixelShader* pixelShader;
-		ID3D11ComputeShader* computeShader;
-		ID3D11InputLayout* inputLayout;
-	};
-
-	enum SHADER_TYPE {
-		SHADER_TYPE_TEXTURE_COPY,
-		SHADER_TYPE_UNLIT,
-		SHADER_TYPE_SPOT_LIGHT,
-		SHADER_TYPE_DEFERRED_LIGHT
-	};
-
-	enum VERTEX_SHADER {
-		VERTEX_SHADER_MODEL
+		std::unordered_map<std::string, ID3D11InputLayout*> inputLayouts;
 	};
 
 	// カスタムノードアトリビュート(instance)
@@ -175,13 +157,11 @@ namespace MG {
 		static inline ID3D11BlendState* s_BlendStates[BLEND_STATE_MAX];
 		static inline ID3D11RasterizerState* s_RasterizerStates[RASTERIZER_STATE_MAX];
 
-
-		static inline std::unordered_map<size_t, VERTEX_SHADER_SET> s_VertexShaderSets{};
-		static inline std::unordered_map<size_t, ID3D11PixelShader*> s_PixelShaders{};
-		static inline std::unordered_map<size_t, ID3D11ComputeShader*> s_ComputeShaders{};
-		static inline std::unordered_map<size_t, ID3D11InputLayout*> s_InputLayouts{};
-
-		static inline std::unordered_map<SHADER_TYPE, SHADER_SET> s_Shaders{};
+		// シェーダ
+		static inline std::unordered_map<std::string, VERTEX_SHADER_SET> s_VertexShaderSets{};
+		static inline std::unordered_map<std::string, ID3D11PixelShader*> s_PixelShaders{};
+		static inline std::unordered_map<std::string, ID3D11ComputeShader*> s_ComputeShaders{};
+		static inline std::unordered_map<std::string, ID3D11GeometryShader*> s_GeometryShaders{};
 
 	public:
 
@@ -242,13 +222,16 @@ namespace MG {
 		static ID3D11ShaderResourceView* CreateTextureSRV(ID3D11Texture2D* texture, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 		static ID3D11DepthStencilView* CreateTextureDSV(ID3D11Texture2D* texture, DXGI_FORMAT format = DXGI_FORMAT_D24_UNORM_S8_UINT);
 		
+		static VERTEX_SHADER_SET GetVertexShaderSet(const char* filename);
+		static ID3D11PixelShader* GetPixelShader(const char* filename);
+		static ID3D11ComputeShader* GetComputeShader(const char* filename);
+		static ID3D11GeometryShader* GetGeometryShader(const char* filename);
 
-		static SHADER_SET GetShaderSet(SHADER_TYPE type) { return s_Shaders[type]; }
-		static SHADER_SET LoadVertexShader(const char* filename, D3D11_INPUT_ELEMENT_DESC* layout, UINT numElements);
-		static VERTEX_SHADER_SET LoadVertexShaderSet(const char* filename, const char* layoutCSV);
+		static ID3D11VertexShader* LoadVertexShader(const char* filename);
 		static ID3D11PixelShader* LoadPixelShader(const char* filename);
 		static ID3D11ComputeShader* LoadComputeShader(const char* filename);
 		static ID3D11GeometryShader* LoadGeometryShader(const char* filename);
+		static ID3D11InputLayout* LoadInputLayout(const char* filename, const char* vertexShaderFilename);
 
 		static void SetMainRenderTarget();
 

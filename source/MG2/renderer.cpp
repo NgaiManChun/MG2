@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include <io.h>
 #include "MGUtility.h"
+#include "MGResource.h"
 #include "csvResource.h"
 #include <unordered_map>
 
@@ -8,10 +9,47 @@
 #include <d3d11.h>
 #include <wrl.h>
 #include <iostream>
+#include <fstream>
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 
 using Microsoft::WRL::ComPtr;
+
+#define STARTS_WITH(STR, PREFIX) \
+(STR.compare(0, std::string(PREFIX).size(), std::string(PREFIX)) == 0)
+
+void ReadFile(const char* filename, std::vector<char>& buffer)
+{
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
+
+	if (file) {
+		// サイズ取得
+		size_t size = static_cast<size_t>(file.tellg());
+		file.seekg(0, std::ios::beg);
+		file.clear();
+
+		buffer.resize(size);
+
+		file.read(buffer.data(), size);
+		file.close();
+	}
+}
+
+void ParseInputLayout(MG::CSVResource& csv, std::vector<D3D11_INPUT_ELEMENT_DESC>& desc)
+{
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
+	for (auto row : csv.WithoutHeader()) {
+		D3D11_INPUT_ELEMENT_DESC element{};
+		element.SemanticName = row["SemanticName"];
+		element.SemanticIndex = row["SemanticIndex"];
+		element.Format = MG::Renderer::GetDXGIFormatByName(row["Format"]);
+		element.InputSlot = row["InputSlot"];
+		element.AlignedByteOffset = row["AlignedByteOffset"];
+		element.InputSlotClass = MG::Renderer::GetInputClassByName(row["InputSlotClass"]);
+		element.InstanceDataStepRate = row["InstanceDataStepRate"];
+		layoutElements.push_back(element);
+	}
+}
 
 namespace MG {
 	void Renderer::Init(HWND hWnd)
@@ -293,42 +331,86 @@ namespace MG {
 		s_DeviceContext->CSSetConstantBuffers(7, 1, &s_TimeConstantBuffer);
 		
 
+		// シェーダ読み込み
 		{
+			MGResource shaderResource("shader.pak");
+			MGResource configResource("config.pak");
+			MGResource inputLayoutResource("inputLayout.pak");
 
-			auto shaderSet = Renderer::LoadVertexShaderSet("complied_shader\\modelVS.cso", "inputLayout\\general.csv");
-			s_VertexShaderSets[VERTEX_SHADER_MODEL] = { shaderSet.vertexShader, shaderSet.inputLayout };
+			auto& allFiles = shaderResource.GetAllFiles();
+			for (auto pair : allFiles) {
+				std::string name = pair.first;
+				unsigned char* data = pair.second.data;
+				size_t size = pair.second.size;
 
-			//s_ComputeShaders[]
-		}
-
-		// シェーダ
-		{
-			/*auto shaderSet = Renderer::LoadVertexShader("complied_shader\\textureCopyVS.cso", nullptr, 0);
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\textureCopyPS.cso");
-			s_Shaders[SHADER_TYPE_TEXTURE_COPY] = shaderSet;*/
-
-			D3D11_INPUT_ELEMENT_DESC layout[] =
-			{
-				{ "POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0,  0,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TANGENT"	,		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 24,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "BINORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,		0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "COLOR",			0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			};
-			auto shaderSet = Renderer::LoadVertexShader("complied_shader\\modelVS.cso", layout, ARRAYSIZE(layout));
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\unlitTexturePS.cso");
-			s_Shaders[SHADER_TYPE_UNLIT] = shaderSet;
-
-			shaderSet.pixelShader = nullptr;
-			s_Shaders[SHADER_TYPE_SPOT_LIGHT] = shaderSet;
-
-			shaderSet = Renderer::LoadVertexShader("complied_shader\\fullScreenVS.cso", {}, 0);
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\deferredLightPS.cso");
-			s_Shaders[SHADER_TYPE_DEFERRED_LIGHT] = shaderSet;
+				if (STARTS_WITH(name, "CS/")) {
+					ID3D11ComputeShader* shader = nullptr;
+					s_Device->CreateComputeShader(data, size, NULL, &shader);
+					s_ComputeShaders[name] = shader;
+				}
+				else if (STARTS_WITH(name, "GS/")) {
+					ID3D11GeometryShader* shader = nullptr;
+					s_Device->CreateGeometryShader(data, size, NULL, &shader);
+					s_GeometryShaders[name] = shader;
+				}
+				else if (STARTS_WITH(name, "VS/")) {
+					ID3D11VertexShader* shader = nullptr;
+					s_Device->CreateVertexShader(data, size, NULL, &shader);
+					s_VertexShaderSets[name] = { shader };
+				}
+				else if (STARTS_WITH(name, "PS/")) {
+					ID3D11PixelShader* shader = nullptr;
+					s_Device->CreatePixelShader(data, size, NULL, &shader);
+					s_PixelShaders[name] = shader;
+				}
+			}
 			
-			
-			
+			// inputLayout読み込み
+			auto fileView = configResource.GetFile("inputLayout.csv");
+			if (fileView) {
+				CSVResource listCsv(fileView.data, fileView.size);
+				for (auto row : listCsv.WithoutHeader()) {
+					std::string shaderName = row["shader"];
+					std::string inputLayoutName = row["input_layout"];
+
+					if (s_VertexShaderSets.count(shaderName) == 0)
+						continue;
+
+					auto inputLayoutFile = inputLayoutResource.GetFile(inputLayoutName.data());
+					if (!inputLayoutFile)
+						continue;
+					
+					// csvからD3D11_INPUT_ELEMENT_DESC
+					CSVResource inputLayoutData(inputLayoutFile.data, inputLayoutFile.size);
+					std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
+					for (auto row : inputLayoutData.WithoutHeader()) {
+						D3D11_INPUT_ELEMENT_DESC element{};
+						element.SemanticName = row["SemanticName"];
+						element.SemanticIndex = row["SemanticIndex"];
+						element.Format = GetDXGIFormatByName(row["Format"]);
+						element.InputSlot = row["InputSlot"];
+						element.AlignedByteOffset = row["AlignedByteOffset"];
+						element.InputSlotClass = GetInputClassByName(row["InputSlotClass"]);
+						element.InstanceDataStepRate = row["InstanceDataStepRate"];
+						layoutElements.push_back(element);
+					}
+
+					auto shaderFile = shaderResource.GetFile(shaderName.data());
+					ID3D11InputLayout* inputLayout = nullptr;
+					s_Device->CreateInputLayout(layoutElements.data(),
+						layoutElements.size(),
+						shaderFile.data,
+						shaderFile.size,
+						&inputLayout);
+
+					s_VertexShaderSets[shaderName].inputLayouts[inputLayoutName] = inputLayout;
+					
+				}
+			}
+
+			configResource.Release();
+			inputLayoutResource.Release();
+			shaderResource.Release();
 		}
 
 
@@ -337,15 +419,31 @@ namespace MG {
 	void Renderer::Uninit()
 	{
 
-		for (auto& pair : s_Shaders) {
-			SHADER_SET& shaderSet = pair.second;
-			SAFE_RELEASE(shaderSet.inputLayout)
-			SAFE_RELEASE(shaderSet.vertexShader)
-			SAFE_RELEASE(shaderSet.pixelShader)
-			SAFE_RELEASE(shaderSet.computeShader)
+		// シェーダ
+		for (auto& pair : s_VertexShaderSets) {
+			VERTEX_SHADER_SET& shaderSet = pair.second;
+			for (auto& inputLayoutPair : shaderSet.inputLayouts) {
+				SAFE_RELEASE(inputLayoutPair.second);
+			}
+			SAFE_RELEASE(shaderSet.vertexShader);
 		}
-		s_Shaders.clear();
+		s_VertexShaderSets.clear();
 
+		for (auto& pair : s_PixelShaders) {
+			SAFE_RELEASE(pair.second);
+		}
+		s_PixelShaders.clear();
+
+		for (auto& pair : s_ComputeShaders) {
+			SAFE_RELEASE(pair.second);
+		}
+		s_ComputeShaders.clear();
+
+		for (auto& pair : s_GeometryShaders) {
+			SAFE_RELEASE(pair.second);
+		}
+		s_GeometryShaders.clear();
+		
 		// 定数バッファ
 		SAFE_RELEASE(s_CameraConstantBuffer);
 		SAFE_RELEASE(s_LightConstantBuffer);
@@ -379,8 +477,6 @@ namespace MG {
 		SAFE_RELEASE(s_DeviceContext)
 		SAFE_RELEASE(s_Device)
 	}
-
-
 
 
 	void Renderer::Begin()
@@ -654,152 +750,111 @@ namespace MG {
 
 	}
 
-	SHADER_SET Renderer::LoadVertexShader(const char* filename, D3D11_INPUT_ELEMENT_DESC* layout, UINT numElements)
+	VERTEX_SHADER_SET Renderer::GetVertexShaderSet(const char* filename)
 	{
-		ID3D11VertexShader* vertexShader = nullptr;
-		ID3D11InputLayout* inputLayout = nullptr;
-
-		FILE* file;
-		long int fsize;
-
-		file = fopen(filename, "rb");
-		assert(file);
-
-		fsize = _filelength(_fileno(file));
-		unsigned char* buffer = new unsigned char[fsize];
-		fread(buffer, fsize, 1, file);
-		fclose(file);
-
-		s_Device->CreateVertexShader(buffer, fsize, NULL, &vertexShader);
-
-		s_Device->CreateInputLayout(layout,
-			numElements,
-			buffer,
-			fsize,
-			&inputLayout);
-
-		delete[] buffer;
-
-		SHADER_SET shaderSet{};
-		shaderSet.vertexShader = vertexShader;
-		shaderSet.inputLayout = inputLayout;
-		return shaderSet;
+		if (s_VertexShaderSets.count(filename) > 0) {
+			return s_VertexShaderSets[filename];
+		}
+		if (LoadVertexShader(filename)) {
+			return s_VertexShaderSets[filename];
+		}
+		return {};
 	}
 
-	VERTEX_SHADER_SET Renderer::LoadVertexShaderSet(const char* filename, const char* layoutCSV)
+	ID3D11PixelShader* Renderer::GetPixelShader(const char* filename)
+	{
+		if (s_PixelShaders.count(filename) > 0) {
+			return s_PixelShaders[filename];
+		}
+		return LoadPixelShader(filename);
+	}
+
+	ID3D11ComputeShader* Renderer::GetComputeShader(const char* filename)
+	{
+		if (s_ComputeShaders.count(filename) > 0) {
+			return s_ComputeShaders[filename];
+		}
+		return LoadComputeShader(filename);
+	}
+
+	ID3D11GeometryShader* Renderer::GetGeometryShader(const char* filename)
+	{
+		if (s_GeometryShaders.count(filename) > 0) {
+			return s_GeometryShaders[filename];
+		}
+		return LoadGeometryShader(filename);
+	}
+
+	ID3D11VertexShader* Renderer::LoadVertexShader(const char* filename)
 	{
 		ID3D11VertexShader* vertexShader = nullptr;
-		ID3D11InputLayout* inputLayout = nullptr;
-
-		FILE* file;
-		long int fsize;
-
-		file = fopen(filename, "rb");
-		assert(file);
-
-		fsize = _filelength(_fileno(file));
-		unsigned char* buffer = new unsigned char[fsize];
-		fread(buffer, fsize, 1, file);
-		fclose(file);
-
-		s_Device->CreateVertexShader(buffer, fsize, NULL, &vertexShader);
-
-		if (layoutCSV) {
-			CSVResource csv(layoutCSV);
-			std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
-
-			for (auto row : csv.WithoutHeader()) {
-				D3D11_INPUT_ELEMENT_DESC element{};
-				element.SemanticName = row["SemanticName"];
-				element.SemanticIndex = row["SemanticIndex"];
-				element.Format = GetDXGIFormatByName(row["Format"]);
-				element.InputSlot = row["InputSlot"];
-				element.AlignedByteOffset = row["AlignedByteOffset"];
-				element.InputSlotClass = GetInputClassByName(row["InputSlotClass"]);
-				element.InstanceDataStepRate = row["InstanceDataStepRate"];
-				layoutElements.push_back(element);
-			}
-
-			s_Device->CreateInputLayout(layoutElements.data(),
-				layoutElements.size(),
-				buffer,
-				fsize,
-				&inputLayout);
+		std::vector<char> buffer;
+		ReadFile(filename, buffer);
+		if (buffer.size() != 0) {
+			s_Device->CreateVertexShader(buffer.data(), buffer.size(), NULL, &vertexShader);
+			s_VertexShaderSets[filename].vertexShader = vertexShader;
+			
 		}
-
-		delete[] buffer;
-
-		VERTEX_SHADER_SET vertexShaderSet{};
-		vertexShaderSet.vertexShader = vertexShader;
-		vertexShaderSet.inputLayout = inputLayout;
-
-		return vertexShaderSet;
+		return vertexShader;
 	}
 
 	ID3D11PixelShader* Renderer::LoadPixelShader(const char* filename)
 	{
 		ID3D11PixelShader* pixelShader = nullptr;
-
-		FILE* file;
-		long int fsize;
-
-		file = fopen(filename, "rb");
-		assert(file);
-
-		fsize = _filelength(_fileno(file));
-		unsigned char* buffer = new unsigned char[fsize];
-		fread(buffer, fsize, 1, file);
-		fclose(file);
-
-		s_Device->CreatePixelShader(buffer, fsize, NULL, &pixelShader);
-
-		delete[] buffer;
-
+		std::vector<char> buffer;
+		ReadFile(filename, buffer);
+		if (buffer.size() != 0) {
+			s_Device->CreatePixelShader(buffer.data(), buffer.size(), NULL, &pixelShader);
+			s_PixelShaders[filename] = pixelShader;
+		}
 		return pixelShader;
 	}
 
 	ID3D11ComputeShader* Renderer::LoadComputeShader(const char* filename)
 	{
 		ID3D11ComputeShader* computeShader = nullptr;
-
-		FILE* file;
-		long int fsize;
-
-		file = fopen(filename, "rb");
-		assert(file);
-
-		fsize = _filelength(_fileno(file));
-		unsigned char* buffer = new unsigned char[fsize];
-		fread(buffer, fsize, 1, file);
-		fclose(file);
-
-		s_Device->CreateComputeShader(buffer, fsize, NULL, &computeShader);
-
-		delete[] buffer;
-
+		std::vector<char> buffer;
+		ReadFile(filename, buffer);
+		if (buffer.size() != 0) {
+			s_Device->CreateComputeShader(buffer.data(), buffer.size(), NULL, &computeShader);
+			s_ComputeShaders[filename] = computeShader;
+		}
 		return computeShader;
 	}
 
 	ID3D11GeometryShader* Renderer::LoadGeometryShader(const char* filename)
 	{
 		ID3D11GeometryShader* geometryShader = nullptr;
-
-		FILE* file;
-		long int fsize;
-
-		file = fopen(filename, "rb");
-		assert(file);
-
-		fsize = _filelength(_fileno(file));
-		unsigned char* buffer = new unsigned char[fsize];
-		fread(buffer, fsize, 1, file);
-		fclose(file);
-
-		s_Device->CreateGeometryShader(buffer, fsize, NULL, &geometryShader);
-
-		delete[] buffer;
-
+		std::vector<char> buffer;
+		ReadFile(filename, buffer);
+		if (buffer.size() != 0) {
+			s_Device->CreateGeometryShader(buffer.data(), buffer.size(), NULL, &geometryShader);
+			s_GeometryShaders[filename] = geometryShader;
+		}
 		return geometryShader;
+	}
+
+	ID3D11InputLayout* Renderer::LoadInputLayout(const char* filename, const char* vertexShaderFilename)
+	{
+		ID3D11InputLayout* inputLayout = nullptr;
+		std::vector<char> layoutBuffer;
+		std::vector<char> shaderBuffer;
+		ReadFile(filename, layoutBuffer);
+		ReadFile(vertexShaderFilename, shaderBuffer);
+		if (layoutBuffer.size() != 0 && shaderBuffer.size() != 0) {
+
+			CSVResource csv(reinterpret_cast<unsigned char*>(layoutBuffer.data()), layoutBuffer.size());
+			std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
+			ParseInputLayout(csv, layoutElements);
+
+			s_Device->CreateInputLayout(layoutElements.data(),
+				layoutElements.size(),
+				shaderBuffer.data(),
+				shaderBuffer.size(),
+				&inputLayout);
+			s_VertexShaderSets[vertexShaderFilename].inputLayouts[filename] = inputLayout;
+		}
+		return inputLayout;
 	}
 
 	void Renderer::SetMainRenderTarget()

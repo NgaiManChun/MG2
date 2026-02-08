@@ -58,6 +58,9 @@
     <Filter Include="Shader\GS">
       <UniqueIdentifier>{f4ffc8ef-83fd-4ca3-a621-ea7e34a5d898}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{11d1c149-1868-43d9-864a-8045e7527979}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="matrix4x4.h">
@@ -189,9 +192,6 @@
     <ClInclude Include="skyRenderer.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
-    <ClInclude Include="spotLight.h">
-      <Filter>ヘッダー ファイル\Component</Filter>
-    </ClInclude>
     <ClInclude Include="particleRenderer.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
@@ -227,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="MGResource.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="spotLight.h">
+      <Filter>Backup</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -338,9 +341,6 @@
     <ClCompile Include="skyRenderer.cpp">
       <Filter>ソース ファイル\Component</Filter>
     </ClCompile>
-    <ClCompile Include="spotLight.cpp">
-      <Filter>ソース ファイル\Component</Filter>
-    </ClCompile>
     <ClCompile Include="particleRenderer.cpp">
       <Filter>ソース ファイル\Component</Filter>
     </ClCompile>
@@ -371,10 +371,16 @@
     <ClCompile Include="titleScene.cpp">
       <Filter>Backup</Filter>
     </ClCompile>
+    <ClCompile Include="spotLight.cpp">
+      <Filter>Backup</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="inputLayout\general.csv">
       <Filter>InputLayout</Filter>
+    </None>
+    <None Include="config\inputLayout.csv">
+      <Filter>Config</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -408,7 +414,7 @@
     <FxCompile Include="shader\unlitTexturePS.hlsl">
       <Filter>Shader\PS</Filter>
     </FxCompile>
-    <FxCompile Include="shader\modelVS.hlsl">
+    <FxCompile Include="shader\modelInstancedVS.hlsl">
       <Filter>Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shader\particleVS.hlsl">
@@ -417,7 +423,7 @@
     <FxCompile Include="shader\spriteVS.hlsl">
       <Filter>Shader\VS</Filter>
     </FxCompile>
-    <FxCompile Include="shader\skyVS.hlsl">
+    <FxCompile Include="shader\modelSimpleVS.hlsl">
       <Filter>Shader\VS</Filter>
     </FxCompile>
     <FxCompile Include="shader\fullScreenVS.hlsl">
@@ -426,7 +432,7 @@
     <FxCompile Include="shader\deferredLightPS.hlsl">
       <Filter>Shader\PS</Filter>
     </FxCompile>
-    <FxCompile Include="shader\testPS.hlsl">
+    <FxCompile Include="shader\texture2DPS.hlsl">
       <Filter>Shader\PS</Filter>
     </FxCompile>
     <FxCompile Include="shader\outlineGS.hlsl">
