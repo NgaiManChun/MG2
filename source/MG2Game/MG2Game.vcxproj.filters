@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="asset">
+      <UniqueIdentifier>{55baf2fa-ef36-43a1-8dbb-f76b7796c758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asset\model">
+      <UniqueIdentifier>{cd77559e-0a53-4468-a721-f128c3ab8758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asset\animation">
+      <UniqueIdentifier>{7eb7f5c7-dc1e-4ca8-aec4-6339fed47945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asset\texture">
+      <UniqueIdentifier>{2806329c-86c4-4473-ab3a-ffcba3715686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Scene">
+      <UniqueIdentifier>{ebc533e5-7706-4ed0-b875-3a363c9f5ea0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Component">
+      <UniqueIdentifier>{463d182c-33d1-4de1-b2bf-acf4312a594d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Component">
+      <UniqueIdentifier>{95b8f9cc-b905-49e5-9c1f-96d3e7020f82}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="testScene.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="character.cpp">
+      <Filter>ソース ファイル\Component</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="asset\model\wooden_axe.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\alice.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\alice_lod1.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\alice_lod2.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\baseball_bat.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\box.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\crowbar.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\ground.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\kumacchi.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\plane.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\player.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\player_lod1.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\player_lod2.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\player_lod3.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\player_lod4.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\shadow.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\sky.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\sphere.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\test.mgm">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\model\test_anim.mga">
+      <Filter>asset\model</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\alice_attack.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\alice_idle.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\alice_impact.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\alice_run.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\player_attack.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\player_idle.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\player_impact.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\player_run.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\animation\test_anim.mga">
+      <Filter>asset\animation</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\grass.jpg">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\particle4.png">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\particle5.png">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\rebar_reinforced_concrete_diff_4k.jpg">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\shadow.png">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\sky.jpg">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\title.jpg">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="asset\texture\white.png">
+      <Filter>asset\texture</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="character.h">
+      <Filter>ヘッダー ファイル\Component</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

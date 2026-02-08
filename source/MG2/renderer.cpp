@@ -303,9 +303,9 @@ namespace MG {
 
 		// シェーダ
 		{
-			auto shaderSet = Renderer::LoadVertexShader("complied_shader\\textureCopyVS.cso", nullptr, 0);
+			/*auto shaderSet = Renderer::LoadVertexShader("complied_shader\\textureCopyVS.cso", nullptr, 0);
 			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\textureCopyPS.cso");
-			s_Shaders[SHADER_TYPE_TEXTURE_COPY] = shaderSet;
+			s_Shaders[SHADER_TYPE_TEXTURE_COPY] = shaderSet;*/
 
 			D3D11_INPUT_ELEMENT_DESC layout[] =
 			{
@@ -316,7 +316,7 @@ namespace MG {
 				{ "TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,		0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				{ "COLOR",			0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			};
-			shaderSet = Renderer::LoadVertexShader("complied_shader\\modelVS.cso", layout, ARRAYSIZE(layout));
+			auto shaderSet = Renderer::LoadVertexShader("complied_shader\\modelVS.cso", layout, ARRAYSIZE(layout));
 			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\unlitTexturePS.cso");
 			s_Shaders[SHADER_TYPE_UNLIT] = shaderSet;
 

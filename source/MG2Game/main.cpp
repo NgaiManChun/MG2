@@ -68,13 +68,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	Input::Init();
 	MG::Setup(g_Window, INIT_SCENE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS);
-	
+
 
 	ShowWindow(g_Window, nCmdShow);
 	UpdateWindow(g_Window);
 
 	timeBeginPeriod(1);
-	
+
 	static int overloadTime = 0;
 	static unsigned int FPSShift[] = {
 		60,
@@ -85,11 +85,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	static unsigned int FPSShiftIndex = 0;
 
 	MSG msg;
-	while(1)
+	while (1)
 	{
-        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT)
+			if (msg.message == WM_QUIT)
 			{
 				break;
 			}
@@ -98,7 +98,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-        }
+		}
 
 		if (MG::MGUtility::UpdateTime()) {
 
@@ -119,7 +119,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					}
 				}
 			}
-			else if(loadRate < 0.3f){
+			else if (loadRate < 0.3f) {
 				if (overloadTime > 0)
 					overloadTime = 0;
 				overloadTime--;
@@ -136,14 +136,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			}
 
 #if _DEBUG
-			
-			
+
+
 			float deltaTime = MG::MGUtility::GetDeltaTime();
-			std::string title = std::string("FPS: ") + 
-				std::to_string(currentFPS) + 
+			std::string title = std::string("FPS: ") +
+				std::to_string(currentFPS) +
 				std::string("/") +
 				std::to_string(FPSShift[FPSShiftIndex]) +
-				std::string(" Load Rate: ") + 
+				std::string(" Load Rate: ") +
 				std::to_string(loadRate);
 			SetWindowTextA(g_Window, title.c_str());
 #endif
@@ -169,14 +169,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 
 	case WM_KEYDOWN:
-		switch(wParam)
+		switch (wParam)
 		{
 		case VK_ESCAPE:
 			DestroyWindow(hWnd);

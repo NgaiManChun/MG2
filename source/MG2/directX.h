@@ -22,11 +22,11 @@ using namespace DirectX;
 //テクスチャサポートライブラリ
 #include    "DirectXTex.h"
 //デバッグビルドかリリースビルドでリンクするライブラリを選択する
-#if _DEBUG
-#pragma comment(lib, "DirectXTex_Debug.lib")    //デバッグ用
-#else
-#pragma comment(lib, "DirectXTex_Release.lib")  //リリース用
-#endif
+//#if _DEBUG
+//#pragma comment(lib, "DirectXTex_Debug.lib")    //デバッグ用
+//#else
+//#pragma comment(lib, "DirectXTex_Release.lib")  //リリース用
+//#endif
 
 // =======================================================
 // ライブラリのリンク

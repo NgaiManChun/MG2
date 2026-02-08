@@ -13,17 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ソース ファイル\main">
-      <UniqueIdentifier>{abc823dd-2895-491d-9cb1-6e24a5e23d1a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Component">
       <UniqueIdentifier>{99a83669-9e80-4d8e-8645-6ec87894cdc1}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Component">
       <UniqueIdentifier>{177ad550-3fe8-44d3-8fbf-172de8a50561}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Scene">
-      <UniqueIdentifier>{f647b40b-3d80-435e-ac47-b0fa69d732f6}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Buffer">
       <UniqueIdentifier>{c8bd7f46-ad57-4fee-b30d-882afa58f212}</UniqueIdentifier>
@@ -39,9 +33,6 @@
     </Filter>
     <Filter Include="ソース ファイル\Buffer\Division">
       <UniqueIdentifier>{6f2ee3d8-de04-44b5-897d-d80d7ced2b6e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Object">
-      <UniqueIdentifier>{4c36fb15-e446-43e5-aa88-f9c0c4006cab}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Component\Collider">
       <UniqueIdentifier>{75532d33-8001-454a-9dc8-1677032204d5}</UniqueIdentifier>
@@ -60,6 +51,12 @@
     </Filter>
     <Filter Include="Shader\PS">
       <UniqueIdentifier>{bd0ca735-4030-4ac3-a6cf-f0076c7c7b08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\VS">
+      <UniqueIdentifier>{df6fcd41-c7d7-42cd-b7f2-30571f7c93bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\GS">
+      <UniqueIdentifier>{f4ffc8ef-83fd-4ca3-a621-ea7e34a5d898}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -189,12 +186,6 @@
     <ClInclude Include="timeline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="character.h">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="enemy.h">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClInclude>
     <ClInclude Include="skyRenderer.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
@@ -272,17 +263,11 @@
     <ClCompile Include="gameObject.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル\main</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>ソース ファイル\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="testScene.cpp">
-      <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
     <ClCompile Include="dynamicMatrix.cpp">
       <Filter>ソース ファイル\Buffer</Filter>
@@ -350,17 +335,11 @@
     <ClCompile Include="vertexBoneWeightDivision.cpp">
       <Filter>ソース ファイル\Buffer\Division</Filter>
     </ClCompile>
-    <ClCompile Include="character.cpp">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClCompile>
     <ClCompile Include="skyRenderer.cpp">
       <Filter>ソース ファイル\Component</Filter>
     </ClCompile>
     <ClCompile Include="spotLight.cpp">
       <Filter>ソース ファイル\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="titleScene.cpp">
-      <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
     <ClCompile Include="particleRenderer.cpp">
       <Filter>ソース ファイル\Component</Filter>
@@ -389,6 +368,9 @@
     <ClCompile Include="MGResource.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="titleScene.cpp">
+      <Filter>Backup</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="inputLayout\general.csv">
@@ -396,34 +378,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\unlitTextureVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
     <FxCompile Include="shader\common.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\testPS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\modelVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\deferredLightPS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\fullScreenVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\skyVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\spriteVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\particleVS.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\outlineGS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="shader\animationCS.hlsl">
@@ -452,6 +407,30 @@
     </FxCompile>
     <FxCompile Include="shader\unlitTexturePS.hlsl">
       <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\modelVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\particleVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\spriteVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\skyVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\fullScreenVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\deferredLightPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\testPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\outlineGS.hlsl">
+      <Filter>Shader\GS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

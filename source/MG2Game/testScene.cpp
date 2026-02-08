@@ -125,7 +125,7 @@ public:
 			Model model0 = Model::Create("asset\\model\\player.mgm");
 			Model model1 = Model::Create("asset\\model\\player_lod1.mgm");
 			Model model2 = Model::Create("asset\\model\\player_lod2.mgm");
-			
+
 
 			Animation idleAnimation = Animation::Create("asset\\animation\\player_idle.mga");
 			Animation runAnimation = Animation::Create("asset\\animation\\player_run.mga");
@@ -146,7 +146,7 @@ public:
 				character->SetModel(model2, LOD_2 | LOD_3 | LOD_4);
 				m_Player = character;
 
-				
+
 
 				// BoxCollider
 				{
@@ -163,7 +163,7 @@ public:
 					gameObject->SetRotation({ 0.0f, 0.0f, XMConvertToRadians(-40.0f) });
 					gameObject->SetParent(m_Player->GetGameObject());*/
 				}
-				
+
 			}
 
 			// •Ší
@@ -174,9 +174,9 @@ public:
 				m_Player->SetWeapon(gameObject);
 			}
 
-			
-			
-			
+
+
+
 		}
 
 		// Enemy
@@ -262,15 +262,15 @@ public:
 					GameObject* gameObject = AddGameObject();
 					ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
 					modelRenderer->SetModel(model, LOD_ALL);
-					gameObject->SetPosition({100.0f * x, 0.0f, 100.0f * z});
+					gameObject->SetPosition({ 100.0f * x, 0.0f, 100.0f * z });
 				}
 			}
 			/*GameObject* gameObject = AddGameObject();
 			ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
 			modelRenderer->SetModel(model, LOD_ALL);*/
-			
+
 			//model.GetData().materials[0] = material;
-			
+
 			//modelRenderer->SetMaterial(material, 0);
 			//gameObject->SetScale({ 500.0f, 1.0f, 500.0f });
 		}
@@ -284,7 +284,7 @@ public:
 			modelRenderer->SetModel(model, LOD_ALL);
 
 			m_BoxColliderTarget = gameObject->AddComponent<BoxCollider>();
-			
+
 			gameObject->SetPosition({ 5.0f, 1.0f, 0.0f });
 			gameObject->SetRotation({ 0.5f, 0.5f, 0.5f });
 			gameObject->SetScale({ 1.0f, 2.0f, 3.0f });*/
@@ -326,7 +326,7 @@ public:
 			gameObject->SetPosition(position);*/
 		}
 
-		GetMainCamera()->GetGameObject()->SetPosition({0.0f, 1.0f, -5.0f});
+		GetMainCamera()->GetGameObject()->SetPosition({ 0.0f, 1.0f, -5.0f });
 		//GetMainCamera()->GetGameObject()->SetRotation({ 0.3f, 0.0f, 0.0f });
 
 		/*DynamicIndexDivision vertexIndexDivisions[3];
@@ -349,21 +349,21 @@ public:
 			vertexIndexDivisions[i] = DynamicIndexDivision::Create(data.size(), data.data());
 		}*/
 
-		
+
 		//vertexIndexDivisions[0].Release();
 		//DynamicIndexDivision::Pad();
-		
+
 	}
 
-	void Uninit() override 
+	void Uninit() override
 	{
-		
+
 	}
 
-	void Update() override 
+	void Update() override
 	{
 		float deltaTime = MGUtility::GetDeltaTime();
-		
+
 		// PlayerController
 		{
 			static constexpr const float CAMERA_ROTATE_SPEED = 2.0f;
@@ -443,7 +443,7 @@ public:
 				camera->GetPosition() + cameraMove
 			);
 		}
-		
+
 		// EnemyController
 		{
 			unsigned int enemyCount = m_EnemyTimeLines.size();
@@ -536,10 +536,10 @@ public:
 		//	
 		//}
 
-		
 
-		
-		
+
+
+
 	}
 };
 
