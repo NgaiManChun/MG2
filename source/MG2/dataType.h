@@ -44,10 +44,9 @@ namespace MG {
 		Quaternion rotation{ 0.0f, 0.0f, 0.0f, 1.0f };
 	};
 
-	
-	static constexpr const char MODEL_PREFIX[4] = "MGM";
+	static constexpr const char MODEL_MAGIC[4] = "MGM";
 	static constexpr const char MODEL_VERSION[8] = "1.0";
-	static constexpr const char ANIMATION_PREFIX[4] = "MGA";
+	static constexpr const char ANIMATION_MAGIC[4] = "MGA";
 	static constexpr const char ANIMATION_VERSION[8] = "1.0";
 	struct MODEL_META {
 		unsigned int textureCount;

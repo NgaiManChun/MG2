@@ -11,7 +11,6 @@ namespace MG {
 		SAFE_RELEASE(s_BookmarkBuffer);
 		SAFE_RELEASE(s_DataSRV);
 		SAFE_RELEASE(s_DataBuffer);
-		SAFE_RELEASE(s_PaddingCS);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
 		s_BookmarkCapcity = 0;

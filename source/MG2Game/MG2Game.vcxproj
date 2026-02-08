@@ -96,7 +96,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak</Command>
+      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)complied_shader/ $(OutDir)shader.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,7 +117,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak</Command>
+      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)complied_shader/ $(OutDir)shader.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -132,7 +136,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak</Command>
+      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)complied_shader/ $(OutDir)shader.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,7 +157,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak</Command>
+      <Command>$(OutDir)ResourceTool.exe $(ProjectDir)inputLayout/ $(OutDir)inputLayout.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)complied_shader/ $(OutDir)shader.pak
+$(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -1,15 +1,17 @@
+// =======================================================
+// animation.h
+// 
+// アニメーションクラス
+// =======================================================
 #pragma once
 #include <vector>
 #include <set>
 #include <unordered_map>
 #include "dataType.h"
-
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
+#include "buffer.h"
 
 namespace MG {
 	class Animation {
-		
 		struct DATA {
 			unsigned int frameCount;
 			unsigned int duration;
@@ -22,20 +24,27 @@ namespace MG {
 		static inline std::set<unsigned int> s_EmptyIds{};
 
 	public:
-		static void Uninit();
 		static Animation Create(const char* filename);
-		
+
+		static void Uninit()
+		{
+			s_Data.clear();
+			s_EmptyIds.clear();
+			s_NameMap.clear();
+		}
+
 	private:
 		unsigned int m_Id = UINT_MAX;
+
 	public:
+		BUFFER_HANDLE_OPERATOR(Animation)
 
 		const DATA& GetData() const { return s_Data[m_Id]; }
-
 		unsigned int GetFrameCount() const { return s_Data[m_Id].frameCount; }
-
 		unsigned int GetDuration() const { return s_Data[m_Id].duration; }
 
-		void Release() {
+		void Release() 
+		{
 			if (m_Id != UINT_MAX) {
 				s_Data[m_Id] = {};
 
@@ -43,22 +52,6 @@ namespace MG {
 				m_Id = UINT_MAX;
 			}
 		}
-
-		operator bool() const {
-			return m_Id != UINT_MAX;
-		}
-
-		operator unsigned int() const {
-			return m_Id;
-		}
-
-		bool operator ==(Animation& other) const {
-			return m_Id == other.m_Id;
-		}
-
-		Animation& operator=(const unsigned int& id) { m_Id = id; }
-		Animation() = default;
-		Animation(const unsigned int& id) :m_Id(id) {}
 	};
 
 }

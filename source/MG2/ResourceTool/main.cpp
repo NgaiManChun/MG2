@@ -7,11 +7,22 @@
 using namespace MG;
 namespace fs = std::filesystem;
 
-std::vector<fs::path> CollectFiles(const fs::path& inputDir)
+std::vector<fs::path> CollectFiles(const fs::path& inputPath)
 {
 	std::vector<fs::path> files;
 
-	for (const auto& entry : fs::recursive_directory_iterator(inputDir)) {
+	if (!fs::exists(inputPath)) {
+		// ë∂ç›ÇµÇ»Ç¢
+		return files;
+	}
+
+	if (!fs::is_directory(inputPath)) {
+		// ë∂ç›ÇÕÇ∑ÇÈÇØÇ«ÉtÉHÉãÉ_Ç∂Ç·Ç»Ç¢
+		files.push_back(inputPath);
+		return files;
+	}
+
+	for (const auto& entry : fs::recursive_directory_iterator(inputPath)) {
 		if (!entry.is_regular_file())
 			continue;
 
@@ -24,7 +35,7 @@ std::vector<fs::path> CollectFiles(const fs::path& inputDir)
 int main(int argc, char* argv[])
 {
 	if (argc < 3) {
-		std::cerr << "Usage: MGResource <input_dir> <output_pak>\n";
+		std::cerr << "Usage: ResouceTool <input_dir> <output_pak>\n";
 		return 1;
 	}
 
@@ -34,9 +45,9 @@ int main(int argc, char* argv[])
 	std::cout << "Input Dir : " << inputDir << "\n";
 	std::cout << "Output Pak: " << outputPak << "\n";
 
-	std::vector<fs::path> filePaths = CollectFiles(inputDir);
-
 	fs::path inputPath(inputDir);
+
+	std::vector<fs::path> filePaths = CollectFiles(inputPath);
 
 	MGResource resource(outputPak);
 

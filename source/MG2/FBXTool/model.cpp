@@ -456,7 +456,7 @@ void ReadModel(const char* fileName, const char* outputName)
 	}
 	std::ofstream file(ouputFileName, std::ios::binary);
 
-	file.write((const char*)MODEL_PREFIX, sizeof(char) * 4);
+	file.write((const char*)MODEL_MAGIC, sizeof(char) * 4);
 	file.write((const char*)MODEL_VERSION, sizeof(char) * 8);
 	file.write((const char*)&modelMeta, sizeof(MODEL_META));
 	file.write((const char*)textureMetaArray.data(), sizeof(TEXTURE_META) * textureMetaArray.size());

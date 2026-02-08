@@ -10,9 +10,6 @@
 #include "dataType.h"
 #include "buffer.h"
 
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
-
 namespace MG {
 	class DynamicIndexDivision {
 	private:

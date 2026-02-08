@@ -1,3 +1,10 @@
+// =======================================================
+// animationFollower.h
+// 
+// 行列をモデルインスタンスの特定のノーツに追従させる
+// 「ソケット」のような物
+// ※あくまでもGPU上追従させるだけで、CPUへ同期はしない
+// =======================================================
 #pragma once
 #include <vector>
 #include <set>
@@ -5,13 +12,10 @@
 #include "dataType.h"
 #include "dynamicMatrix.h"
 #include "modelInstance.h"
-
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
+#include "buffer.h"
 
 namespace MG {
 	class AnimationFollower {
-
 		struct DATA {
 			DynamicMatrix dynamicMatrix;
 			ModelInstance modelInstance;
@@ -27,8 +31,6 @@ namespace MG {
 		static inline bool s_NeedUpdateBuffer = false;
 
 	public:
-		static void Uninit();
-		static void Update();
 		static size_t GetCount() { return s_Data.size(); }
 		static ID3D11ShaderResourceView* const GetSRV() { return s_SRV; }
 		static AnimationFollower Create(DynamicMatrix dynamicMatrix, ModelInstance modelInstance, unsigned int nodeIndex)
@@ -53,9 +55,14 @@ namespace MG {
 			return key;
 		}
 
+		static void Uninit();
+		static void Update();
+
 	private:
 		unsigned int m_Id = UINT_MAX;
+
 	public:
+		BUFFER_HANDLE_OPERATOR(AnimationFollower)
 
 		const DATA& GetData() const { return s_Data[m_Id]; }
 
@@ -69,7 +76,8 @@ namespace MG {
 			}
 		}
 
-		void Release() {
+		void Release() 
+		{
 			if (m_Id != UINT_MAX) {
 				s_Data[m_Id] = {};
 
@@ -78,22 +86,6 @@ namespace MG {
 				s_NeedUpdateBuffer = true;
 			}
 		}
-
-		operator bool() const {
-			return m_Id != UINT_MAX;
-		}
-
-		operator unsigned int() const {
-			return m_Id;
-		}
-
-		bool operator ==(AnimationFollower& other) const {
-			return m_Id == other.m_Id;
-		}
-
-		AnimationFollower& operator=(const unsigned int& id) { m_Id = id; }
-		AnimationFollower() = default;
-		AnimationFollower(const unsigned int& id) :m_Id(id) {}
 	};
 
 }

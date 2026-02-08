@@ -7,7 +7,6 @@ namespace MG {
 	void VertexDivision::Uninit()
 	{
 		SAFE_RELEASE(s_DataBuffer);
-		SAFE_RELEASE(s_PaddingCS);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
 		s_DataCapcity = 0;

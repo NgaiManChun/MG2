@@ -19,7 +19,7 @@ namespace MG {
 
 		char prefix[4];
 		file.read(prefix, 4);
-		if (strcmp(prefix, "MGM")) {
+		if (strcmp(prefix, MODEL_MAGIC)) {
 			file.close();
 			return {};
 		}

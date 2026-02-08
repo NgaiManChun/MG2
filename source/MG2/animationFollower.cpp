@@ -10,12 +10,15 @@ namespace MG {
 		SAFE_RELEASE(s_Buffer);
 		s_Data.clear();
 		s_EmptyIds.clear();
+		s_Capcity = 0;
+		s_NeedUpdateBuffer = false;
 	}
 
 	void AnimationFollower::Update()
 	{
 		if (s_NeedUpdateBuffer) {
 			if (s_Data.capacity() > s_Capcity) {
+				// バッファ確保
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_Buffer);
 				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), s_Data.capacity(), s_Data.data());
@@ -26,6 +29,7 @@ namespace MG {
 				}
 			}
 		}
+
 		if (s_NeedUpdateBuffer && s_SRV) {
 			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DATA) * s_Data.size());
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);

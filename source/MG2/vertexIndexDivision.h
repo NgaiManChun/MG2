@@ -9,16 +9,12 @@
 #include "dataType.h"
 #include "buffer.h"
 
-struct ID3D11Buffer;
-struct ID3D11ComputeShader;
-
 namespace MG {
 	class VertexIndexDivision {
 	private:
 		static inline std::vector<BOOKMARK> s_Bookmarks{};
 		static inline std::set<unsigned int> s_EmptyIds{};
 		static inline ID3D11Buffer* s_DataBuffer = nullptr;
-		static inline ID3D11ComputeShader* s_PadCS = nullptr;
 		static inline unsigned int s_DataCapcity = 0;
 		static inline unsigned int s_DataCount = 0;
 

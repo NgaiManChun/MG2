@@ -11,7 +11,10 @@ struct ID3D11ComputeShader;
 operator bool() const { return m_Id != UINT_MAX; }				   \
 bool operator ==(TYPE& other) const { return m_Id == other.m_Id; } \
 bool operator !=(TYPE& other) const { return m_Id == other.m_Id; } \
-operator unsigned int() const { return m_Id; }
+operator unsigned int() const { return m_Id; }					   \
+TYPE& operator=(const unsigned int& id) { m_Id = id; }			   \
+TYPE() = default;												   \
+TYPE(const unsigned int& id) :m_Id(id) {}
 
 namespace MG::Buffer {
 

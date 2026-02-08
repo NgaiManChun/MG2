@@ -7,7 +7,6 @@ namespace MG {
 	void VertexIndexDivision::Uninit()
 	{
 		SAFE_RELEASE(s_DataBuffer);
-		SAFE_RELEASE(s_PadCS);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
 	}
