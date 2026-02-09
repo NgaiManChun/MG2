@@ -1,7 +1,12 @@
+// =======================================================
+// sceneManager.h
+// 
+// シーンの管理クラス
+// ゲーム全体の更新のエントリーポイント
+// =======================================================
 #pragma once
 #include <string>
-#include <unordered_map>
-#include <queue>
+#include <vector>
 
 namespace MG {
 
@@ -13,12 +18,11 @@ namespace MG {
 	private:
 		static inline std::vector<Scene*> s_Scenes{};
 		static inline SceneTransition* s_Transition = nullptr;
+
 	public:
 		static void Init();
 		static void Uninit();
 		static void Update();
-
-		static const std::string RegisterTransition(const std::string transitionName, SceneTransition* (*instanceFunction)(Scene& src, Scene& dest));
 
 		static Scene* AddScene(const std::string sceneName);
 		static SceneTransition* SetSceneTransition(const std::string sceneName);

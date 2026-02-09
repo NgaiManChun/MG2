@@ -1,5 +1,4 @@
 #include "scene.h"
-#include <algorithm>
 #include "gameObject.h"
 #include "component.h"
 #include "camera.h"
@@ -10,7 +9,7 @@ namespace MG {
 	{
 		GameObject* gameObject = nullptr;
 		
-		// 再利用
+		// 再利用できるメモリを探す
 		size_t size = m_GameObjects.size();
 		for (size_t i = m_EmptyGameObjectIndex; i < size; i++) {
 			gameObject = m_GameObjects[i];
@@ -26,6 +25,7 @@ namespace MG {
 			}
 		}
 
+		// 空いてるとこなければ、追加する
 		gameObject = new GameObject(position, scale, rotation);
 		if (gameObject) {
 			m_GameObjects.push_back(gameObject);
@@ -40,6 +40,7 @@ namespace MG {
 
 	void Scene::UpdateGameObjectWorlds()
 	{
+		// 親がないGameObjectを取得
 		if (m_NeedUpdateRootGameObjects) {
 			m_RootGameObjects.clear();
 			for (GameObject* gameObject : m_GameObjects) {
@@ -49,19 +50,13 @@ namespace MG {
 			}
 		}
 
+		// 親から階層的にワールド行列を計算
 		if (m_NeedUpdateWorldMatrix) {
 			for (GameObject* gameObject : m_RootGameObjects) {
 				gameObject->UpdateWorldMatrix();
 			}
 			m_NeedUpdateWorldMatrix = false;
 		}
-		
-
-		/*for (GameObject* gameObject : m_GameObjects) {
-			if (gameObject->m_NeedUpdateWorldMatrix) {
-				gameObject->UpdateWorldMatrix();
-			}
-		}*/
 	}
 
 	void Scene::InitScene()
@@ -82,24 +77,8 @@ namespace MG {
 		Component::ReleaseDestroyed(this);
 		m_MainCamera = nullptr;
 		m_Enabled = false;
-
-		/*Model::ReleaseScope(this);
-		Animation::ReleaseScope(this);
-		Texture::ReleaseScope(this);*/
 	}
 
-	void Scene::BeforeUpdate()
-	{
-		/*size_t size = m_GameObjects.size();
-		for (ptrdiff_t i = static_cast<ptrdiff_t>(size) - 1; i >= 0; i--) {
-			if (m_GameObjects[i]->m_Destroyed) {
-				m_EmptyGameObjectIndex = i;
-			}
-			else {
-				m_GameObjects[i]->m_AttributeModified = 0;
-			}
-		}*/
-	}
 } // namespace MG
 
 

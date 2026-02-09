@@ -18,76 +18,6 @@
 
 namespace MG {
 
-	void ModelRenderer::SetModel(Model model, unsigned int lod) {
-		GameObject* gameObject = GetGameObject();
-		if (!gameObject) return;
-		Scene* scene = gameObject->GetScene();
-		if (!scene) return;
-
-		if (m_Model == model) return;
-
-		if (m_ModelSet) {
-			m_ModelSet->modelInstances[m_InstanceIndex].SetEnabled(false);
-			m_ModelSet->emptyIds.insert(m_InstanceIndex);
-		}
-
-		if (!model) {
-			m_ModelSet = nullptr;
-			return;
-		}
-
-		m_Model = model;
-		MODEL_SET& modelSet = s_SceneModelSet[scene][model];
-		m_ModelSet = &modelSet;
-		
-		if (modelSet.emptyIds.empty()) {
-			modelSet.modelInstances.push_back(
-				ModelInstance::Create(model, gameObject->GetWorldMatrix(), m_Enabled && gameObject->IsEnabled(), lod)
-			);
-			m_InstanceIndex = modelSet.modelInstances.size() - 1;
-			m_ModelSet->needUpdateModelInstanceBuffer = true;
-		}
-		else {
-			m_InstanceIndex = *modelSet.emptyIds.begin();
-			modelSet.emptyIds.erase(modelSet.emptyIds.begin());
-			modelSet.modelInstances[m_InstanceIndex].SetWorld(gameObject->GetWorldMatrix());
-			modelSet.modelInstances[m_InstanceIndex].SetEnabled(m_Enabled && gameObject->IsEnabled());
-			modelSet.modelInstances[m_InstanceIndex].SetLOD(lod);
-		}
-	}
-
-	void ModelRenderer::SetAnimation(unsigned char animationId, unsigned int blendDuration, unsigned int timeOffset)
-	{
-		if (!m_ModelSet) return;
-		unsigned int nowTime = MG::MGUtility::GetRunTimeMilliseconds();
-		AnimationSet animationSet = m_ModelSet->modelInstances[m_InstanceIndex].GetData().animationSet;
-		AnimationSet::DATA animationSetData{};
-		
-
-		if (animationSet) {
-			animationSetData = animationSet.GetData();
-
-			animationSetData.modelAnimationsFrom[0] = animationSetData.modelAnimationsTo[0];
-			animationSetData.animationStartTimeFrom[0] = animationSetData.animationStartTimeTo[0];
-			animationSetData.countFrom = animationSetData.countTo;
-		}
-		animationSetData.modelAnimationsTo[0] = m_Model.GetData().animations[animationId];
-		animationSetData.animationStartTimeTo[0] = nowTime - timeOffset;
-		animationSetData.countTo = 1;
-
-		animationSetData.animationBlendStartTime = nowTime - timeOffset;
-		animationSetData.animationBlendDuration = blendDuration;
-		animationSetData.timeMultiplier = 1.0f;
-		if (!animationSet) {
-			animationSet = AnimationSet::Create(animationSetData);
-			m_ModelSet->modelInstances[m_InstanceIndex].SetAnimationSet(animationSet);
-		}
-		else {
-			animationSet.SetData(animationSetData);
-		}
-		
-	}
-
 	void ModelRenderer::StaticInit()
 	{
 		s_ColorTexture = Renderer::CreateTexture2D(MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight());
@@ -103,22 +33,13 @@ namespace MG {
 		s_WorldPositionSRV = Renderer::CreateTextureSRV(s_WorldPositionTexture);
 
 		s_DirectionalShadowTexture = Renderer::CreateTexture2D(
-			400, 400,
+			DIRECTIONAL_SHADOW_TEXTURE_WIDTH, DIRECTIONAL_SHADOW_TEXTURE_HEIGHT,
 			DXGI_FORMAT_R32_TYPELESS, 
 			D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
 		);
 		s_DirectionalShadowSRV = Renderer::CreateTextureSRV(s_DirectionalShadowTexture, DXGI_FORMAT_R32_FLOAT);
 		s_DirectionalShadowDSV = Renderer::CreateTextureDSV(s_DirectionalShadowTexture, DXGI_FORMAT_D32_FLOAT);
-		/*s_DirectionalShadowTexture = Renderer::CreateTexture2D(MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight());
-		s_DirectionalShadowSRV = Renderer::CreateTextureSRV(s_DirectionalShadowTexture);
-		s_DirectionalShadowDSV = Renderer::CreateTextureDSV(s_DirectionalShadowTexture);
-		s_DirectionalShadowRTV = Renderer::CreateTextureRTV(s_DirectionalShadowTexture);*/
 		
-
-		/*s_DepthTexture = Renderer::CreateTexture2D(
-			MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight(), 
-			DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_BIND_DEPTH_STENCIL
-		);*/
 		s_DepthTexture = Renderer::CreateTexture2D(
 			MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight(),
 			DXGI_FORMAT_R24G8_TYPELESS, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE
@@ -129,22 +50,48 @@ namespace MG {
 
 	void ModelRenderer::StaticUninit()
 	{
+
+		SAFE_RELEASE(s_MeshInstanceUAV);
+		SAFE_RELEASE(s_MeshInstanceSRV);
+		SAFE_RELEASE(s_MeshInstanceBuffer);
+
+		SAFE_RELEASE(s_MeshInstanceIndexUAV);
+		SAFE_RELEASE(s_MeshInstanceIndexSRV);
+		SAFE_RELEASE(s_MeshInstanceIndexBuffer);
+
 		SAFE_RELEASE(s_ColorSRV);
 		SAFE_RELEASE(s_ColorRTV);
+		SAFE_RELEASE(s_ColorTexture);
+
 		SAFE_RELEASE(s_NormalSRV);
 		SAFE_RELEASE(s_NormalRTV);
+		SAFE_RELEASE(s_NormalTexture);
+
 		SAFE_RELEASE(s_WorldPositionSRV);
 		SAFE_RELEASE(s_WorldPositionRTV);
-		SAFE_RELEASE(s_DSV);
-		SAFE_RELEASE(s_ColorTexture);
-		SAFE_RELEASE(s_NormalTexture);
 		SAFE_RELEASE(s_WorldPositionTexture);
-		SAFE_RELEASE(s_DirectionalShadowRTV);
+
 		SAFE_RELEASE(s_DirectionalShadowDSV);
 		SAFE_RELEASE(s_DirectionalShadowSRV);
 		SAFE_RELEASE(s_DirectionalShadowTexture);
+
+		SAFE_RELEASE(s_DepthSRV);
+		SAFE_RELEASE(s_DSV);
 		SAFE_RELEASE(s_DepthTexture);
 
+		s_MeshInstanceBufferCapcity = 0;
+		s_MeshInstanceMax = 0;
+
+		for (auto& pair : s_SceneModelSet) {
+			for (auto& modelSetPair : pair.second) {
+				SAFE_RELEASE(modelSetPair.second.modelInstanceIdSRV);
+				SAFE_RELEASE(modelSetPair.second.modelInstanceIdBuffer);
+				for (ModelInstance& modelInstance : modelSetPair.second.modelInstances) {
+					modelInstance.Release();
+				}
+			}
+		}
+		s_SceneModelSet.clear();
 	}
 
 	void ModelRenderer::UpdateAll(Scene* scene)
@@ -160,25 +107,25 @@ namespace MG {
 		AnimationSet::Update();
 		AnimationFollower::Update();
 
-		ID3D11Device* device = Renderer::GetDevice();
+		//ID3D11Device* device = Renderer::GetDevice();
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
+		// 時刻定数更新
 		TIME_CONSTANT timeConstant{};
 		timeConstant.currentTime = MGUtility::GetRunTimeMilliseconds();
 		Renderer::SetTimeContant(timeConstant);
 
 		// アニメーション
 		{
+			// シェーダ
 			static ID3D11ComputeShader* animationCS = Renderer::GetComputeShader("CS/animationCS.cso");
 			deviceContext->CSSetShader(animationCS, NULL, 0);
 
-			CS_CONSTANT constant{};
-			constant.CSMaxX = ModelInstance::GetCount();
-			Renderer::SetCSContant(constant);
-
+			// UAV
 			ID3D11UnorderedAccessView* animationSetResultUAV = AnimationSet::GetResultUAV();
 			deviceContext->CSSetUnorderedAccessViews(0, 1, &animationSetResultUAV, nullptr);
 
+			// SRV
 			ID3D11ShaderResourceView* srvArray[] = {
 				ModelInstance::GetSRV(),
 				AnimationSet::GetSRV(),
@@ -187,27 +134,27 @@ namespace MG {
 				DynamicIndexDivision::GetBookmarkSRV()
 			};
 			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
+
+			// 上限定数
+			CS_CONSTANT constant{};
+			constant.CSMaxX = ModelInstance::GetCount();
+			Renderer::SetCSContant(constant);
+
+			// 実行
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)ModelInstance::GetCount() / 64)), 1, 1);
-
-
-			
-
-			
 		}
 
-		// AnimationFollower
+		// ソケット追従
 		{
-
+			// シェーダ
 			static ID3D11ComputeShader* animationFollowCS = Renderer::GetComputeShader("CS/animationFollowCS.cso");
 			deviceContext->CSSetShader(animationFollowCS, NULL, 0);
 
-			CS_CONSTANT constant{};
-			constant.CSMaxX = AnimationFollower::GetCount();
-			Renderer::SetCSContant(constant);
-
+			// UAV
 			ID3D11UnorderedAccessView* dynamicMatrixUAV = DynamicMatrix::GetUAV();
 			deviceContext->CSSetUnorderedAccessViews(0, 1, &dynamicMatrixUAV, nullptr);
 
+			// SRV
 			ID3D11ShaderResourceView* srvArray[] = {
 				AnimationFollower::GetSRV(),
 				ModelInstance::GetSRV(),
@@ -216,39 +163,18 @@ namespace MG {
 				DynamicIndexDivision::GetDataSRV()
 			};
 			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
+
+			// 上限定数
+			CS_CONSTANT constant{};
+			constant.CSMaxX = AnimationFollower::GetCount();
+			Renderer::SetCSContant(constant);
+
+			// 実行
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)AnimationFollower::GetCount() / 64)), 1, 1);
-
-			// DEBUG
-			/*{
-				ID3D11UnorderedAccessView* nullUAV = nullptr;
-				deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
-
-				static ID3D11Buffer* debugBuffer = ([](unsigned int stride, unsigned int count) {
-					D3D11_BUFFER_DESC desc = {};
-					desc.Usage = D3D11_USAGE_STAGING;
-					desc.BindFlags = 0;
-					desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-					desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-					desc.StructureByteStride = stride;
-					desc.ByteWidth = stride * count;
-					ID3D11Buffer* debugBuffer;
-					Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &debugBuffer);
-					return debugBuffer;
-					})(sizeof(AnimationSet::RESULT), 20000);
-
-				Renderer::GetDeviceContext()->CopySubresourceRegion(debugBuffer, 0, 0, 0, 0, debugResultBuffer, 0, nullptr);
-
-				D3D11_MAPPED_SUBRESOURCE mapped;
-				if (Renderer::GetDeviceContext()->Map(debugBuffer, 0, D3D11_MAP_READ, 0, &mapped) == S_OK) {
-					AnimationSet::RESULT data[20000];
-					memcpy(data, mapped.pData, sizeof(AnimationSet::RESULT) * 20000);
-					Renderer::GetDeviceContext()->Unmap(debugBuffer, 0);
-				}
-			}*/
 		}
 
 
-		// Model Instance×Mesh のカウント
+		// Meshインスタンスのカウント
 		unsigned int maxMeshInstanceCount = 0;
 
 		for (auto& pair : s_SceneModelSet[scene]) {
@@ -261,7 +187,7 @@ namespace MG {
 
 			if (activeInstanceCount == 0) continue;
 
-			// このモデルに属するインスタンス番号をGPUに更新
+			// バッファ確保
 			if (modelInstances.capacity() > modelSet.bufferCapcity) {
 				SAFE_RELEASE(modelSet.modelInstanceIdSRV);
 				SAFE_RELEASE(modelSet.modelInstanceIdBuffer);
@@ -275,18 +201,19 @@ namespace MG {
 					modelSet.needUpdateModelInstanceBuffer = false;
 				}
 			}
-			if (modelSet.needUpdateModelInstanceBuffer) {
+
+			// このモデルに属するインスタンス番号をバッファに更新
+			if (modelSet.needUpdateModelInstanceBuffer && modelSet.modelInstanceIdBuffer) {
 				D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(ModelInstance) * modelInstances.size());
 				deviceContext->UpdateSubresource(modelSet.modelInstanceIdBuffer, 0, &box, modelInstances.data(), 0, 0);
 				modelSet.needUpdateModelInstanceBuffer = false;
 			}
 
 			maxMeshInstanceCount += static_cast<unsigned int>(modelData.meshes.size()) * activeInstanceCount;
-
 		}
 
 
-		// Model Instance×Meshを展開するためのバッファを準備
+		// Meshインスタンスのバッファを確保
 		if (maxMeshInstanceCount > s_MeshInstanceBufferCapcity) {
 			SAFE_RELEASE(s_MeshInstanceUAV);
 			SAFE_RELEASE(s_MeshInstanceSRV);
@@ -318,16 +245,19 @@ namespace MG {
 		s_MeshInstanceMax = maxMeshInstanceCount;
 		
 
-		// Model Instance×Meshを展開する
+		// Meshインスタンスを作成し、DrawArgにカウントを記録する
 		{
+			// シェーダ
 			static ID3D11ComputeShader* expandMeshInstanceCS = Renderer::GetComputeShader("CS/expandMeshInstanceCS.cso");
 			deviceContext->CSSetShader(expandMeshInstanceCS, NULL, 0);
 
+			// UAV
 			unsigned int counter = 0; // AppendBufferをリセット
 			ID3D11UnorderedAccessView* drawArgsUav = Mesh::GetDrawArgsUAV();
 			deviceContext->CSSetUnorderedAccessViews(0, 1, &drawArgsUav, nullptr);
 			deviceContext->CSSetUnorderedAccessViews(1, 1, &s_MeshInstanceUAV, &counter);
 
+			// SRV
 			ID3D11ShaderResourceView* srvArray[] = {
 				ModelInstance::GetSRV(),
 				DynamicIndexDivision::GetBookmarkSRV(),
@@ -355,6 +285,7 @@ namespace MG {
 				modelConstant.nodeMatrixDivisionId = modelData.originalNodeMatrixDivision;
 				Renderer::SetModelContant(modelConstant);
 
+				// モデルインスタンスIDバッファ
 				deviceContext->CSSetShaderResources(0, 1, &modelSet.modelInstanceIdSRV);
 
 				auto& nodeMeshPairs = modelData.nodeMeshPairs;
@@ -371,25 +302,26 @@ namespace MG {
 					meshConstant.localMax = meshData.max;
 					Renderer::SetMeshContant(meshConstant);
 
+					// 実行
 					deviceContext->Dispatch(static_cast<UINT>(ceil((float)modelInstances.size() / 64)), 1, 1);
-
 				}
-
 			}
 		}
 
-		
-		
 		// 各DrawArgのinstanceStartLocationをセット
-		static ID3D11ComputeShader* offsetMeshInstanceCS = Renderer::GetComputeShader("CS/offsetMeshInstanceCS.cso");
-		deviceContext->CSSetShader(offsetMeshInstanceCS, NULL, 0);
-		CS_CONSTANT constant{};
-		constant.CSMaxX = Mesh::GetDrawArgsCount();
-		Renderer::SetCSContant(constant);
-		deviceContext->Dispatch(1, 1, 1);
+		{
+			// シェーダ
+			static ID3D11ComputeShader* offsetMeshInstanceCS = Renderer::GetComputeShader("CS/offsetMeshInstanceCS.cso");
+			deviceContext->CSSetShader(offsetMeshInstanceCS, NULL, 0);
 
-		
-		
+			// 上限定数
+			CS_CONSTANT constant{};
+			constant.CSMaxX = Mesh::GetDrawArgsCount();
+			Renderer::SetCSContant(constant);
+
+			// 実行
+			deviceContext->Dispatch(1, 1, 1);
+		}
 
 	}
 
@@ -397,54 +329,70 @@ namespace MG {
 	{
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
-		// カウンターをリセットする
+		// 描画するMeshインスタンスのカウンターをリセットする
 		{
+			// シェーダ
+			static ID3D11ComputeShader* resetInstanceCountCS = Renderer::GetComputeShader("CS/resetInstanceCountCS.cso");
+			deviceContext->CSSetShader(resetInstanceCountCS, NULL, 0);
+
+			// UAV
 			ID3D11UnorderedAccessView* uavArray[] = {
 				Mesh::GetDrawArgsUAV()
 			};
 			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 
-			static ID3D11ComputeShader* resetInstanceCountCS = Renderer::GetComputeShader("CS/resetInstanceCountCS.cso");
-			deviceContext->CSSetShader(resetInstanceCountCS, NULL, 0);
-
+			// 上限定数
 			CS_CONSTANT constant{};
 			constant.CSMaxX = Mesh::GetDrawArgsCount();
 			Renderer::SetCSContant(constant);
+
+			// 実行
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)constant.CSMaxX / 64)), 1, 1);
 		}
 
-		ID3D11UnorderedAccessView* uavArray[] = {
-				Mesh::GetDrawArgsUAV(),
-				s_MeshInstanceUAV,
-				s_MeshInstanceIndexUAV
-		};
-		deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
-		static ID3D11ComputeShader* frustumCullingCS = Renderer::GetComputeShader("CS/frustumCullingCS.cso");
-		deviceContext->CSSetShader(frustumCullingCS, NULL, 0);
+		// 描画するMeshインスタンスIDを選別する
+		{
+			// シェーダ
+			static ID3D11ComputeShader* frustumCullingCS = Renderer::GetComputeShader("CS/frustumCullingCS.cso");
+			deviceContext->CSSetShader(frustumCullingCS, NULL, 0);
 
-		CS_CONSTANT constant{};
-		constant.CSMaxX = s_MeshInstanceMax;
-		Renderer::SetCSContant(constant);
+			// UAV
+			ID3D11UnorderedAccessView* uavArray[] = {
+					Mesh::GetDrawArgsUAV(),
+					s_MeshInstanceUAV,
+					s_MeshInstanceIndexUAV
+			};
+			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 
-		ID3D11ShaderResourceView* srvArray[] = {
-			ModelInstance::GetSRV(),
-			DynamicMatrix::GetSRV()
-		};
-		deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
-		deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_MeshInstanceMax / 64)), 1, 1);
+			// SRV
+			ID3D11ShaderResourceView* srvArray[] = {
+				ModelInstance::GetSRV(),
+				DynamicMatrix::GetSRV()
+			};
+			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
-		ID3D11UnorderedAccessView* nullUAVs[] = {
-			nullptr,
-			nullptr,
-			nullptr
-		};
-		deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(nullUAVs), nullUAVs, nullptr);
+			// 上限定数
+			CS_CONSTANT constant{};
+			constant.CSMaxX = s_MeshInstanceMax;
+			Renderer::SetCSContant(constant);
 
-		ID3D11Buffer* drawArgsBuffer = Mesh::GetDrawArgsBuffer();
-		ID3D11Buffer* indirectArgsBuffer = Mesh::GetDrawArgsIndirectBuffer();
+			// 実行
+			deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_MeshInstanceMax / 64)), 1, 1);
 
-		deviceContext->CopyResource(indirectArgsBuffer, drawArgsBuffer);
+			// UAV解除
+			ID3D11UnorderedAccessView* nullUAVs[] = {
+				nullptr,
+				nullptr,
+				nullptr
+			};
+			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(nullUAVs), nullUAVs, nullptr);
 
+			// 選別結果をindirectDrawのArgsにコピーする
+			ID3D11Buffer* drawArgsBuffer = Mesh::GetDrawArgsBuffer();
+			ID3D11Buffer* indirectArgsBuffer = Mesh::GetDrawArgsIndirectBuffer();
+			deviceContext->CopyResource(indirectArgsBuffer, drawArgsBuffer);
+
+		}
 		
 	}
 
@@ -452,6 +400,7 @@ namespace MG {
 	{
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
+		// 頂点バッファ
 		UINT strides[] = {
 			sizeof(VERTEX)
 		};
@@ -459,11 +408,12 @@ namespace MG {
 		ID3D11Buffer* vertexBuffers[] = {
 			VertexDivision::GetDataBuffer()
 		};
-
-		// インデックスバッファ設定
-		deviceContext->IASetIndexBuffer(VertexIndexDivision::GetDataBuffer(), DXGI_FORMAT_R32_UINT, 0);
 		deviceContext->IASetVertexBuffers(0, 1, vertexBuffers, strides, offsets);
 
+		// 頂点インデックスバッファ
+		deviceContext->IASetIndexBuffer(VertexIndexDivision::GetDataBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		
+		// VS SRV
 		ID3D11ShaderResourceView* srvArray[] = {
 			s_MeshInstanceSRV,
 			ModelInstance::GetSRV(),
@@ -485,16 +435,13 @@ namespace MG {
 		};
 		deviceContext->VSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
-		
+		// PS SRV
+		ID3D11ShaderResourceView* MaterialSRV = Material::GetSRV();
+		deviceContext->PSSetShaderResources(3, 1, &MaterialSRV);
 
 		// InDirect Args
 		ID3D11Buffer* indirectArgsBuffer = Mesh::GetDrawArgsIndirectBuffer();
 
-		ID3D11ShaderResourceView* MaterialSRV = Material::GetSRV();
-		deviceContext->PSSetShaderResources(3, 1, &MaterialSRV);
-
-		
-		// Renderer::SetBlendState(BLEND_STATE_ALPHA_A2C);
 		for (auto& pair : s_SceneModelSet[scene]) {
 			Model model = pair.first;
 			auto& modelData = model.GetData();
@@ -504,10 +451,9 @@ namespace MG {
 
 			if (activeInstanceCount == 0) continue;
 
+			// モデル定数
 			MODEL_CONSTANT modelConstant{};
 			modelConstant.modelId = model;
-			/*modelConstant.nodeCount = modelData.nodeCount;
-			modelConstant.maxInstance = modelInstances.size();*/
 			modelConstant.nodeMatrixDivisionId = modelData.originalNodeMatrixDivision;
 			modelConstant.nodeParentIndexDivisionOffset = modelData.nodeParentIndexDivision.GetBookmarkData().offset;
 			Renderer::SetModelContant(modelConstant);
@@ -519,19 +465,18 @@ namespace MG {
 
 				auto& meshData = mesh.GetData();
 
+				// メッシュ定数
 				MESH_CONSTANT meshConstant{};
 				meshConstant.meshId = mesh;
 				meshConstant.nodeIndex = pair.nodeOffset;
 				if (meshData.boneDivision) {
 					meshConstant.skinning = true;
-					//meshConstant.boneDivisionId = meshData.boneDivision;
-					//meshConstant.vertexBoneWeightDivisionId = meshData.vertexBoneWeightDivision;
 					meshConstant.boneDivisionOffset = meshData.boneDivision.GetBookmarkData().offset;
 					meshConstant.vertexBoneWeightDivisionOffset = meshData.vertexBoneWeightDivision.GetBookmarkData().offset;
 				}
-				
 				Renderer::SetMeshContant(meshConstant);
 
+				// テクスチャ
 				Material material = modelData.materials[meshData.materialOffset];
 				ID3D11ShaderResourceView* textureSRVs[] = {
 					material.GetData().baseTexture.GetSRV(),
@@ -540,6 +485,7 @@ namespace MG {
 				};
 				deviceContext->PSSetShaderResources(0, ARRAYSIZE(textureSRVs), textureSRVs);
 
+				// デプスステート
 				if (material.GetData().opaque) {
 					Renderer::SetDepthState(DEPTH_STATE_COMPARISON_LESS);
 				}
@@ -547,39 +493,42 @@ namespace MG {
 					Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_LESS);
 				}
 
+				// トポロジー
 				Renderer::SetPrimitiveTopology(meshData.primitiveType);
 				
+				// ドロー
 				unsigned int offset = sizeof(DRAW_INDEXED_INDIRECT_ARGS) * static_cast<unsigned int>(mesh);
 				deviceContext->DrawIndexedInstancedIndirect(indirectArgsBuffer, offset);
 			}
 		}
-		//Renderer::SetBlendState(BLEND_STATE_ALPHA);
 	}
 
 	void ModelRenderer::MainDrawAll(Scene* scene)
 	{
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-		static const float CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
+		
 		static XMFLOAT4X4 directionalShadowViewProjection;
 
-		
-
-		static bool cap = false;
-		if (true) {
-
+		// シャドーマップキャプチャ
+		// ToDo: コンポーネント化
+		{
+			// シャドーマップ用のカメラ定数を設定
 			{
 				Camera* camera = scene->GetMainCamera();
 
-				float x = 10.0f;
-
 				XMVECTOR forward = scene->GetDirectLightDirection();
-				XMVECTOR position = camera->GetPosition() + XMVector3Normalize(camera->GetForward() * Vector3(1.0f, 0.0f, 1.0f)) * x + forward * -50.0f;
+				XMVECTOR position = 
+					camera->GetPosition() + 
+					XMVector3Normalize(camera->GetForward() * Vector3(1.0f, 0.0f, 1.0f)) * DIRECTIONAL_SHADOW_PROJECTION_RANGE + 
+					forward * DIRECTIONAL_SHADOW_PROJECTION_DISTANCE * -0.5f;
 
 				XMMATRIX view = XMMatrixLookAtLH(position, position + forward, {0.0f, 0.0f, 1.0f});
 
-				
-				XMMATRIX projection = XMMatrixOrthographicOffCenterLH(-x, x, -x, x, 0.0f, 100.0f);
+				XMMATRIX projection = XMMatrixOrthographicOffCenterLH(
+					-DIRECTIONAL_SHADOW_PROJECTION_RANGE, DIRECTIONAL_SHADOW_PROJECTION_RANGE,
+					-DIRECTIONAL_SHADOW_PROJECTION_RANGE, DIRECTIONAL_SHADOW_PROJECTION_RANGE, 
+					0.0f, DIRECTIONAL_SHADOW_PROJECTION_DISTANCE
+				);
 
 				XMMATRIX invViewRotation = XMMatrixInverse(nullptr, view);
 				invViewRotation.r[3].m128_f32[0] = 0.0f;
@@ -613,7 +562,6 @@ namespace MG {
 					points[0]
 				};
 
-
 				CAMERA_CONSTANT cameraConstant = {};
 				XMStoreFloat4x4(&cameraConstant.view, XMMatrixTranspose(view));
 				XMStoreFloat4x4(&cameraConstant.projection, XMMatrixTranspose(projection));
@@ -633,9 +581,17 @@ namespace MG {
 
 			Culling();
 
-			//deviceContext->ClearRenderTargetView(s_DirectionalShadowRTV, CLEAR_COLOR);
+			// デプスバッファをクリアする
 			deviceContext->ClearDepthStencilView(s_DirectionalShadowDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+			// シェーダ
+			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
+			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
+			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
+			deviceContext->IASetInputLayout(inputLayout);
+			deviceContext->PSSetShader(nullptr, NULL, 0);
+
+			// レンダーターゲット
 			ID3D11RenderTargetView* rtvArray[] = {
 				nullptr,
 				nullptr,
@@ -643,34 +599,38 @@ namespace MG {
 			};
 			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, s_DirectionalShadowDSV);
 
+			// ビューポート
+			Renderer::SetViewport(DIRECTIONAL_SHADOW_TEXTURE_WIDTH, DIRECTIONAL_SHADOW_TEXTURE_HEIGHT);
 
-			Renderer::SetViewport(400.0f, 400.0f);
-
-			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
-			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
-
-			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
-			deviceContext->IASetInputLayout(inputLayout);
-			deviceContext->PSSetShader(nullptr, NULL, 0);
-
-			Renderer::SetDepthState(DEPTH_STATE_COMPARISON_LESS);
-
+			// 描画
 			DrawAll(scene);
 		}
-		cap = !cap;
 
-		
-
-		
+		// G-Bufferに描画
 		{
-			scene->GetMainCamera()->Apply();
-			Culling();
-
+			// レンダーターゲットをクリア
+			static const float CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			deviceContext->ClearRenderTargetView(s_ColorRTV, CLEAR_COLOR);
 			deviceContext->ClearRenderTargetView(s_NormalRTV, CLEAR_COLOR);
 			deviceContext->ClearRenderTargetView(s_WorldPositionRTV, CLEAR_COLOR);
 			deviceContext->ClearDepthStencilView(s_DSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+			// カメラ設定
+			scene->GetMainCamera()->Apply();
+
+			Culling();
+
+			// シェーダ
+			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
+			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
+			static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
+			static ID3D11GeometryShader* outlineGS = Renderer::GetGeometryShader("GS/outlineGS.cso");
+			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
+			deviceContext->IASetInputLayout(inputLayout);
+			deviceContext->PSSetShader(pixelShader, NULL, 0);
+			deviceContext->GSSetShader(outlineGS, NULL, 0); // アウトライン、ToDo: フラグ化
+
+			// レンダーターゲット
 			ID3D11RenderTargetView* rtvArray[] = {
 				s_ColorRTV,
 				s_NormalRTV,
@@ -678,60 +638,122 @@ namespace MG {
 			};
 			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, s_DSV);
 
-
+			// ビューポート
 			Renderer::SetViewport(static_cast<float>(MGUtility::GetScreenWidth()), static_cast<float>(MGUtility::GetScreenHeight()));
 
-			static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/modelInstancedVS.cso");
-			static ID3D11InputLayout* inputLayout = vertexShaderSet.inputLayouts["general.csv"];
-			static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
-			static ID3D11GeometryShader* outlineGS = Renderer::GetGeometryShader("GS/outlineGS.cso");
-
-			deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
-			deviceContext->IASetInputLayout(inputLayout);
-			deviceContext->PSSetShader(pixelShader, NULL, 0);
-			deviceContext->GSSetShader(outlineGS, NULL, 0);
-
-			Renderer::SetDepthState(DEPTH_STATE_COMPARISON_LESS);
-
+			// 描画
 			DrawAll(scene);
 
+			// アウトラインoff
 			deviceContext->GSSetShader(nullptr, NULL, 0);
 		}
 
-		
-		
+		// デファードライティング
+		{
+			// シェーダ
+			static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/fullScreenVS.cso").vertexShader;
+			static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/deferredLightPS.cso");
+			deviceContext->VSSetShader(vertexShader, NULL, 0);
+			deviceContext->IASetInputLayout(nullptr);
+			deviceContext->PSSetShader(pixelShader, NULL, 0);
 
-		Renderer::SetMainRenderTarget();
-		ID3D11ShaderResourceView* srvArray[] = {
+			// レンダーターゲット
+			Renderer::SetMainRenderTarget();
+
+			// SRV
+			ID3D11ShaderResourceView* srvArray[] = {
 			s_ColorSRV,
 			s_NormalSRV,
 			s_WorldPositionSRV,
 			s_DirectionalShadowSRV,
 			s_DepthSRV
-		};
-		deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
+			};
+			deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
-		static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/fullScreenVS.cso").vertexShader;
-		static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/deferredLightPS.cso");
+			// ライト定数
+			LIGHT_CONSTANT lightConstant{};
+			lightConstant.ambient = Vector4(scene->GetAmbient());
+			lightConstant.directLightColor = Vector4(scene->GetDirectLightColor());
+			lightConstant.directLightDirection = Vector4(scene->GetDirectLightDirection());
+			lightConstant.directionalShadowViewProjection = directionalShadowViewProjection;
+			Renderer::SetLight(lightConstant);
 
-		deviceContext->VSSetShader(vertexShader, NULL, 0);
-		deviceContext->IASetInputLayout(nullptr);
-		deviceContext->PSSetShader(pixelShader, NULL, 0);
+			Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_ALWAYS);
+			deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		LIGHT_CONSTANT lightConstant{};
-		lightConstant.ambient = Vector4(scene->GetAmbient());
-		lightConstant.directLightColor = Vector4(scene->GetDirectLightColor());
-		lightConstant.directLightDirection = Vector4(scene->GetDirectLightDirection());
-		lightConstant.directionalShadowViewProjection = directionalShadowViewProjection;
-		Renderer::SetLight(lightConstant);
+			deviceContext->Draw(4, 0);
+		}
+		
+	}
 
-		Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_ALWAYS);
-		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	void ModelRenderer::SetModel(Model model, unsigned int lod) {
+		GameObject* gameObject = GetGameObject();
+		if (!gameObject) return;
+		Scene* scene = gameObject->GetScene();
+		if (!scene) return;
 
-		CS_CONSTANT constant{};
-		constant.CSMaxZ = MGUtility::GetRunTimeMilliseconds();
-		Renderer::SetCSContant(constant);
-		deviceContext->Draw(4, 0);
+		if (m_Model == model) return;
+
+		if (m_ModelSet) {
+			m_ModelSet->modelInstances[m_InstanceIndex].SetEnabled(false);
+			m_ModelSet->emptyIds.insert(m_InstanceIndex);
+		}
+
+		if (!model) {
+			m_ModelSet = nullptr;
+			return;
+		}
+
+		m_Model = model;
+		MODEL_SET& modelSet = s_SceneModelSet[scene][model];
+		m_ModelSet = &modelSet;
+
+		if (modelSet.emptyIds.empty()) {
+			modelSet.modelInstances.push_back(
+				ModelInstance::Create(model, gameObject->GetWorldMatrix(), m_Enabled && gameObject->IsEnabled(), lod)
+			);
+			m_InstanceIndex = modelSet.modelInstances.size() - 1;
+			m_ModelSet->needUpdateModelInstanceBuffer = true;
+		}
+		else {
+			m_InstanceIndex = *modelSet.emptyIds.begin();
+			modelSet.emptyIds.erase(modelSet.emptyIds.begin());
+			modelSet.modelInstances[m_InstanceIndex].SetWorld(gameObject->GetWorldMatrix());
+			modelSet.modelInstances[m_InstanceIndex].SetEnabled(m_Enabled && gameObject->IsEnabled());
+			modelSet.modelInstances[m_InstanceIndex].SetLOD(lod);
+		}
+	}
+
+	void ModelRenderer::SetAnimation(unsigned char animationId, unsigned int blendDuration, unsigned int timeOffset)
+	{
+		if (!m_ModelSet) return;
+		unsigned int nowTime = MG::MGUtility::GetRunTimeMilliseconds();
+		AnimationSet animationSet = m_ModelSet->modelInstances[m_InstanceIndex].GetData().animationSet;
+		AnimationSet::DATA animationSetData{};
+
+
+		if (animationSet) {
+			animationSetData = animationSet.GetData();
+
+			animationSetData.modelAnimationsFrom[0] = animationSetData.modelAnimationsTo[0];
+			animationSetData.animationStartTimeFrom[0] = animationSetData.animationStartTimeTo[0];
+			animationSetData.countFrom = animationSetData.countTo;
+		}
+		animationSetData.modelAnimationsTo[0] = m_Model.GetData().animations[animationId];
+		animationSetData.animationStartTimeTo[0] = nowTime - timeOffset;
+		animationSetData.countTo = 1;
+
+		animationSetData.animationBlendStartTime = nowTime - timeOffset;
+		animationSetData.animationBlendDuration = blendDuration;
+		animationSetData.timeMultiplier = 1.0f;
+		if (!animationSet) {
+			animationSet = AnimationSet::Create(animationSetData);
+			m_ModelSet->modelInstances[m_InstanceIndex].SetAnimationSet(animationSet);
+		}
+		else {
+			animationSet.SetData(animationSetData);
+		}
+
 	}
 
 }; // namespace MG

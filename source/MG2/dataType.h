@@ -5,6 +5,7 @@
 #include "matrix4x4.h"
 
 namespace MG {
+	static constexpr const float PI = 3.14159274f;
 
 	enum MATERIAL_TYPE {
 		MATERIAL_TYPE_FLAT,

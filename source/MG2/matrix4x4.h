@@ -1,10 +1,6 @@
 #pragma once
-
 #include "vector3.h"
 #include "vector4.h"
-//#include "quaternion.h"
-
-
 
 namespace MG {
 	struct Matrix4x4 {
@@ -15,8 +11,6 @@ namespace MG {
 		};
 
 	public:
-
-		// 16個のfloatを行優先で代入するコンストラクタ
 		Matrix4x4(float v00, float v01, float v02, float v03,
 			float v10, float v11, float v12, float v13,
 			float v20, float v21, float v22, float v23,
@@ -30,20 +24,20 @@ namespace MG {
 		Matrix4x4() { XMStoreFloat4x4(&xmfloat, XMMatrixIdentity()); }
 		Matrix4x4(const XMFLOAT4X4& mat) : xmfloat(mat) {}
 		Matrix4x4(const XMMATRIX& mat) { XMStoreFloat4x4(&xmfloat, mat); }
-
 		operator XMFLOAT4X4() const { return xmfloat; }
 		operator XMMATRIX() const { return XMLoadFloat4x4(&xmfloat); }
-
 		float* operator[](int row) { return m[row]; }
 		const float* operator[](int row) const { return m[row]; }
 
-		XMMATRIX operator*(const Matrix4x4& other) const {
+		XMMATRIX operator*(const Matrix4x4& other) const 
+		{
 			XMMATRIX a = XMLoadFloat4x4(&xmfloat);
 			XMMATRIX b = XMLoadFloat4x4(&other.xmfloat);
 			return XMMatrixMultiply(a, b);
 		}
 
-		XMMATRIX operator*(const float other) const {
+		XMMATRIX operator*(const float other) const 
+		{
 			XMMATRIX a = XMLoadFloat4x4(&xmfloat);
 			return a * other;
 		}
@@ -60,43 +54,52 @@ namespace MG {
 			return true;
 		}
 
-		Matrix4x4& operator*=(const Matrix4x4& other) {
+		Matrix4x4& operator*=(const Matrix4x4& other) 
+		{
 			*this = *this * other;
 			return *this;
 		}
 
-		Matrix4x4& operator*=(const float other) {
+		Matrix4x4& operator*=(const float other) 
+		{
 			*this = *this * other;
 			return *this;
 		}
 
-		XMVECTOR TransformNormal(const Vector3& v) const noexcept {
+		XMVECTOR TransformNormal(const Vector3& v) const noexcept 
+		{
 			XMMATRIX mat = XMLoadFloat4x4(&xmfloat);
 			return XMVector3TransformNormal(v, mat);
 		}
 
-		XMMATRIX Inverse() const noexcept {
+		XMMATRIX Inverse() const noexcept 
+		{
 			XMMATRIX mat = XMLoadFloat4x4(&xmfloat);
 			return XMMatrixInverse(nullptr, mat);
 		}
 
-		static XMMATRIX ScalingMatrix(const Vector3& v) {
+		static XMMATRIX ScalingMatrix(const Vector3& v) 
+		{
 			return XMMatrixScaling(v.x, v.y, v.z);
 		}
 
-		static XMMATRIX RotatingMatrix(const Vector3& euler) {
+		static XMMATRIX RotatingMatrix(const Vector3& euler) 
+		{
 			return XMMatrixRotationRollPitchYaw(euler.x, euler.y, euler.z);
 		}
 
-		static XMMATRIX RotatingMatrix(const Quaternion& quaternion) {
+		static XMMATRIX RotatingMatrix(const Quaternion& quaternion) 
+		{
 			return XMMatrixRotationQuaternion(quaternion);
 		}
 
-		static XMMATRIX RotatingMatrix(const XMVECTOR& quaternion) {
+		static XMMATRIX RotatingMatrix(const XMVECTOR& quaternion) 
+		{
 			return XMMatrixRotationQuaternion(quaternion);
 		}
 
-		static XMMATRIX TranslatingMatrix(const Vector3& v) {
+		static XMMATRIX TranslatingMatrix(const Vector3& v) 
+		{
 			return XMMatrixTranslation(v.x, v.y, v.z);
 		}
 
@@ -116,26 +119,14 @@ namespace MG {
 				XMMatrixTranslation(translate.x, translate.y, translate.z);
 		}
 
-		static XMMATRIX TransposeMatrix(const Matrix4x4& mat) {
-			return XMMatrixTranspose(mat);
-		}
-
-		static XMMATRIX TransposeMatrix(const XMMATRIX& mat) {
-			return XMMatrixTranspose(mat);
-		}
-
-		size_t Hash() const
+		static XMMATRIX TransposeMatrix(const Matrix4x4& mat) 
 		{
-			const unsigned char* data = reinterpret_cast<const unsigned char*>(&xmfloat);
-			constexpr size_t size = sizeof(XMFLOAT4X4);
+			return XMMatrixTranspose(mat);
+		}
 
-			// FNV-1a 64bit
-			size_t hash = 1469598103934665603ULL;
-			for (std::size_t i = 0; i < size; ++i) {
-				hash ^= data[i];
-				hash *= 1099511628211ULL;
-			}
-			return hash;
+		static XMMATRIX TransposeMatrix(const XMMATRIX& mat) 
+		{
+			return XMMatrixTranspose(mat);
 		}
 
 	};

@@ -6,14 +6,6 @@
 #include "sceneTransition.h"
 #include "component.h"
 
-//#include "camera.h"
-//#include "texture.h"
-//#include "material.h"
-//#include "matrixResource.h"
-//#include "animationKey.h"
-//#include "nodeSphere.h"
-//#include "model.h"
-//#include "animation.h"
 
 
 namespace MG {
@@ -67,7 +59,6 @@ namespace MG {
 			if (scenePtr) {
 				Scene& scene = *scenePtr;
 				if (scene.m_Enabled) {
-					scene.BeforeUpdate();
 					Component::InitAll(scenePtr);
 					Component::UpdateAll(scenePtr);
 					scenePtr->Update();

@@ -1,3 +1,8 @@
+// =======================================================
+// MGResource.h
+// 
+// 外部ファイルのパッケージ化・読み込み用インタフェース
+// =======================================================
 #pragma once
 #include <unordered_map>
 #include <string>
@@ -26,9 +31,11 @@ namespace MG {
 			}
 		};
 		static MGResource Load(const char* filename);
-		static constexpr const char MODEL_VERSION[8] = "1.0";
+		static constexpr const char VERSION[8] = "1.0";
+
 	private:
 		std::unordered_map<std::string, ResourceFile> m_Files;
+
 	public:
 		MGResource(){}
 		MGResource(const char* filename);

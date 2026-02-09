@@ -18,19 +18,10 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-
 //テクスチャサポートライブラリ
 #include    "DirectXTex.h"
-//デバッグビルドかリリースビルドでリンクするライブラリを選択する
-//#if _DEBUG
-//#pragma comment(lib, "DirectXTex_Debug.lib")    //デバッグ用
-//#else
-//#pragma comment(lib, "DirectXTex_Release.lib")  //リリース用
-//#endif
 
-// =======================================================
 // ライブラリのリンク
-// =======================================================
 #pragma	comment (lib, "d3d11.lib")
 #pragma	comment (lib, "d3dcompiler.lib")
 #pragma	comment (lib, "winmm.lib")

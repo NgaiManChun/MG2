@@ -138,4 +138,30 @@ public:
 	}
 };
 
+// DEBUG
+/*{
+	ID3D11UnorderedAccessView* nullUAV = nullptr;
+	deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 
+	static ID3D11Buffer* debugBuffer = ([](unsigned int stride, unsigned int count) {
+		D3D11_BUFFER_DESC desc = {};
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.StructureByteStride = stride;
+		desc.ByteWidth = stride * count;
+		ID3D11Buffer* debugBuffer;
+		Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &debugBuffer);
+		return debugBuffer;
+		})(sizeof(AnimationSet::RESULT), 20000);
+
+	Renderer::GetDeviceContext()->CopySubresourceRegion(debugBuffer, 0, 0, 0, 0, debugResultBuffer, 0, nullptr);
+
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	if (Renderer::GetDeviceContext()->Map(debugBuffer, 0, D3D11_MAP_READ, 0, &mapped) == S_OK) {
+		AnimationSet::RESULT data[20000];
+		memcpy(data, mapped.pData, sizeof(AnimationSet::RESULT) * 20000);
+		Renderer::GetDeviceContext()->Unmap(debugBuffer, 0);
+	}
+}*/

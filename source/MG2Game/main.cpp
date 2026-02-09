@@ -115,7 +115,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					overloadTime = 0;
 					if (FPSShiftIndex < ARRAYSIZE(FPSShift) - 1) {
 						FPSShiftIndex++;
-						MG::MGUtility::SetFPS(FPSShift[FPSShiftIndex]);
+						MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
 					}
 				}
 			}
@@ -127,7 +127,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					overloadTime = 0;
 					if (FPSShiftIndex > 0) {
 						FPSShiftIndex--;
-						MG::MGUtility::SetFPS(FPSShift[FPSShiftIndex]);
+						MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
 					}
 				}
 			}

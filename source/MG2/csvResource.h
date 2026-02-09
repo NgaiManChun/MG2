@@ -1,7 +1,26 @@
 // =======================================================
 // csvResource.h
 // 
-// CSVファイルを読み込み
+// CSVファイルを読み込みクラス
+// 
+// 使用例：
+// 0,  A,  B,  C
+// D, 11, 12, 13
+// E, 21, 22, 23
+// F, 31, 32, 33
+// 
+// csv[0][3]	 → "C"
+// csv["E"][3]	 → "23"
+// csv[3]["B"]	 → "32"
+// csv["F"]["C"] → "33"
+// 
+// for(RowView row : csv){
+//	row["B"] → "B", "12", "22", "32"
+// }
+// 
+// for(RowView row : csv.WithoutHeaderView()){
+//	row["A"] → "11", "21", "31"
+// }
 // =======================================================
 #pragma once
 #include <string>
@@ -13,6 +32,8 @@ namespace MG {
 
 	class CSVResource {
 	public:
+
+		// 型変換用のインタフェース
 		struct String {
 			std::string& str;
 
@@ -72,13 +93,16 @@ namespace MG {
 
 		};
 
+		// 行インタフェース
 		class RowView {
 			friend CSVResource;
+
 		private:
 			CSVResource* m_Resource;
 			size_t m_RowNum;
 			RowView(CSVResource* resource, size_t rowNum): 
 				m_Resource(resource), m_RowNum(rowNum) {}
+
 		public:
 			auto begin()
 			{
@@ -107,6 +131,7 @@ namespace MG {
 
 		};
 
+		// ヘッダ（1行目）を除外したループ用のインタフェース
 		class WithoutHeaderView {
 			friend CSVResource;
 		private:
@@ -144,37 +169,12 @@ namespace MG {
 
 		size_t GetRowCount() const { return m_RowViews.size(); }
 		size_t GetColCount() const { return m_ColCount; }
-
-		WithoutHeaderView WithoutHeader()
-		{
-			return WithoutHeaderView{ this };
-		}
-
-		auto begin()
-		{
-			return m_RowViews.begin();
-		}
-
-		auto end()
-		{
-			return m_RowViews.end();
-		}
-
-		RowView& operator[](const int i)
-		{
-			return m_RowViews[i];
-		}
-
-		RowView& operator[](std::string key)
-		{
-			return m_RowViews[m_RowKeys.at(key)];
-		}
-
-		RowView& operator[](const char* key)
-		{
-			return m_RowViews[m_RowKeys.at(key)];
-		}
-
+		WithoutHeaderView WithoutHeader() { return WithoutHeaderView{ this }; }
+		auto begin() { return m_RowViews.begin(); }
+		auto end() { return m_RowViews.end(); }
+		RowView& operator[](const int i) { return m_RowViews[i]; }
+		RowView& operator[](std::string key) { return m_RowViews[m_RowKeys.at(key)]; }
+		RowView& operator[](const char* key) { return m_RowViews[m_RowKeys.at(key)]; }
 
 	};
 

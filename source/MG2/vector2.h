@@ -1,5 +1,4 @@
 #pragma once
-
 #include <math.h>
 
 namespace MG {
@@ -109,12 +108,5 @@ namespace MG {
 				p2 * 3.0f * (1.0f - t) * t * t +
 				p3 * t * t * t;
 		}
-
-		static const Vector2 ZERO;
-		static const Vector2 ONE;
-
-		static Vector2 GetRandom();
-
-		static Vector2 GetSignedRandom();
 	};
 } // namespace MG

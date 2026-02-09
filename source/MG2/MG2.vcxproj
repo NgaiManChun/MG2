@@ -178,7 +178,6 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClInclude Include="buffer.h" />
     <ClInclude Include="collider.h" />
     <ClInclude Include="csvResource.h" />
-    <ClInclude Include="directionalLight.h" />
     <ClInclude Include="MGResource.h" />
     <ClInclude Include="spriteRenderer2D.h" />
     <ClInclude Include="animation.h" />
@@ -193,19 +192,16 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClInclude Include="boneDivision.h" />
     <ClInclude Include="boxCollider.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="collision.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="dataType.h" />
     <ClInclude Include="directX.h" />
     <ClInclude Include="gameObject.h" />
-    <ClInclude Include="GPU.h" />
     <ClInclude Include="dynamicIndexDivision.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="matrix4x4.h" />
     <ClInclude Include="matrixDivision.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="MGObject.h" />
     <ClInclude Include="MGSetup.h" />
     <ClInclude Include="MGUtility.h" />
     <ClInclude Include="modelAnimation.h" />
@@ -213,12 +209,6 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClInclude Include="model.h" />
     <ClInclude Include="modelRenderer.h" />
     <ClInclude Include="particleRenderer.h" />
-    <ClInclude Include="progress.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sceneManager.h" />
@@ -282,6 +272,7 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collider.cpp" />
+    <ClCompile Include="component.cpp" />
     <ClCompile Include="csvResource.cpp" />
     <ClCompile Include="dynamicIndexDivision.cpp" />
     <ClCompile Include="gameObject.cpp" />
@@ -289,10 +280,8 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClCompile Include="material.cpp" />
     <ClCompile Include="matrixDivision.cpp" />
     <ClCompile Include="mesh.cpp" />
-    <ClCompile Include="MGObject.cpp" />
     <ClCompile Include="MGResource.cpp" />
     <ClCompile Include="MGSetup.cpp" />
-    <ClCompile Include="MGUtility.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="modelAnimation.cpp" />
     <ClCompile Include="modelInstance.cpp" />
@@ -340,7 +329,6 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="transformDivision.cpp" />
-    <ClCompile Include="vector2.cpp" />
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="vector4.cpp" />
     <ClCompile Include="vectorDivision.cpp" />

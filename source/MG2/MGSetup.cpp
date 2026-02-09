@@ -13,6 +13,12 @@
 #include "animationFollower.h"
 #include "animationSet.h"
 #include "dynamicMatrix.h"
+#include "material.h"
+#include "mesh.h"
+#include "model.h"
+#include "modelAnimation.h"
+#include "modelInstance.h"
+#include "texture.h"
 
 #include "buffer.h"
 
@@ -23,7 +29,7 @@ namespace MG {
 
 		MGUtility::SetScreenWidth(initSceneWidth);
 		MGUtility::SetScreenHeight(initSceneHeight);
-		MGUtility::SetFPS(initFPS);
+		MGUtility::SetTargetFPS(initFPS);
 
 		SceneManager::Init();
 		SceneManager::AddScene(initScene);
@@ -33,19 +39,23 @@ namespace MG {
 		SceneManager::Uninit();
 
 		// バッファ系
-		BoneDivision::Uninit();
-		DynamicIndexDivision::Uninit();
-		MatrixDivision::Uninit();
-		TransformDivision::Uninit();
-		VertexBoneWeightDivision::Uninit();
-		VertexDivision::Uninit();
-		VertexIndexDivision::Uninit();
+		Model::Uninit();
+		ModelAnimation::Uninit();
+		Mesh::Uninit();
+		Material::Uninit();
+		Texture::Uninit();
+		ModelInstance::Uninit();
 		Animation::Uninit();
 		AnimationFollower::Uninit();
 		AnimationSet::Uninit();
+		BoneDivision::Uninit();
+		VertexBoneWeightDivision::Uninit();
+		DynamicIndexDivision::Uninit();
+		MatrixDivision::Uninit();
+		TransformDivision::Uninit();
 		DynamicMatrix::Uninit();
-		Material::Uninit();
-
+		VertexDivision::Uninit();
+		VertexIndexDivision::Uninit();
 		Buffer::Uninit();
 
 		Renderer::Uninit();

@@ -1,3 +1,9 @@
+// =======================================================
+// MGUtility.h
+// 
+// メインループにおけるフレーム時間、FPS、
+// 解像度情報を一元管理するためのユーティリティクラス
+// =======================================================
 #pragma once
 #include <queue>
 #include <chrono>
@@ -16,56 +22,85 @@ namespace MG {
 	
 	class MGUtility {
 	private:
-		
-		static inline int s_ScreenWidth = 1280;
-		static inline int s_ScreenHeight = 720;
+		static inline unsigned int s_ScreenWidth = 1280;
+		static inline unsigned int s_ScreenHeight = 720;
 		static inline float s_ScreenRatio = static_cast<float>(s_ScreenWidth) / s_ScreenHeight;
-		static inline unsigned int s_FPS = 60;
-		static inline float s_PreferedFrameTime = 1.0f / s_FPS;
-		static inline std::queue<std::chrono::steady_clock::time_point> s_FrameTime{};
+		static inline unsigned int s_TargetFPS = 60;
+		static inline float s_FrameBudgetTime = 1.0f / s_TargetFPS; // フレーム時間予算
+
+		// 起動時刻
 		static inline std::chrono::steady_clock::time_point s_StartTime = std::chrono::high_resolution_clock::now();
+
+		// 前フレーム時刻
 		static inline std::chrono::steady_clock::time_point s_LastFrameTime = std::chrono::high_resolution_clock::now();
-		static inline std::chrono::steady_clock::time_point s_LastMonitorTime = std::chrono::high_resolution_clock::now();
+
+		// 現フレーム時刻
 		static inline std::chrono::steady_clock::time_point s_CurrentTime;
-		static inline unsigned int s_FrameCount = 0;
+
+		// フレーム時刻キュー
+		static inline std::queue<std::chrono::steady_clock::time_point> s_FrameTimes{};
+
 		static inline float s_DeltaTime = 0.0f;
 		static inline unsigned int s_CurrentFPS = 0;
-		static inline unsigned int s_RunTimeMilliseconds = 0;
-
+		static inline unsigned int s_RunTimeMilliseconds = 0; // 稼働時間（ミリ秒）
 
 	public:
-		static constexpr const float PI = 3.14159274f;
-
-		static void SetFPS(unsigned int fps);
+		static unsigned int GetScreenWidth() { return s_ScreenWidth; }
+		static unsigned int GetScreenHeight() { return s_ScreenHeight; }
+		static float GetScreenRatio() { return s_ScreenRatio; }
+		static float GetDeltaTime() { return s_DeltaTime; }
+		static unsigned int GetRunTimeMilliseconds() { return s_RunTimeMilliseconds; }
+		static unsigned int GetCurrentFPS() { return s_CurrentFPS; }
+		static float GetFrameBudgetTime() { return s_FrameBudgetTime; }
 
 		static void SetScreenWidth(unsigned int width) { 
 			s_ScreenWidth = width; 
 			s_ScreenRatio = static_cast<float>(s_ScreenWidth) / s_ScreenHeight;
 		}
+
 		static void SetScreenHeight(unsigned int height) { 
 			s_ScreenHeight = height;
 			s_ScreenRatio = static_cast<float>(s_ScreenWidth) / s_ScreenHeight;
 		}
 
-		static int GetScreenWidth() { return s_ScreenWidth; }
+		static void SetTargetFPS(unsigned int fps)
+		{
+			s_TargetFPS = fps;
+			s_FrameBudgetTime = 1.0f / s_TargetFPS;
+			while (s_FrameTimes.size() > s_TargetFPS) {
+				s_FrameTimes.pop();
+			}
+		}
 
-		static int GetScreenHeight() { return s_ScreenHeight; }
+		// フレーム時間予算使用率
+		static float GetLoadRate()
+		{
+			return std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - s_LastFrameTime).count() / s_FrameBudgetTime;
+		}
 
-		static float GetScreenRatio() { return s_ScreenRatio; }
+		// 時間モニタリング、メインループに使う
+		// 戻り値：1フレーム分の時間経過したか
+		static bool UpdateTime()
+		{
+			s_CurrentTime = std::chrono::high_resolution_clock::now();
+			s_DeltaTime = std::chrono::duration<float>(s_CurrentTime - s_LastFrameTime).count();
 
-		static float GetDeltaTime() { return s_DeltaTime; }
+			s_RunTimeMilliseconds = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - s_StartTime).count();
 
-		static unsigned int GetRunTimeMilliseconds() { return s_RunTimeMilliseconds; }
+			if (s_DeltaTime >= s_FrameBudgetTime) {
 
-		static unsigned int GetCurrentFPS() { return s_CurrentFPS; }
+				s_FrameTimes.push(s_CurrentTime);
+				if (s_FrameTimes.size() > s_TargetFPS) {
+					s_CurrentFPS = round(1.0f / std::chrono::duration<float>(s_CurrentTime - s_FrameTimes.front()).count() * s_TargetFPS);
+					s_FrameTimes.pop();
+				}
 
-		static float GreferedFrameTime() { return s_PreferedFrameTime; }
-
-		static bool UpdateTime();
-
-		static float GetLoadRate();
+				s_LastFrameTime = s_CurrentTime;
+				return true;
+			}
+			return false;
+		}
 
 	};
 
-	
 }

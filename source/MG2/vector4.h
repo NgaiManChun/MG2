@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include <DirectXMath.h>
 #include <string>
 #include "vector3.h"
@@ -7,14 +6,13 @@
 using namespace DirectX;
 
 namespace MG {
+
     struct Vector4;
     typedef Vector4 RGBA;
     typedef Vector4 Quaternion;
+
     struct Vector4
     {
-    private:
-        static constexpr const float PI = 3.14159274f;
-
     public:
         union {
             struct { float r, g, b, a; };
@@ -22,7 +20,6 @@ namespace MG {
             float data[4];
         };
 
-        // コンストラクタ
         Vector4(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f, float _w = 0.0f) : x(_x), y(_y), z(_z), w(_w) {}
         Vector4(const Vector3& v) : x(v.x), y(v.y), z(v.z), w(0.0f) {}
         Vector4(const XMFLOAT4& v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
@@ -51,7 +48,6 @@ namespace MG {
             }
         }
 
-        // 暗黙変換
         operator Vector3() const { return Vector3{ x,y,z }; }
         operator XMFLOAT4() const { return XMFLOAT4{ x,y,z,w }; }
         operator XMVECTOR() const { return XMLoadFloat4(reinterpret_cast<const XMFLOAT4*>(this)); }

@@ -1,3 +1,8 @@
+// =======================================================
+// modelRenderer.h
+// 
+// モデル描画用コンポーネント
+// =======================================================
 #pragma once
 #include "component.h"
 #include "model.h"
@@ -16,7 +21,6 @@ struct ID3D11DepthStencilView;
 
 namespace MG {
 
-
 	class ModelRenderer : public Component {
 	private:
 		struct MESH_INSTANCE
@@ -27,8 +31,9 @@ namespace MG {
 			unsigned int materialId;
 			Vector3 min;
 			Vector3 max;
-			unsigned int uz; // floatのz値をunsignedに直した値、透明オブジェクトのソート用
+			unsigned int uz; // ToDo: 透明オブジェクトのソート用のuint型のz値
 		};
+
 		struct MODEL_SET{
 			std::vector<ModelInstance> modelInstances;
 			std::set<unsigned int> emptyIds;
@@ -37,9 +42,8 @@ namespace MG {
 			ID3D11ShaderResourceView* modelInstanceIdSRV;
 			bool needUpdateModelInstanceBuffer = false;
 		};
-		static inline std::unordered_map<Scene*, std::unordered_map<unsigned int, MODEL_SET>> s_SceneModelSet{};
-		static const constexpr unsigned int INSTANCE_INTERVAL = 50;
 
+		static inline std::unordered_map<Scene*, std::unordered_map<unsigned int, MODEL_SET>> s_SceneModelSet{};
 		static inline ID3D11Buffer* s_MeshInstanceBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_MeshInstanceSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_MeshInstanceUAV = nullptr;
@@ -49,10 +53,6 @@ namespace MG {
 		static inline unsigned int s_MeshInstanceBufferCapcity = 0;
 		static inline unsigned int s_MeshInstanceMax = 0;
 
-		static inline ID3D11Buffer* s_FilteredIdBuffer;
-		static inline ID3D11ShaderResourceView* s_FilteredIdSRV;
-		static inline ID3D11UnorderedAccessView* s_FilteredIdUAV;
-		
 		static inline ID3D11Texture2D* s_ColorTexture = nullptr;
 		static inline ID3D11RenderTargetView* s_ColorRTV = nullptr;
 		static inline ID3D11ShaderResourceView* s_ColorSRV = nullptr;
@@ -66,17 +66,18 @@ namespace MG {
 		static inline ID3D11ShaderResourceView* s_WorldPositionSRV = nullptr;
 
 		static inline ID3D11Texture2D* s_DirectionalShadowTexture = nullptr;
-		static inline ID3D11RenderTargetView* s_DirectionalShadowRTV = nullptr; // デバッグ用
 		static inline ID3D11ShaderResourceView* s_DirectionalShadowSRV = nullptr;
 		static inline ID3D11DepthStencilView* s_DirectionalShadowDSV = nullptr;
 
 		static inline ID3D11Texture2D* s_DepthTexture = nullptr;
 		static inline ID3D11DepthStencilView* s_DSV = nullptr;
 		static inline ID3D11ShaderResourceView* s_DepthSRV = nullptr;
-		
-		static inline ID3D11Buffer* s_DebugBuffer = nullptr;
-		
 
+		static constexpr const unsigned int DIRECTIONAL_SHADOW_TEXTURE_WIDTH = 400;
+		static constexpr const unsigned int DIRECTIONAL_SHADOW_TEXTURE_HEIGHT = 400;
+		static constexpr const float DIRECTIONAL_SHADOW_PROJECTION_RANGE = 10.0f;
+		static constexpr const float DIRECTIONAL_SHADOW_PROJECTION_DISTANCE = 100.0f;
+		
 	public:
 		static void StaticInit();
 		static void StaticUninit();
@@ -84,6 +85,7 @@ namespace MG {
 		static void DrawAll(Scene* scene);
 		static void MainDrawAll(Scene* scene);
 		static void Culling();
+
 	private:
 		BIND_STATIC_INIT(ModelRenderer, ModelRenderer::StaticInit)
 		BIND_STATIC_UNINIT(ModelRenderer, ModelRenderer::StaticUninit)
@@ -98,9 +100,6 @@ namespace MG {
 
 	public:
 		ModelRenderer() {}
-
-		void SetModel(Model model, unsigned int lod = LOD_ALL);
-
 		Model GetModel() const { return m_Model; }
 
 		ModelInstance GetModelInstance()
@@ -109,18 +108,21 @@ namespace MG {
 			return m_ModelSet->modelInstances[m_InstanceIndex];
 		}
 
-		void SetMaterial(Material material, unsigned int index) {
+		void SetMaterial(Material material, unsigned int index)
+		{
 			if (!m_ModelSet) return;
 			m_ModelSet->modelInstances[m_InstanceIndex].SetMaterial(material, index);
 		}
 
-		void SetAnimation(unsigned char animationId, unsigned int blendDuration = 1000, unsigned int timeOffset = 0);
-
-		AnimationSet GetAnimationSet() {
+		AnimationSet GetAnimationSet()
+		{
 			if (!m_ModelSet) return {};
 			return m_ModelSet->modelInstances[m_InstanceIndex].GetData().animationSet;
-			
 		}
+
+		void SetModel(Model model, unsigned int lod = LOD_ALL);
+		void SetAnimation(unsigned char animationId, unsigned int blendDuration = 1000, unsigned int timeOffset = 0);
+
 	};
 } // namespace MG
 

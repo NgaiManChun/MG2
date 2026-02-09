@@ -7,18 +7,17 @@ namespace MG {
 
 	MGResource::MGResource(const char* filename)
 	{
-
 		std::ifstream file(filename, std::ios::binary | std::ios::ate);
 		
 		if (file) {
 			size_t size = static_cast<size_t>(file.tellg());
 			file.seekg(0, std::ios::beg);
 
-			// ヘッダ
+			// ヘッダを読み込む
 			MG_RESOURCE_HEADER header;
 			file.read(reinterpret_cast<char*>(&header), sizeof(MG_RESOURCE_HEADER));
 
-			// エントリー
+			// エントリーを読み込む
 			std::vector<MG_RESOURCE_ENTRY> entries;
 			entries.reserve(header.entryCount);
 			for (unsigned int i = 0; i < header.entryCount; i++) {
@@ -40,7 +39,6 @@ namespace MG {
 			file.close();
 
 		}
-
 	}
 
 	void MGResource::Add(const char* filename, const char* rename)
@@ -64,7 +62,7 @@ namespace MG {
 				name = rename;
 			}
 
-			// 同じ名前があった場合
+			// 同じ名前があった場合、上書きする
 			if (m_Files.count(name) > 0) {
 				delete[] m_Files[name].data;
 				m_Files[name].size = 0;
@@ -74,9 +72,6 @@ namespace MG {
 			
 			file.close();
 		}
-
-		
-		
 	}
 
 	void MGResource::Remove(const char* filename)
@@ -98,12 +93,12 @@ namespace MG {
 	void MGResource::Write(const char* filename)
 	{
 
-		// ヘッダ
+		// ヘッダ作成
 		MG_RESOURCE_HEADER header{};
-		strcpy_s(header.version, sizeof(char) * ARRAYSIZE(header.version), MODEL_VERSION);
+		strcpy_s(header.version, sizeof(char) * ARRAYSIZE(header.version), VERSION);
 		header.entryCount = m_Files.size();
 
-		// エントリー
+		// エントリー作成
 		std::vector<MG_RESOURCE_ENTRY> entries;
 		entries.reserve(header.entryCount);
 		for (auto pair : m_Files) {
@@ -122,7 +117,6 @@ namespace MG {
 		}
 
 		file.close();
-
 	}
 
 	void MGResource::Release()

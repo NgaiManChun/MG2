@@ -61,14 +61,14 @@
     <Filter Include="Config">
       <UniqueIdentifier>{11d1c149-1868-43d9-864a-8045e7527979}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\DataType">
+      <UniqueIdentifier>{06b82375-796d-4401-8169-ad6f920d6dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\DataType">
+      <UniqueIdentifier>{1c6fc40e-e210-4a94-a491-9f3144baab95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix4x4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="MGObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="MGUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -79,18 +79,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="sceneTransition.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="vector2.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="vector3.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="vector4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="GPU.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="input.h">
@@ -180,9 +168,6 @@
     <ClInclude Include="vertexBoneWeightDivision.h">
       <Filter>ヘッダー ファイル\Buffer\Division</Filter>
     </ClInclude>
-    <ClInclude Include="progress.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="timeline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -191,9 +176,6 @@
     </ClInclude>
     <ClInclude Include="particleRenderer.h">
       <Filter>ヘッダー ファイル\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="collision.h">
-      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="animationFollower.h">
       <Filter>ヘッダー ファイル\Buffer</Filter>
@@ -205,9 +187,6 @@
       <Filter>ヘッダー ファイル\Component\Collider</Filter>
     </ClInclude>
     <ClInclude Include="spriteRenderer2D.h">
-      <Filter>ヘッダー ファイル\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="directionalLight.h">
       <Filter>ヘッダー ファイル\Component</Filter>
     </ClInclude>
     <ClInclude Include="collider.h">
@@ -228,17 +207,23 @@
     <ClInclude Include="spotLight.h">
       <Filter>Backup</Filter>
     </ClInclude>
+    <ClInclude Include="vector4.h">
+      <Filter>ヘッダー ファイル\DataType</Filter>
+    </ClInclude>
+    <ClInclude Include="vector3.h">
+      <Filter>ヘッダー ファイル\DataType</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix4x4.h">
+      <Filter>ヘッダー ファイル\DataType</Filter>
+    </ClInclude>
     <ClInclude Include="dataType.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\DataType</Filter>
+    </ClInclude>
+    <ClInclude Include="vector2.h">
+      <Filter>ヘッダー ファイル\DataType</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MGObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="MGUtility.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="renderer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -249,15 +234,6 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="sceneTransition.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="vector2.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="vector3.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="vector4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="input.cpp">
@@ -373,6 +349,15 @@
     </ClCompile>
     <ClCompile Include="spotLight.cpp">
       <Filter>Backup</Filter>
+    </ClCompile>
+    <ClCompile Include="vector4.cpp">
+      <Filter>ソース ファイル\DataType</Filter>
+    </ClCompile>
+    <ClCompile Include="vector3.cpp">
+      <Filter>ソース ファイル\DataType</Filter>
+    </ClCompile>
+    <ClCompile Include="component.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
