@@ -4,11 +4,6 @@
 #include "vector4.h"
 #include "buffer.h"
 
-struct ID3D11Buffer;
-struct ID3D11ShaderResourceView;
-struct ID3D11UnorderedAccessView;
-struct ID3D11ComputeShader;
-
 namespace MG {
 	class VectorDivision {
 	private:

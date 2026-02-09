@@ -57,24 +57,24 @@ public:
 			Material material = Material::Create(materialData);
 
 
-			//ParticleRenderer* particleRenderer = gameObject->AddComponent<ParticleRenderer>(
-			//	material, 10000,
-			//	"CS/particleUpdateCS.cso"
-			//);
-			//PARTICLE_CONSTANT constant{};
-			//constant.INIT_COLOR = RGBA(1.0f, 1.0f, 1.0f, 0.03f);
-			//constant.INIT_LIFE_MAX = 6.0f;
-			//constant.INIT_LIFE_MIN = 6.0f;
-			//constant.INIT_POSITION_RANGE = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
-			//constant.INIT_ACCELERATION = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-			//constant.INIT_SCALE = Vector4(1.0f, 1.0f, 0.0f);
-			//constant.INIT_SCALE_ACCELERATION = Vector4(100.0f, 100.0f, 0.0f, 0.0f);
-			//constant.INIT_VELOCITY = Vector4(20.0f, 1.0f, -1.0f);
-			////constant.INIT_SCALE_ACCELERATION = Vector4(10.0f, 10.0f, 0.0f);
-			//particleRenderer->SetConstant(constant);
-			//particleRenderer->SetSpawnCount(2);
-			//gameObject->SetPosition({ 0.0f, 0.0f, 5.0f });
-			////flog = particleRenderer;
+			ParticleRenderer* particleRenderer = gameObject->AddComponent<ParticleRenderer>(
+				material, 300,
+				"CS/particleUpdateCS.cso"
+			);
+			PARTICLE_CONSTANT constant{};
+			constant.INIT_COLOR = RGBA(1.0f, 1.0f, 1.0f, 0.3f);
+			constant.INIT_LIFE_MAX = 6.0f;
+			constant.INIT_LIFE_MIN = 6.0f;
+			constant.INIT_POSITION_RANGE = Vector4(5.0f, 5.0f, 5.0f, 0.0f);
+			constant.INIT_ACCELERATION = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+			constant.INIT_SCALE = Vector4(1.0f, 1.0f, 0.0f);
+			constant.INIT_SCALE_ACCELERATION = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
+			constant.INIT_VELOCITY = Vector4(1.0f, 1.0f, 1.0f);
+			//constant.INIT_SCALE_ACCELERATION = Vector4(10.0f, 10.0f, 0.0f);
+			particleRenderer->SetConstant(constant);
+			particleRenderer->SetSpawnCount(2);
+			gameObject->SetPosition({ 0.0f, 0.0f, 5.0f });
+			//flog = particleRenderer;
 		}
 
 		/*MGResource resource;

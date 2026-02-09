@@ -102,13 +102,63 @@ namespace MG {
 		static inline std::vector<SCENE_FUNCTION_PAIR> s_DestroyAllFunctions{};
 		static inline std::vector<SCENE_FUNCTION_PAIR> s_ReleaseDestroyedFunctions{};
 
-		static bool AddStaticInitFunction(void (*function)(), int priority = 0);
-		static bool AddStaticUninitFunction(void (*function)(), int priority = 0);
-		static bool AddInitAllFunction(void (*function)(Scene*), int priority = 0);
-		static bool AddUpdateAllFunction(void (*function)(Scene*), int priority = 0);
-		static bool AddDrawAllFunction(void (*function)(Scene*), int priority = 0);
-		static bool AddDestroyAllFunction(void (*function)(Scene*), int priority = 0);
-		static bool AddReleaseDestroyedFunction(void (*function)(Scene*), int priority = 0);
+		static inline bool s_SortedStaticInitFunctions = true;
+		static inline bool s_SortedStaticUninitFunctions = true;
+		static inline bool s_SortedInitAllFunctions = true;
+		static inline bool s_SortedUpdateAllFunctions = true;
+		static inline bool s_SortedDrawAllFunctions = true;
+		static inline bool s_SortedDestroyAllFunctions = true;
+		static inline bool s_SortedReleaseDestroyedFunctions = true;
+
+		static bool AddStaticInitFunction(void (*function)(), int priority = 0)
+		{
+			s_StaticInitFunctions.push_back(FUNCTION_PAIR{ function, priority });
+			s_SortedStaticInitFunctions = false;
+			return true;
+		}
+
+		static bool AddStaticUninitFunction(void (*function)(), int priority = 0)
+		{
+			s_StaticUninitFunctions.push_back(FUNCTION_PAIR{ function, priority });
+			s_SortedStaticUninitFunctions = false;
+			return true;
+		}
+
+		static bool AddInitAllFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_InitAllFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
+			s_SortedInitAllFunctions = false;
+			return true;
+		}
+
+		static bool AddUpdateAllFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_UpdateAllFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
+			s_SortedUpdateAllFunctions = false;
+			return true;
+		}
+
+		static bool AddDrawAllFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_DrawAllFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
+			s_SortedDrawAllFunctions = false;
+			return true;
+		}
+
+		static bool AddDestroyAllFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_DestroyAllFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
+			s_SortedDestroyAllFunctions = false;
+			return true;
+		}
+
+		static bool AddReleaseDestroyedFunction(void (*function)(Scene*), int priority = 0)
+		{
+			s_ReleaseDestroyedFunctions.push_back(SCENE_FUNCTION_PAIR{ function, priority });
+			s_SortedReleaseDestroyedFunctions = false;
+			return true;
+		}
+		
 
 	protected:
 		template <typename COMPONENT>
@@ -122,55 +172,13 @@ namespace MG {
 		static inline std::unordered_map<Scene*, COMPONENT_VECTOR_PAIR<COMPONENT>> s_Components{};
 
 	public:
-
-		static void StaticInit()
-		{
-			for (auto& pair : s_StaticInitFunctions) {
-				pair.function();
-			}
-		}
-
-		static void StaticUninit()
-		{
-			for (auto& pair : s_StaticUninitFunctions) {
-				pair.function();
-			}
-		}
-
-		static void InitAll(Scene* scene)
-		{
-			for (auto& pair : s_InitAllFunctions) {
-				pair.function(scene);
-			}
-		}
-
-		static void UpdateAll(Scene* scene)
-		{
-			for (auto& pair : s_UpdateAllFunctions) {
-				pair.function(scene);
-			}
-		}
-
-		static void DrawAll(Scene* scene)
-		{
-			for (auto& pair : s_DrawAllFunctions) {
-				pair.function(scene);
-			}
-		}
-
-		static void DestroyAll(Scene* scene)
-		{
-			for (auto& pair : s_DestroyAllFunctions) {
-				pair.function(scene);
-			}
-		}
-
-		static void ReleaseDestroyed(Scene* scene)
-		{
-			for (auto& pair : s_ReleaseDestroyedFunctions) {
-				pair.function(scene);
-			}
-		}
+		static void StaticInit();
+		static void StaticUninit();
+		static void InitAll(Scene* scene);
+		static void UpdateAll(Scene* scene);
+		static void DrawAll(Scene* scene);
+		static void DestroyAll(Scene* scene);
+		static void ReleaseDestroyed(Scene* scene);
 
 		// 再利用できるコンポーネントを取得
 		template <typename COMPONENT>
