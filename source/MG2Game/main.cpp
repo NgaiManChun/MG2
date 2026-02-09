@@ -105,7 +105,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			Input::Update();
 			MG::SceneManager::Update();
 
-			unsigned int currentFPS = MG::MGUtility::GetCurrentFPS();
+			int currentFPS = static_cast<int>(MG::MGUtility::GetCurrentFPS());
 			float loadRate = MG::MGUtility::GetLoadRate();
 			if (loadRate > 0.8f) {
 				if (overloadTime < 0)

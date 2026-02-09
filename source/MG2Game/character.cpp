@@ -276,7 +276,7 @@ void Character::ImpactState::Init(Character* character)
 	auto& animations = character->m_Models[0].GetData().animations;
 	AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
 	for (auto& modelRenderer : character->m_ModelRenderers) {
-		modelRenderer->GetAnimationSet().Swap(animations[Character::IMPACT_ANIMATION_SLOT], 0.5f);
+		modelRenderer->GetAnimationSet().Swap(animations[Character::IMPACT_ANIMATION_SLOT], 500);
 	}
 }
 

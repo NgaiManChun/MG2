@@ -75,7 +75,7 @@ namespace MG::Buffer {
 		
 		static ID3D11ComputeShader* s_PaddingCS = Renderer::GetComputeShader("CS\\paddingCS.cso");
 
-		unsigned int bookmarkCount = bookmarks.size();
+		unsigned int bookmarkCount = static_cast<unsigned int>(bookmarks.size());
 		if (bookmarkCount > s_BookmarkCapcity) {
 			SAFE_RELEASE(s_BookmarkSRV);
 			SAFE_RELEASE(s_BookmarkBuffer);

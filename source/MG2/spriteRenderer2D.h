@@ -1,20 +1,15 @@
+// =======================================================
+// spriteRenderer2D.h
+// 
+// 2D四角sprite描画用コンポーネント
+// =======================================================
 #pragma once
 #include "component.h"
-#include "model.h"
 #include "material.h"
-#include "modelInstance.h"
-#include "dynamicIndexDivision.h"
-#include <unordered_map>
-#include <vector>
-#include <set>
 
 namespace MG {
 
-
 	class SpriteRenderer2D : public Component {
-	private:
-
-
 	public:
 		static void DrawAll(Scene* scene);
 
@@ -26,14 +21,10 @@ namespace MG {
 		Material m_Material;
 
 	public:
-
-		//void Draw() override;
-
 		SpriteRenderer2D() {}
+		void SetMaterial(Material material) { m_Material = material; }
 
-		void SetMaterial(Material material) {
-			m_Material = material;
-		}
 	};
+
 } // namespace MG
 

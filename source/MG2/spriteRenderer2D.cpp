@@ -12,63 +12,56 @@ namespace MG {
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
+		// シェーダ
 		static auto vertexShaderSet = Renderer::GetVertexShaderSet("VS/spriteVS.cso");
 		static ID3D11PixelShader* pixelShader = Renderer::GetPixelShader("PS/unlitTexturePS.cso");
-
 		deviceContext->VSSetShader(vertexShaderSet.vertexShader, NULL, 0);
 		deviceContext->IASetInputLayout(nullptr);
 		deviceContext->PSSetShader(pixelShader, NULL, 0);
 
-		Renderer::Apply2D(
-			static_cast<float>(MGUtility::GetScreenWidth()), 
-			static_cast<float>(MGUtility::GetScreenHeight())
-		);
-
+		// SRV
 		ID3D11ShaderResourceView* srvArray[] = {
 			DynamicMatrix::GetSRV()
 		};
 		deviceContext->VSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
+		// ※TRIANGLESTRIP
 		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_ALWAYS);
-		Renderer::SetMainRenderTarget();
-		for (ptrdiff_t i = static_cast<ptrdiff_t>(size) - 1; i >= 0; i--) {
-			if (sceneComponents[i] && sceneComponents[i]->IsEnabled()) {
-				SpriteRenderer2D& component = *sceneComponents[i];
 
+		// デプスoff
+		Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_ALWAYS);
+
+		Renderer::SetMainRenderTarget();
+
+		// 2Dカメラ設定
+		Renderer::Apply2D(
+			static_cast<float>(MGUtility::GetScreenWidth()),
+			static_cast<float>(MGUtility::GetScreenHeight())
+		);
+
+		for (auto component : sceneComponents) {
+			if (component && component->IsEnabled()) {
+
+				// シングルメッシュ定数
 				SINGLE_CONSTANT singleConstant{};
-				singleConstant.worldMatrixId = component.GetGameObject()->GetWorldMatrix();
-				singleConstant.materialId = component.m_Material;
+				singleConstant.worldMatrixId = component->GetGameObject()->GetWorldMatrix();
+				singleConstant.materialId = component->m_Material;
 				Renderer::SetSingleContant(singleConstant);
 
 				// マテリアル
-				{
-					auto& materialData = component.m_Material.GetData();
-					ID3D11ShaderResourceView* srvArray[] = {
-						materialData.baseTexture.GetSRV(),
-						materialData.normalTexture.GetSRV(),
-						materialData.opacityTexture.GetSRV(),
-						Material::GetSRV()
-					};
-					deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
-				}
+				auto& materialData = component->m_Material.GetData();
+				ID3D11ShaderResourceView* srvArray[] = {
+					materialData.baseTexture.GetSRV(),
+					materialData.normalTexture.GetSRV(),
+					materialData.opacityTexture.GetSRV(),
+					Material::GetSRV()
+				};
+				deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
 				deviceContext->Draw(4, 0);
 			}
 		}
 	}
-
-	/*void SpriteRenderer2D::Draw()
-	{
-
-		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-
-		static SHADER_SET shaderSet = ([]() {
-			SHADER_SET shaderSet = Renderer::LoadVertexShader("complied_shader\\spriteVS.cso", nullptr, 0);
-			shaderSet.pixelShader = Renderer::LoadPixelShader("complied_shader\\unlitTexturePS.cso");
-			return shaderSet;
-		})();
-	}*/
 
 } // namespace MG
 

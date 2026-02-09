@@ -16,7 +16,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_SRVs.push_back(pair);
-			key.m_Id = s_SRVs.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_SRVs.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

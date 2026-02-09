@@ -96,7 +96,7 @@ namespace MG {
 		// ヘッダ作成
 		MG_RESOURCE_HEADER header{};
 		strcpy_s(header.version, sizeof(char) * ARRAYSIZE(header.version), VERSION);
-		header.entryCount = m_Files.size();
+		header.entryCount = static_cast<unsigned int>(m_Files.size());
 
 		// エントリー作成
 		std::vector<MG_RESOURCE_ENTRY> entries;

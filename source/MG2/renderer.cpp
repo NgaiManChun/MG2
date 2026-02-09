@@ -37,7 +37,6 @@ void ReadFile(const char* filename, std::vector<char>& buffer)
 
 void ParseInputLayout(MG::CSVResource& csv, std::vector<D3D11_INPUT_ELEMENT_DESC>& desc)
 {
-	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
 	for (auto row : csv.WithoutHeader()) {
 		D3D11_INPUT_ELEMENT_DESC element{};
 		element.SemanticName = row["SemanticName"];
@@ -47,7 +46,7 @@ void ParseInputLayout(MG::CSVResource& csv, std::vector<D3D11_INPUT_ELEMENT_DESC
 		element.AlignedByteOffset = row["AlignedByteOffset"];
 		element.InputSlotClass = MG::Renderer::GetInputClassByName(row["InputSlotClass"]);
 		element.InstanceDataStepRate = row["InstanceDataStepRate"];
-		layoutElements.push_back(element);
+		desc.push_back(element);
 	}
 }
 
@@ -383,22 +382,12 @@ namespace MG {
 					// csv‚©‚çD3D11_INPUT_ELEMENT_DESC
 					CSVResource inputLayoutData(inputLayoutFile.data, inputLayoutFile.size);
 					std::vector<D3D11_INPUT_ELEMENT_DESC> layoutElements;
-					for (auto row : inputLayoutData.WithoutHeader()) {
-						D3D11_INPUT_ELEMENT_DESC element{};
-						element.SemanticName = row["SemanticName"];
-						element.SemanticIndex = row["SemanticIndex"];
-						element.Format = GetDXGIFormatByName(row["Format"]);
-						element.InputSlot = row["InputSlot"];
-						element.AlignedByteOffset = row["AlignedByteOffset"];
-						element.InputSlotClass = GetInputClassByName(row["InputSlotClass"]);
-						element.InstanceDataStepRate = row["InstanceDataStepRate"];
-						layoutElements.push_back(element);
-					}
+					ParseInputLayout(inputLayoutData, layoutElements);
 
 					auto shaderFile = shaderResource.GetFile(shaderName.data());
 					ID3D11InputLayout* inputLayout = nullptr;
 					s_Device->CreateInputLayout(layoutElements.data(),
-						layoutElements.size(),
+						static_cast<UINT>(layoutElements.size()),
 						shaderFile.data,
 						shaderFile.size,
 						&inputLayout);
@@ -848,7 +837,7 @@ namespace MG {
 			ParseInputLayout(csv, layoutElements);
 
 			s_Device->CreateInputLayout(layoutElements.data(),
-				layoutElements.size(),
+				static_cast<UINT>(layoutElements.size()),
 				shaderBuffer.data(),
 				shaderBuffer.size(),
 				&inputLayout);

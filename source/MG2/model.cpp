@@ -132,7 +132,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_Data.push_back(data);
-			key.m_Id = s_Data.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Data.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

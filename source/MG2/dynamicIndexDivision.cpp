@@ -23,34 +23,36 @@ namespace MG {
 		if (s_NeedUpdateBuffer) {
 
 			// ブックマークバッファ確保
-			if (s_Bookmarks.capacity() > s_BookmarkCapcity) {
+			unsigned int newBookmarkCapcity = static_cast<unsigned int>(s_Bookmarks.capacity());
+			if (newBookmarkCapcity > s_BookmarkCapcity) {
 				SAFE_RELEASE(s_BookmarkSRV);
 				SAFE_RELEASE(s_BookmarkBuffer);
-				s_BookmarkBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), s_Bookmarks.capacity(), nullptr);
+				s_BookmarkBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newBookmarkCapcity, nullptr);
 				if (s_BookmarkBuffer) {
-					s_BookmarkSRV = Renderer::CreateStructuredSRV(s_BookmarkBuffer, s_Bookmarks.capacity());
-					s_BookmarkCapcity = s_Data.capacity();
+					s_BookmarkSRV = Renderer::CreateStructuredSRV(s_BookmarkBuffer, newBookmarkCapcity);
+					s_BookmarkCapcity = newBookmarkCapcity;
 				}
 			}
 
 			// データバッファ確保
-			if (s_Data.capacity() > s_DataCapcity) {
+			unsigned int newDataCapcity = static_cast<unsigned int>(s_Data.capacity());
+			if (newDataCapcity > s_DataCapcity) {
 				SAFE_RELEASE(s_DataSRV);
 				SAFE_RELEASE(s_DataBuffer);
-				s_DataBuffer = Renderer::CreateStructuredBuffer(sizeof(unsigned int), s_Data.capacity(), nullptr);
+				s_DataBuffer = Renderer::CreateStructuredBuffer(sizeof(unsigned int), newDataCapcity, nullptr);
 				if (s_DataBuffer) {
-					s_DataSRV = Renderer::CreateStructuredSRV(s_DataBuffer, s_Data.capacity());
-					s_DataCapcity = s_Data.capacity();
+					s_DataSRV = Renderer::CreateStructuredSRV(s_DataBuffer, newDataCapcity);
+					s_DataCapcity = newDataCapcity;
 				}
 			}
 
 			// データ転送
 			if (s_BookmarkBuffer && s_BookmarkSRV && s_DataBuffer && s_DataSRV) {
 
-				D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(BOOKMARK) * s_Bookmarks.size());
+				D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(BOOKMARK) * s_Bookmarks.size()));
 				Renderer::GetDeviceContext()->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Bookmarks.data(), 0, 0);
 
-				box = Renderer::GetRangeBox(0, sizeof(unsigned int) * s_Data.size());
+				box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(unsigned int) * s_Data.size()));
 				Renderer::GetDeviceContext()->UpdateSubresource(s_DataBuffer, 0, &box, s_Data.data(), 0, 0);
 
 				s_NeedUpdateBuffer = false;
@@ -62,12 +64,12 @@ namespace MG {
 	{
 		DynamicIndexDivision key{};
 		BOOKMARK bookmark{};
-		bookmark.offset = s_Data.size();
+		bookmark.offset = static_cast<unsigned int>(s_Data.size());
 		bookmark.count = count;
 
 		if (s_EmptyIds.empty()) {
 			s_Bookmarks.push_back(bookmark);
-			key.m_Id = s_Bookmarks.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Bookmarks.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

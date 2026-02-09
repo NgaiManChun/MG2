@@ -85,13 +85,22 @@ namespace MG {
 			s_CurrentTime = std::chrono::high_resolution_clock::now();
 			s_DeltaTime = std::chrono::duration<float>(s_CurrentTime - s_LastFrameTime).count();
 
-			s_RunTimeMilliseconds = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - s_StartTime).count();
+			s_RunTimeMilliseconds = 
+				static_cast<unsigned int>(std::chrono::duration<float, std::milli>(
+						std::chrono::high_resolution_clock::now() - s_StartTime
+					).count());
 
 			if (s_DeltaTime >= s_FrameBudgetTime) {
 
 				s_FrameTimes.push(s_CurrentTime);
 				if (s_FrameTimes.size() > s_TargetFPS) {
-					s_CurrentFPS = round(1.0f / std::chrono::duration<float>(s_CurrentTime - s_FrameTimes.front()).count() * s_TargetFPS);
+					s_CurrentFPS = 
+						static_cast<unsigned int>(
+							round(
+								1.0f / 
+								std::chrono::duration<float>(s_CurrentTime - s_FrameTimes.front()).count() * 
+								s_TargetFPS
+							));
 					s_FrameTimes.pop();
 				}
 

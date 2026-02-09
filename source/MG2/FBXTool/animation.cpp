@@ -49,9 +49,9 @@ void ReadAnimation(const char* fileName, const char* outputName)
 			nameLength += strlen(ainodeanim->mNodeName.C_Str()) + 1;
 
 			ANIMATION_CHANNEL& channel = channelArray[a];
-			channel.positionKeyOffset = positionKeyOffset;
-			channel.scalingKeyOffset = scalingKeyOffset;
-			channel.rotationKeyOffset = rotationKeyOffset;
+			channel.positionKeyOffset = static_cast<unsigned int>(positionKeyOffset);
+			channel.scalingKeyOffset = static_cast<unsigned int>(scalingKeyOffset);
+			channel.rotationKeyOffset = static_cast<unsigned int>(rotationKeyOffset);
 			channel.positionKeyCount = ainodeanim->mNumPositionKeys;
 			channel.scalingKeyCount = ainodeanim->mNumScalingKeys;
 			channel.rotationKeyCount = ainodeanim->mNumRotationKeys;
@@ -71,7 +71,7 @@ void ReadAnimation(const char* fileName, const char* outputName)
 
 			std::string name = ainodeanim->mNodeName.C_Str();
 			memcpy(nodeNameArray.data() + nameOffset, name.data(), name.size());
-			nameOffset += name.size();
+			nameOffset += static_cast<unsigned int>(name.size());
 			nodeNameArray[nameOffset++] = '\0';
 			
 
@@ -105,10 +105,10 @@ void ReadAnimation(const char* fileName, const char* outputName)
 
 		
 
-		animationMeta.positionKeyCount = positionKeyArray.size();
-		animationMeta.scalingKeyCount = scaleKeyArray.size();
-		animationMeta.rotationKeyCount = rotationKeyArray.size();
-		animationMeta.channelCount = channelArray.size();
+		animationMeta.positionKeyCount = static_cast<unsigned int>(positionKeyArray.size());
+		animationMeta.scalingKeyCount = static_cast<unsigned int>(scaleKeyArray.size());
+		animationMeta.rotationKeyCount = static_cast<unsigned int>(rotationKeyArray.size());
+		animationMeta.channelCount = static_cast<unsigned int>(channelArray.size());
 		animationMeta.channelNameLength = sizeof(char) * nodeNameArray.size();
 
 		animationMeta.dataSize = sizeof(ANIMATION_KEY_VECTOR) * animationMeta.positionKeyCount;

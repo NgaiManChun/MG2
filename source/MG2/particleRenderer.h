@@ -45,7 +45,7 @@ namespace MG {
 		unsigned int m_SpawnCount = 5;
 		unsigned int m_ArgsIndex = UINT_MAX;
 	public:
-		ParticleRenderer(Material material, size_t count, const char* updateCSFilename);
+		ParticleRenderer(Material material, unsigned int count, const char* updateCSFilename);
 		void Init() override;
 		void Uninit() override;
 		const PARTICLE_CONSTANT& GetConstant()

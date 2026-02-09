@@ -33,7 +33,7 @@ namespace MG {
 			return XMVectorGetX(a.min) < XMVectorGetX(b.min);
 		});
 
-		int size = s_AABBs.size();
+		int size = static_cast<int>(s_AABBs.size());
 		for (int current = 0; current < size; current++) {
 			if (!s_AABBs[current].component->IsEnabled())
 				continue;

@@ -47,7 +47,9 @@ void main(uint vertexId : SV_VertexID, out PS_IN Out)
     
     float4x4 worldMatrix = DynamicMartixArray[WorldMatrixId];
     
-    Out.position = mul(mul(vertexes[vertexId], worldMatrix), ViewProjection);
+    Out.worldPosition = mul(vertexes[vertexId], worldMatrix);
+    Out.position = mul(Out.worldPosition, ViewProjection);
+    
     
     float4x4 normalWorld = worldMatrix;
     normalWorld._41_42_43 = 0.0f;
@@ -59,5 +61,6 @@ void main(uint vertexId : SV_VertexID, out PS_IN Out)
     Out.texCoord = texCoord[vertexId];
     Out.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     Out.materialId = MaterialId;
+    
 
 }

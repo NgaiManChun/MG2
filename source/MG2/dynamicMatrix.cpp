@@ -20,24 +20,25 @@ namespace MG {
 		if (s_NeedUpdateBuffer) {
 
 			// バッファ確保
-			if (s_Data.capacity() > s_Capcity) {
+			unsigned int newCapcity = static_cast<unsigned int>(s_Data.capacity());
+			if (newCapcity > s_Capcity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_UAV);
 				SAFE_RELEASE(s_Buffer);
 				s_Buffer = Renderer::CreateStructuredBuffer(
-					sizeof(Matrix4x4), s_Data.capacity(), s_Data.data(), 
+					sizeof(Matrix4x4), static_cast<unsigned int>(newCapcity), s_Data.data(),
 					D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
 				if (s_Buffer) {
-					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, s_Data.capacity());
-					s_UAV = Renderer::CreateStructuredUAV(s_Buffer, s_Data.capacity());
-					s_Capcity = s_Data.capacity();
+					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapcity);
+					s_UAV = Renderer::CreateStructuredUAV(s_Buffer, newCapcity);
+					s_Capcity = newCapcity;
 					s_NeedUpdateBuffer = false;
 				}
 			}
 		}
 
 		if (s_NeedUpdateBuffer && s_SRV) {
-			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(Matrix4x4) * s_Data.size());
+			D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(Matrix4x4) * s_Data.size()));
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);
 			s_NeedUpdateBuffer = false;
 		}

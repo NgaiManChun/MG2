@@ -88,7 +88,7 @@ void GetNodes(aiNode* ainode, unsigned int parent, std::vector<NODE>& nodes)
 		matrix.d1, matrix.d2, matrix.d3, matrix.d4
 	};
 	nodes.push_back(node);
-	unsigned int currentIndex = nodes.size() - 1;
+	unsigned int currentIndex = static_cast<unsigned int>(nodes.size() - 1);
 	for (unsigned int i = 0; i < ainode->mNumChildren; i++) {
 		GetNodes(ainode->mChildren[i], currentIndex, nodes);
 	}
@@ -118,13 +118,13 @@ void ReadModel(const char* fileName, const char* outputName)
 		std::vector<NODE> nodes;
 		GetNodes(scene->mRootNode, UINT_MAX, nodes);
 
-		unsigned int nodeCount = nodes.size();
+		unsigned int nodeCount = static_cast<unsigned int>(nodes.size());
 		nodeMatrixArray.resize(nodeCount);
 		nodeParentArray.resize(nodeCount);
 		unsigned int nameLength = 0;
 		for (unsigned int i = 0; i < nodes.size(); i++) {
 			NODE& node = nodes[i];
-			nameLength += node.name.size() + 1;
+			nameLength += static_cast<unsigned int>(node.name.size() + 1);
 			nodeMatrixArray[i] = node.matrix;
 			nodeParentArray[i] = node.parent;
 
@@ -141,7 +141,7 @@ void ReadModel(const char* fileName, const char* outputName)
 		for (unsigned int i = 0; i < nodes.size(); i++) {
 			NODE& node = nodes[i];
 			memcpy(nodeNameArray.data() + offset, node.name.data(), node.name.size());
-			offset += node.name.size();
+			offset += static_cast<unsigned int>(node.name.size());
 			nodeNameArray[offset++] = '\0';
 		}
 	}
@@ -374,7 +374,7 @@ void ReadModel(const char* fileName, const char* outputName)
 				for (unsigned int f = 0; f < aimesh->mNumFaces; f++)
 				{
 					const aiFace* face = &aimesh->mFaces[f];
-					for (int fi = 0; fi < faceIndexNum; fi++) {
+					for (unsigned int fi = 0; fi < faceIndexNum; fi++) {
 						vertexIndexArray[mesh.vertexIndexesOffset + f * faceIndexNum + fi] = face->mIndices[fi];
 					}
 				}
@@ -421,15 +421,15 @@ void ReadModel(const char* fileName, const char* outputName)
 	}
 
 	MODEL_META modelMeta{};
-	modelMeta.textureCount = textureMetaArray.size();
-	modelMeta.materialCount = materialArray.size();
-	modelMeta.vertexCount = vertexArray.size();
-	modelMeta.vertexIndexCount = vertexIndexArray.size();
-	modelMeta.boneCount = boneArray.size();
-	modelMeta.vertexBoneWeightCount = vertexBoneWeightArray.size();
-	modelMeta.meshCount = meshArray.size();
-	modelMeta.nodeCount = nodeMatrixArray.size();
-	modelMeta.nodeMeshPairCount = nodeMeshPairArray.size();
+	modelMeta.textureCount = static_cast<unsigned int>(textureMetaArray.size());
+	modelMeta.materialCount = static_cast<unsigned int>(materialArray.size());
+	modelMeta.vertexCount = static_cast<unsigned int>(vertexArray.size());
+	modelMeta.vertexIndexCount = static_cast<unsigned int>(vertexIndexArray.size());
+	modelMeta.boneCount = static_cast<unsigned int>(boneArray.size());
+	modelMeta.vertexBoneWeightCount = static_cast<unsigned int>(vertexBoneWeightArray.size());
+	modelMeta.meshCount = static_cast<unsigned int>(meshArray.size());
+	modelMeta.nodeCount = static_cast<unsigned int>(nodeMatrixArray.size());
+	modelMeta.nodeMeshPairCount = static_cast<unsigned int>(nodeMeshPairArray.size());
 	modelMeta.nodeNameSize = sizeof(char) * nodeNameArray.size();
 
 	modelMeta.dataSize = sizeof(TEXTURE_META) * textureMetaArray.size();

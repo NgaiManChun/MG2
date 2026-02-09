@@ -27,7 +27,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_Bookmarks.push_back(bookmark);
-			key.m_Id = s_Bookmarks.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Bookmarks.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();
@@ -37,7 +37,7 @@ namespace MG {
 
 		// ブックマークバッファ確保
 		if (s_Bookmarks.capacity() > s_BookmarkCapcity) {
-			unsigned int newCapcity = s_Bookmarks.capacity();
+			unsigned int newCapcity = static_cast<unsigned int>(s_Bookmarks.capacity());
 			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), newCapcity, s_BookmarkBuffer, s_BookmarkSRV)) {
 				s_BookmarkCapcity = newCapcity;
 			}

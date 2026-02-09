@@ -19,7 +19,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_Bookmarks.push_back(meta);
-			key.m_Id = s_Bookmarks.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Bookmarks.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

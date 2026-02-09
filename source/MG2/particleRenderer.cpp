@@ -7,14 +7,14 @@
 
 namespace MG {
 
-	ParticleRenderer::ParticleRenderer(Material material, size_t count, const char* updateCSFilename)
+	ParticleRenderer::ParticleRenderer(Material material, unsigned int count, const char* updateCSFilename)
 		: m_Material(material), m_Count(count)
 	{
 		if (s_CSPool.count(updateCSFilename) > 0) {
 			m_UpdateCS = s_CSPool[updateCSFilename];
 		}
 		else {
-			m_UpdateCS = Renderer::LoadComputeShader(updateCSFilename);
+			m_UpdateCS = Renderer::GetComputeShader(updateCSFilename);
 			s_CSPool[updateCSFilename] = m_UpdateCS;
 		}
 
@@ -27,7 +27,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_DrawArgs.push_back(drawArgs);
-			m_ArgsIndex = s_DrawArgs.size() - 1;
+			m_ArgsIndex = static_cast<unsigned int>(s_DrawArgs.size() - 1);
 		}
 		else {
 			m_ArgsIndex = *s_EmptyIds.begin();
@@ -92,7 +92,7 @@ namespace MG {
 		auto& sceneComponents = component_pair.components;
 		size_t& destoryedComponentIndex = component_pair.destoryedComponentIndex;
 		size_t size = s_DrawArgs.size(); //sceneComponents.size();
-		size_t capcity = s_DrawArgs.capacity(); // sceneComponents.capacity();
+		unsigned int capcity = static_cast<unsigned int>(s_DrawArgs.capacity()); // sceneComponents.capacity();
 
 		if (capcity > s_Capcity) {
 			SAFE_RELEASE(s_DrawArgsSRV);

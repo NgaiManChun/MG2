@@ -42,13 +42,12 @@ namespace MG {
 		file.read(nameArray.data(), sizeof(char) * animationMeta.channelNameLength);
 		file.close();
 
-		// IDŠm•Û
 		DATA data{};
 		data.frameCount = animationMeta.frames;
-		data.duration = static_cast<float>(animationMeta.frames - 1) / animationMeta.frameRate * 1000;
+		data.duration = static_cast<unsigned int>(static_cast<float>(animationMeta.frames - 1) / animationMeta.frameRate * 1000);
 		if (s_EmptyIds.empty()) {
 			s_Data.push_back(data);
-			key.m_Id = s_Data.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Data.size() - 1);
 		}
 		else {
 			auto it = std::next(s_EmptyIds.begin(), 1);

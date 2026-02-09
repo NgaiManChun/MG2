@@ -60,14 +60,16 @@ namespace MG {
 		UINT CSMaxW;
 	};
 
-	struct SINGLE_CONSTANT {
+	struct SINGLE_CONSTANT 
+	{
 		UINT worldMatrixId;
 		UINT localMatrixDivisionOffset;
 		UINT materialId;
 		UINT flags[1];
 	};
 
-	struct PARTICLE_CONSTANT {
+	struct PARTICLE_CONSTANT 
+	{
 		Vector4 INIT_POSITION_RANGE = Vector3(5.0f, 5.0f, 5.0f);
 		Vector4 INIT_SCALE = Vector3(0.3f, 0.3f, 0.3f);
 		Vector4 INIT_SCALE_ACCELERATION = Vector3(0.0f, 0.0f, 0.0f);
@@ -129,11 +131,9 @@ namespace MG {
 	const constexpr unsigned int INSTANCE_TYPE_COLLISION_BOX = (0xFFFC);
 	const constexpr unsigned int INSTANCE_TYPE_COLLISION_CAPSULE = (0xFFFB);
 
-
 	class Renderer
 	{
 	private:
-
 		static inline D3D_FEATURE_LEVEL s_FeatureLevel = D3D_FEATURE_LEVEL_11_0;
 
 		static inline ID3D11Device* s_Device = nullptr;
@@ -164,7 +164,6 @@ namespace MG {
 		static inline std::unordered_map<std::string, ID3D11GeometryShader*> s_GeometryShaders{};
 
 	public:
-
 		static void Init(HWND hWnd);
 		static void Uninit();
 		static void Begin();
@@ -177,7 +176,6 @@ namespace MG {
 		static void SetRasterizerState(RASTERIZER_STATE state);
 		static void SetPrimitiveTopology(PRIMITIVE_TYPE type);
 
-		// 定数バッファ
 		static void SetCamera(const CAMERA_CONSTANT& constant);
 		static void SetLight(const LIGHT_CONSTANT& constant);
 		static void SetModelContant(const MODEL_CONSTANT& constant);
@@ -187,7 +185,6 @@ namespace MG {
 		static void SetParticleContant(const PARTICLE_CONSTANT& constant);
 		static void SetTimeContant(const TIME_CONSTANT& constant);
 		
-
 		static ID3D11Device* GetDevice(void) { return s_Device; }
 		static ID3D11DeviceContext* GetDeviceContext(void) { return s_DeviceContext; }
 		static ID3D11RenderTargetView* GetMainRenderTarget() { return s_RenderTargetView; }

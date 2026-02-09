@@ -105,7 +105,7 @@ namespace MG {
 		}
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
-		D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(BOOKMARK) * s_Meta.size());
+		D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(BOOKMARK) * s_Meta.size()));
 
 		// update meta
 		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
@@ -114,7 +114,7 @@ namespace MG {
 		deviceContext->CSSetUnorderedAccessViews(0, 1, &resultUAV, nullptr);
 		deviceContext->CSSetShaderResources(0, 1, &s_MetaSRV);
 		deviceContext->CSSetShaderResources(1, 1, &s_DataSRV);
-		CS_CONSTANT constant{ s_Meta.size() };
+		CS_CONSTANT constant{ static_cast<unsigned int>(s_Meta.size()) };
 		Renderer::SetCSContant(constant);
 		deviceContext->CSSetShader(s_PadCS, nullptr, 0);
 		deviceContext->Dispatch(static_cast<UINT>(ceil((float)s_Meta.size() / 64)), 1, 1);
@@ -179,7 +179,7 @@ namespace MG {
 
 		if (s_EmptyIds.empty()) {
 			s_Meta.push_back(meta);
-			key.m_Id = s_Meta.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Meta.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

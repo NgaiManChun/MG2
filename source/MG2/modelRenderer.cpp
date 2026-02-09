@@ -137,7 +137,7 @@ namespace MG {
 
 			// 上限定数
 			CS_CONSTANT constant{};
-			constant.CSMaxX = ModelInstance::GetCount();
+			constant.CSMaxX = static_cast<unsigned int>(ModelInstance::GetCount());
 			Renderer::SetCSContant(constant);
 
 			// 実行
@@ -166,7 +166,7 @@ namespace MG {
 
 			// 上限定数
 			CS_CONSTANT constant{};
-			constant.CSMaxX = AnimationFollower::GetCount();
+			constant.CSMaxX = static_cast<unsigned int>(AnimationFollower::GetCount());
 			Renderer::SetCSContant(constant);
 
 			// 実行
@@ -183,28 +183,29 @@ namespace MG {
 			MODEL_SET& modelSet = pair.second;
 			auto& modelInstances = modelSet.modelInstances;
 
-			unsigned int activeInstanceCount = modelSet.modelInstances.size() - modelSet.emptyIds.size();
+			unsigned int activeInstanceCount = static_cast<unsigned int>(modelSet.modelInstances.size() - modelSet.emptyIds.size());
 
 			if (activeInstanceCount == 0) continue;
 
 			// バッファ確保
-			if (modelInstances.capacity() > modelSet.bufferCapcity) {
+			unsigned int newCapcity = static_cast<unsigned int>(modelInstances.capacity());
+			if (newCapcity > modelSet.bufferCapcity) {
 				SAFE_RELEASE(modelSet.modelInstanceIdSRV);
 				SAFE_RELEASE(modelSet.modelInstanceIdBuffer);
 
 				modelSet.modelInstanceIdBuffer = Renderer::CreateStructuredBuffer(
-					sizeof(ModelInstance), modelInstances.capacity(), modelInstances.data()
+					sizeof(ModelInstance), newCapcity, modelInstances.data()
 				);
 				if (modelSet.modelInstanceIdBuffer) {
-					modelSet.modelInstanceIdSRV = Renderer::CreateStructuredSRV(modelSet.modelInstanceIdBuffer, modelInstances.capacity());
-					modelSet.bufferCapcity = modelInstances.capacity();
+					modelSet.modelInstanceIdSRV = Renderer::CreateStructuredSRV(modelSet.modelInstanceIdBuffer, newCapcity);
+					modelSet.bufferCapcity = newCapcity;
 					modelSet.needUpdateModelInstanceBuffer = false;
 				}
 			}
 
 			// このモデルに属するインスタンス番号をバッファに更新
 			if (modelSet.needUpdateModelInstanceBuffer && modelSet.modelInstanceIdBuffer) {
-				D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(ModelInstance) * modelInstances.size());
+				D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(ModelInstance) * modelInstances.size()));
 				deviceContext->UpdateSubresource(modelSet.modelInstanceIdBuffer, 0, &box, modelInstances.data(), 0, 0);
 				modelSet.needUpdateModelInstanceBuffer = false;
 			}
@@ -273,7 +274,7 @@ namespace MG {
 				auto& modelData = model.GetData();
 				MODEL_SET& modelSet = pair.second;
 				auto& modelInstances = modelSet.modelInstances;
-				unsigned int activeInstanceCount = modelSet.modelInstances.size() - modelSet.emptyIds.size();
+				unsigned int activeInstanceCount = static_cast<unsigned int>(modelInstances.size() - modelSet.emptyIds.size());
 
 				if (activeInstanceCount == 0) continue;
 
@@ -281,7 +282,7 @@ namespace MG {
 				MODEL_CONSTANT modelConstant{};
 				modelConstant.modelId = model;
 				modelConstant.nodeCount = modelData.nodeCount;
-				modelConstant.maxInstance = modelInstances.size();
+				modelConstant.maxInstance = static_cast<unsigned int>(modelInstances.size());
 				modelConstant.nodeMatrixDivisionId = modelData.originalNodeMatrixDivision;
 				Renderer::SetModelContant(modelConstant);
 
@@ -447,7 +448,7 @@ namespace MG {
 			auto& modelData = model.GetData();
 			MODEL_SET& modelSet = pair.second;
 			auto& modelInstances = modelSet.modelInstances;
-			unsigned int activeInstanceCount = modelSet.modelInstances.size() - modelSet.emptyIds.size();
+			unsigned int activeInstanceCount = static_cast<unsigned int>(modelSet.modelInstances.size() - modelSet.emptyIds.size());
 
 			if (activeInstanceCount == 0) continue;
 
@@ -459,7 +460,7 @@ namespace MG {
 			Renderer::SetModelContant(modelConstant);
 			
 			auto& nodeMeshPairs = modelData.nodeMeshPairs;
-			for (int i = nodeMeshPairs.size() - 1; i >= 0; i--) {
+			for (int i = static_cast<int>(nodeMeshPairs.size()) - 1; i >= 0; i--) {
 				auto& pair = nodeMeshPairs[i];
 				Mesh mesh = modelData.meshes[pair.meshOffset];
 
@@ -712,7 +713,7 @@ namespace MG {
 			modelSet.modelInstances.push_back(
 				ModelInstance::Create(model, gameObject->GetWorldMatrix(), m_Enabled && gameObject->IsEnabled(), lod)
 			);
-			m_InstanceIndex = modelSet.modelInstances.size() - 1;
+			m_InstanceIndex = static_cast<unsigned int>(modelSet.modelInstances.size() - 1);
 			m_ModelSet->needUpdateModelInstanceBuffer = true;
 		}
 		else {

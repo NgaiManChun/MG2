@@ -19,20 +19,21 @@ namespace MG {
 	void ModelAnimation::Update()
 	{
 		if (s_NeedUpdateBuffer) {
-			if (s_Data.capacity() > s_Capcity) {
+			unsigned int newCapcity = static_cast<unsigned int>(s_Data.capacity());
+			if (newCapcity > s_Capcity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_Buffer);
-				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), s_Data.capacity(), s_Data.data());
+				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), newCapcity, s_Data.data());
 				if (s_Buffer) {
-					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, s_Data.capacity());
-					s_Capcity = s_Data.capacity();
+					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapcity);
+					s_Capcity = newCapcity;
 					s_NeedUpdateBuffer = false;
 				}
 			}
 		}
 
 		if (s_NeedUpdateBuffer && s_SRV) {
-			D3D11_BOX box = Renderer::GetRangeBox(0, sizeof(DATA) * s_Data.size());
+			D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(DATA) * s_Data.size()));
 			Renderer::GetDeviceContext()->UpdateSubresource(s_Buffer, 0, &box, s_Data.data(), 0, 0);
 			s_NeedUpdateBuffer = false;
 		}
@@ -65,11 +66,11 @@ namespace MG {
 				}
 			}
 		}
-		data.transformDivision = TransformDivision::Create(transforms.size(), transforms.data());
+		data.transformDivision = TransformDivision::Create(static_cast<unsigned int>(transforms.size()), transforms.data());
 
 		if (s_EmptyIds.empty()) {
 			s_Data.push_back(data);
-			key.m_Id = s_Data.size() - 1;
+			key.m_Id = static_cast<unsigned int>(s_Data.size() - 1);
 		}
 		else {
 			key.m_Id = *s_EmptyIds.begin();

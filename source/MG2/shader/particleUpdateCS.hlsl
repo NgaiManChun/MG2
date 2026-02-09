@@ -68,7 +68,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
             float3(Random(++seed), Random(++seed), Random(++seed)) *
             float3(GetRandomSign(++seed), GetRandomSign(++seed), GetRandomSign(++seed));
             
-            particle.transform.scale = INIT_SCALE;
+            particle.transform.scale = INIT_SCALE.xyz;
             
             particle.velocity = INIT_VELOCITY.xyz *
             float3(Random(++seed), Random(++seed), Random(++seed)) *

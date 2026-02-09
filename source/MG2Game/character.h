@@ -110,9 +110,8 @@ public:
 
 	void SetWeapon(GameObject* gameObject)
 	{
-		//gameObject->SetParent(GetGameObject());
 		gameObject->SetPosition({ -0.02f, 0.05f, 0.0f });
-		gameObject->SetRotation({ -1.04079700, 1.15359819, -1.19999921 });
+		gameObject->SetRotation({ -1.04079700f, 1.15359819f, -1.19999921f });
 		auto& namedNodeIndexes = m_Models[0].GetData().namedNodeIndexes;
 		unsigned int index = namedNodeIndexes["J_Bip_R_Hand"];
 		if (!static_cast<bool>(m_WeaponFollow)) {
