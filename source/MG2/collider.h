@@ -35,7 +35,7 @@ namespace MG {
 			});
 		}
 	public:
-		static void UpdateAll(Scene* scene);
+		static void UpdateAll(Scene* scene, std::vector<Collider*>& components);
 
 		Collider(size_t tags = 0) : m_Tags(tags) {}
 		void SetTags(size_t tags) { m_Tags = tags; }

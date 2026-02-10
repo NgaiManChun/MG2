@@ -240,7 +240,12 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClInclude Include="vector2.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="vector4.h" />
-    <ClInclude Include="vectorDivision.h" />
+    <ClInclude Include="vectorDivision.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="vertexBoneWeightDivision.h" />
     <ClInclude Include="vertexDivision.h" />
     <ClInclude Include="vertexGroup.h">
@@ -268,7 +273,6 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="boneDivision.cpp" />
-    <ClCompile Include="boxCollider.cpp" />
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collider.cpp" />
@@ -331,7 +335,12 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClCompile Include="transformDivision.cpp" />
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="vector4.cpp" />
-    <ClCompile Include="vectorDivision.cpp" />
+    <ClCompile Include="vectorDivision.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="vertexBoneWeightDivision.cpp" />
     <ClCompile Include="vertexDivision.cpp" />
     <ClCompile Include="vertexGroup.cpp">

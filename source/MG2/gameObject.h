@@ -42,7 +42,8 @@ namespace MG {
 		size_t m_SceneGameObjectIndex = 0;
 
 		bool m_Destroyed = false;
-		bool m_Enabled = true;
+		bool m_Enabled = true;	// 親の状態問わず、あくまでも自分自身の設定
+		bool m_Active = true;	// 自分のm_Enabled、m_Destroyed、親の状態を含めた総合状態
 		bool m_NeedUpdateDirection = true;
 
 		GameObject(Vector3 position = Vector3::ZERO, Vector3 scale = Vector3::ONE, Vector3 rotation = Vector3::ZERO) :
@@ -58,17 +59,25 @@ namespace MG {
 
 		void Uninit();
 		void UpdateDirection();
-
+		void SetActive(bool active) { m_Active = active; }
+		void UpdateActive();
 	public:
 		const Vector3& GetPosition() const { return m_Position; }
 		const Vector3& GetRotation() const { return m_Rotation; }
 		const Vector3& GetScale() const { return m_Scale; }
 		Scene* GetScene() const { return m_Scene; }
-		bool IsDestroyed() { return m_Destroyed; }
+		bool IsDestroyed() const { return m_Destroyed; }
+		bool IsEnabled() const { return m_Enabled; }
+		bool IsActive() const { return m_Active; }
 		const std::vector<Component*>& GetComponents() { return m_Components; }
 		GameObject* GetParent() const { return m_Parent; }
-		void SetEnabled(bool enable) { m_Enabled = enable; }
 		DynamicMatrix GetWorldMatrix() const { return m_WorldMatrix; }
+
+		void SetEnabled(bool enable)
+		{
+			m_Enabled = enable;
+			UpdateActive();
+		}
 
 		Vector3 GetWorldPosition() const 
 		{
@@ -94,7 +103,6 @@ namespace MG {
 			return m_Upper;
 		}
 
-		bool IsEnabled() const;
 		void Destroy();
 		bool SetParent(GameObject* newParent);
 		void SetPosition(const Vector3& position);

@@ -4,12 +4,18 @@
 
 namespace MG {
 
-	bool GameObject::IsEnabled() const
+	void GameObject::UpdateActive()
 	{
-		return
-			m_Enabled &&
-			!m_Destroyed &&
-			(!m_Parent || m_Parent->IsEnabled());
+		bool newActive = m_Enabled && !m_Destroyed && (!m_Parent || m_Parent->IsActive());
+		if (m_Active != newActive) {
+			m_Active = newActive;
+			for (auto component : m_Components) {
+				component->UpdateActive();
+			}
+			for (auto child : m_Children) {
+				child->UpdateActive();
+			}
+		}
 	}
 
 	void GameObject::Uninit()
@@ -71,6 +77,7 @@ namespace MG {
 		if (newParent) {
 			newParent->m_Children.push_back(this);
 		}
+		UpdateActive();
 
 		// ƒV[ƒ“‚É’Ê’m
 		if (m_Scene) {
@@ -104,8 +111,6 @@ namespace MG {
 		XMMATRIX matrix =
 			XMMatrixTranspose(
 				XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z) *
-				//XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z) *
-				//XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z)
 				XMMATRIX(m_Right, m_Upper, m_Forward, XMVectorSet(m_Position.x, m_Position.y, m_Position.z, 1.0f))
 			);
 		if (m_Parent) {
@@ -116,12 +121,6 @@ namespace MG {
 		for (auto child : m_Children) {
 			child->UpdateWorldMatrix();
 		}
-
-		/*if (m_NeedUpdateWorldMatrix) {
-			
-			m_NeedUpdateWorldMatrix = false;
-		}*/
-		
 	}
 
 	void GameObject::RemoveComponent(Component* component)

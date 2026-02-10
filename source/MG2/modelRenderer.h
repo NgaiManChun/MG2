@@ -81,9 +81,9 @@ namespace MG {
 	public:
 		static void StaticInit();
 		static void StaticUninit();
-		static void UpdateAll(Scene* scene);
+		static void UpdateAll(Scene* scene, std::vector<ModelRenderer*>& components);
 		static void DrawAll(Scene* scene);
-		static void MainDrawAll(Scene* scene);
+		static void MainDrawAll(Scene* scene, std::vector<ModelRenderer*>& components);
 		static void Culling();
 
 	private:
@@ -122,6 +122,7 @@ namespace MG {
 
 		void SetModel(Model model, unsigned int lod = LOD_ALL);
 		void SetAnimation(unsigned char animationId, unsigned int blendDuration = 1000, unsigned int timeOffset = 0);
+		void OnAvtiveUpdated(bool newActive) override;
 
 	};
 } // namespace MG

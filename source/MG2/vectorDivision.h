@@ -10,19 +10,18 @@ namespace MG {
 		static inline std::vector<BOOKMARK> s_Meta{};
 		static inline std::set<unsigned int> s_EmptyIds{};
 
-		static inline ID3D11Buffer* s_MetaBuffer = nullptr;
+		static inline ID3D11Buffer* s_BookmarkBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_MetaSRV = nullptr;
 		static inline ID3D11Buffer* s_DataBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_DataSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_DataUAV = nullptr;
-		static inline ID3D11ComputeShader* s_PadCS = nullptr;
 		static inline unsigned int s_MetaCapcity = 0;
 		static inline unsigned int s_DataCapcity = 0;
 		static inline unsigned int s_DataSize = 0;
 		static const constexpr unsigned int META_INTERVAL = 50;
 		static const constexpr unsigned int DATA_INTERVAL = 5000;
 	public:
-		static ID3D11Buffer* const GetMetaBuffer() { return s_MetaBuffer; }
+		static ID3D11Buffer* const GetMetaBuffer() { return s_BookmarkBuffer; }
 		static ID3D11ShaderResourceView* const GetMetaSRV() { return s_MetaSRV; }
 		static ID3D11Buffer* const GetDataBuffer() { return s_DataBuffer; }
 		static ID3D11ShaderResourceView* const GetDataSRV() { return s_DataSRV; }

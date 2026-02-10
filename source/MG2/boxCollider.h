@@ -13,8 +13,6 @@ namespace MG {
 	public:
 		BoxCollider(size_t tags = 0) : Collider(tags) {}
 
-		static void UpdateAll(Scene* scene);
-
 		void Init() override {
 			AddAABB();
 		}
@@ -100,7 +98,6 @@ namespace MG {
 			return false;
 		}
 	private:
-		//BIND_UPDATE_ALL(BoxCollider, BoxCollider::UpdateAll, 90)
 		BIND_COMPONENT_WITHOUT_DRAW(BoxCollider)
 	};
 } // namespace MG

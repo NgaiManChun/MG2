@@ -94,7 +94,7 @@ namespace MG {
 		s_SceneModelSet.clear();
 	}
 
-	void ModelRenderer::UpdateAll(Scene* scene)
+	void ModelRenderer::UpdateAll(Scene* scene, std::vector<ModelRenderer*>& components)
 	{
 
 		scene->UpdateGameObjectWorlds();
@@ -504,7 +504,7 @@ namespace MG {
 		}
 	}
 
-	void ModelRenderer::MainDrawAll(Scene* scene)
+	void ModelRenderer::MainDrawAll(Scene* scene, std::vector<ModelRenderer*>& components)
 	{
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 		
@@ -637,7 +637,7 @@ namespace MG {
 				s_NormalRTV,
 				s_WorldPositionRTV
 			};
-			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, s_DSV);
+			deviceContext->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, Renderer::GetMainDepthStencilView());
 
 			// ビューポート
 			Renderer::SetViewport(static_cast<float>(MGUtility::GetScreenWidth()), static_cast<float>(MGUtility::GetScreenHeight()));
@@ -711,7 +711,7 @@ namespace MG {
 
 		if (modelSet.emptyIds.empty()) {
 			modelSet.modelInstances.push_back(
-				ModelInstance::Create(model, gameObject->GetWorldMatrix(), m_Enabled && gameObject->IsEnabled(), lod)
+				ModelInstance::Create(model, gameObject->GetWorldMatrix(), IsActive(), lod)
 			);
 			m_InstanceIndex = static_cast<unsigned int>(modelSet.modelInstances.size() - 1);
 			m_ModelSet->needUpdateModelInstanceBuffer = true;
@@ -720,7 +720,7 @@ namespace MG {
 			m_InstanceIndex = *modelSet.emptyIds.begin();
 			modelSet.emptyIds.erase(modelSet.emptyIds.begin());
 			modelSet.modelInstances[m_InstanceIndex].SetWorld(gameObject->GetWorldMatrix());
-			modelSet.modelInstances[m_InstanceIndex].SetEnabled(m_Enabled && gameObject->IsEnabled());
+			modelSet.modelInstances[m_InstanceIndex].SetEnabled(IsActive());
 			modelSet.modelInstances[m_InstanceIndex].SetLOD(lod);
 		}
 	}
@@ -755,6 +755,12 @@ namespace MG {
 			animationSet.SetData(animationSetData);
 		}
 
+	}
+
+	void ModelRenderer::OnAvtiveUpdated(bool newActive)
+	{
+		if (!m_ModelSet) return;
+		m_ModelSet->modelInstances[m_InstanceIndex].SetEnabled(newActive);
 	}
 
 }; // namespace MG

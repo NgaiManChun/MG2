@@ -5,7 +5,7 @@
 namespace MG {
 
 
-	void Collider::UpdateAll(Scene* scene)
+	void Collider::UpdateAll(Scene* scene, std::vector<Collider*>& components)
 	{
 		s_AABBs.erase(std::remove_if(s_AABBs.begin(), s_AABBs.end(), [](AABB& aabb) {
 			if (!aabb.component->IsDestroyed()) {

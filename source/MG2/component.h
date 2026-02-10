@@ -14,18 +14,27 @@ namespace MG {
 	class Component
 	{
 		friend GameObject;
-
-	protected:
+	private:
 		GameObject* m_GameObject = nullptr;
 		bool m_Initialized = false;
 		bool m_Destroyed = false;
-		bool m_Enabled = true;
+		bool m_Enabled = true;	// m_GameObjectの状態問わず、あくまでも自分自身の設定
+		bool m_Active = true;	// 自分のm_Enabled、m_Destroyed、m_Initialized、m_GameObjectの状態を含めた総合状態
 		Scene* m_Scene = nullptr;
 		size_t m_Index = 0;
 
-		void SetGameObject(GameObject* gameObjecct) { m_GameObject = gameObjecct; }
+		void UpdateActive()
+		{
+			bool newActive = m_Enabled && !m_Destroyed && m_GameObject && m_GameObject->IsActive();
+			if (newActive != m_Active) {
+				m_Active = newActive;
+				this->OnAvtiveUpdated(newActive);
+			}
+		}
 
+	protected:
 		virtual void UpdateDestroyedIndex() = 0;
+		virtual void OnAvtiveUpdated(bool newActive) {}
 
 	public:
 		Component() {}
@@ -37,7 +46,8 @@ namespace MG {
 		virtual void Uninit() {};
 		virtual void Update() {};
 		virtual void Draw() {};
-		
+
+		void SetGameObject(GameObject* gameObjecct) { m_GameObject = gameObjecct; }
 		GameObject* GetGameObject() const { return m_GameObject; }
 		const Vector3& GetPosition() const { return m_GameObject->m_Position; }
 		const Vector3& GetRotation() const { return m_GameObject->m_Rotation; }
@@ -45,23 +55,17 @@ namespace MG {
 		const Vector3& GetRight() { return m_GameObject->GetRight(); }
 		const Vector3& GetForward() { return m_GameObject->GetForward(); }
 		const Vector3& GetUpper() { return m_GameObject->GetUpper(); }
+		Scene* GetScene() { return m_Scene; }
+		size_t GetIndex() { return m_Index; }
 		void SetEnabled(bool enable) { m_Enabled = enable; }
 		bool IsDestroyed() const { return m_Destroyed; }
+		bool IsEnabled() const { return m_Enabled; }
+		bool IsActive() const { return m_Active; }
 
 		void Initialize()
 		{
 			Init();
 			m_Initialized = true;
-		}
-
-		bool IsEnabled() const
-		{
-			return
-				m_Initialized &&
-				m_Enabled &&
-				!m_Destroyed &&
-				m_GameObject &&
-				m_GameObject->IsEnabled();
 		}
 
 		void Destroy()
@@ -162,14 +166,14 @@ namespace MG {
 
 	protected:
 		template <typename COMPONENT>
-		struct COMPONENT_VECTOR_PAIR {
+		struct COMPONENT_PAIR {
 			std::vector<COMPONENT*> components;
 			std::vector<COMPONENT*> needInitializeComponents;
 			size_t destoryedComponentIndex = 0;
 		};
 
 		template <typename COMPONENT>
-		static inline std::unordered_map<Scene*, COMPONENT_VECTOR_PAIR<COMPONENT>> s_Components{};
+		static inline std::unordered_map<Scene*, COMPONENT_PAIR<COMPONENT>> s_Components{};
 
 	public:
 		static void StaticInit();
@@ -268,28 +272,21 @@ namespace MG {
 		}
 
 		template <typename COMPONENT>
-		static void UpdateAll(Scene* scene)
+		static void UpdateAll(Scene* scene, std::vector<COMPONENT*>& components)
 		{
-			auto& component_pair = Component::s_Components<COMPONENT>[scene];
-			auto& sceneComponents = component_pair.components;
-			for (COMPONENT* component : sceneComponents)
-			{
-				if (component->IsEnabled()) {
+			for (COMPONENT* component : components) {
+				if (component && component->IsActive()) {
 					component->Update();
 				}
 			}
 		}
 
 		template <typename COMPONENT>
-		static void DrawAll(Scene* scene)
+		static void DrawAll(Scene* scene, std::vector<COMPONENT*>& components)
 		{
-			auto& sceneComponents = Component::s_Components<COMPONENT>[scene].components;
-			for (COMPONENT* p_Component : sceneComponents) {
-				if (p_Component) {
-					COMPONENT& component = *p_Component;
-					if (component.IsEnabled()) {
-						component.Draw();
-					}
+			for (COMPONENT* component : components) {
+				if (component && component->IsActive()) {
+					component->Draw();
 				}
 			}
 		}
@@ -348,17 +345,35 @@ namespace MG {
 
 		template <typename COMPONENT>
 		class BindUpdateAll {
+		private:
+			static inline void (*s_Function)(Scene*, std::vector<COMPONENT*>&) = Component::UpdateAll<COMPONENT>;
+			static void Adapter(Scene* scene) {
+				s_Function(scene, s_Components<COMPONENT>[scene].components);
+			}
 		public:
-			BindUpdateAll(void (*function)(Scene*) = Component::UpdateAll<COMPONENT>, int priority = 0) {
-				static bool binded = Component::AddUpdateAllFunction(function, priority);
+			BindUpdateAll(void (*function)(Scene*, std::vector<COMPONENT*>&) = Component::UpdateAll<COMPONENT>, int priority = 0) {
+				static bool binded = ([=]() -> bool {
+					s_Function = function;
+					Component::AddUpdateAllFunction(Adapter, priority);
+					return true;
+				})();
 			}
 		};
 
 		template <typename COMPONENT>
 		class BindDrawAll {
+		private:
+			static inline void (*s_Function)(Scene*, std::vector<COMPONENT*>&) = Component::DrawAll<COMPONENT>;
+			static void Adapter(Scene* scene) {
+				s_Function(scene, s_Components<COMPONENT>[scene].components);
+			}
 		public:
-			BindDrawAll(void (*function)(Scene*) = Component::DrawAll<COMPONENT>, int priority = 0) {
-				static bool binded = Component::AddDrawAllFunction(function, priority);
+			BindDrawAll(void (*function)(Scene*, std::vector<COMPONENT*>&) = Component::DrawAll<COMPONENT>, int priority = 0) {
+				static bool binded = ([=]() -> bool {
+					s_Function = function;
+					Component::AddDrawAllFunction(Adapter, priority);
+					return true;
+				})();
 			}
 		};
 
@@ -400,12 +415,13 @@ struct { MG::Component::BindDrawAll<COMPONENT> m_BindDrawAll{ __VA_ARGS__ }; };
 struct { MG::Component::BindDestroyAll<COMPONENT> m_BindDestroyAll{ __VA_ARGS__ }; };
 
 #define BIND_RELEASE_DESTROYED(COMPONENT, ...) \
-struct { MG::Component::BindRelaseDestroyed<COMPONENT> m_BindRelaseDestroyed{ __VA_ARGS__ }; };	 \
-void UpdateDestroyedIndex() override {									 						 \
-	auto& component_pair = Component::s_Components<COMPONENT>[m_Scene];							 \
-	if (m_Index < component_pair.destoryedComponentIndex) {										 \
-		component_pair.destoryedComponentIndex = m_Index;										 \
-	}																							 \
+struct { MG::Component::BindRelaseDestroyed<COMPONENT> m_BindRelaseDestroyed{ __VA_ARGS__ }; };		\
+void UpdateDestroyedIndex() override {									 							\
+	auto& component_pair = Component::s_Components<COMPONENT>[GetScene()];							\
+	size_t index = GetIndex();																		\
+	if (index < component_pair.destoryedComponentIndex) {											\
+		component_pair.destoryedComponentIndex = index;												\
+	}																								\
 };																								 
 
 #define BIND_COMPONENT(COMPONENT) \

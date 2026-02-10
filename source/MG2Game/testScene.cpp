@@ -47,106 +47,10 @@ private:
 public:
 	void Init() override {
 
-
-		{
-			GameObject* gameObject = AddGameObject();
-			Texture texture = Texture::Create("asset\\texture\\particle5.png");
-			Material::MATERIAL materialData{};
-			materialData.baseTexture = texture;
-			materialData.opacityTexture = texture;
-			Material material = Material::Create(materialData);
-
-
-			ParticleRenderer* particleRenderer = gameObject->AddComponent<ParticleRenderer>(
-				material, 300,
-				"CS/particleUpdateCS.cso"
-			);
-			PARTICLE_CONSTANT constant{};
-			constant.INIT_COLOR = RGBA(1.0f, 1.0f, 1.0f, 0.3f);
-			constant.INIT_LIFE_MAX = 6.0f;
-			constant.INIT_LIFE_MIN = 6.0f;
-			constant.INIT_POSITION_RANGE = Vector4(5.0f, 5.0f, 5.0f, 0.0f);
-			constant.INIT_ACCELERATION = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-			constant.INIT_SCALE = Vector4(1.0f, 1.0f, 0.0f);
-			constant.INIT_SCALE_ACCELERATION = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
-			constant.INIT_VELOCITY = Vector4(1.0f, 1.0f, 1.0f);
-			//constant.INIT_SCALE_ACCELERATION = Vector4(10.0f, 10.0f, 0.0f);
-			particleRenderer->SetConstant(constant);
-			particleRenderer->SetSpawnCount(2);
-			gameObject->SetPosition({ 0.0f, 0.0f, 5.0f });
-			//flog = particleRenderer;
-		}
-
-		/*MGResource resource;
-		resource.Add("inputLayout\\general.csv");
-		resource.Add("inputLayout\\test.csv");
-		resource.Write("inputLayout\\resource.pak");
-		resource.Release();
-
-		resource = MGResource("inputLayout\\resource.pak");
-		auto file = resource.GetFile("inputLayout\\general.csv");
-		CSVResource csv(file.data, file.size);
-
-		resource.Release();*/
-		/*Matrix4x4 data[3] = { Matrix4x4{}, Matrix4x4{}, Matrix4x4{} };
-		MatrixDivision d0 = MatrixDivision::Create(3, data);
-		for (int i = 0; i < 3; i++) { data[i] *= 10; }
-		MatrixDivision d1 = MatrixDivision::Create(3, data);
-		for (int i = 0; i < 3; i++) { data[i] *= 10; }
-		MatrixDivision d2 = MatrixDivision::Create(3, data);
-
-		d1.Release();
-		d0.Release();
-
-		MatrixDivision::Pad();
-
-		d2.Release();
-
-		for (int i = 0; i < 3; i++) { data[i] *= 10; }
-		MatrixDivision d3 = MatrixDivision::Create(3, data);
-
-		MatrixDivision::Pad();
-
-		static ID3D11Buffer* debugBuffer = ([](unsigned int stride, unsigned int count) {
-			D3D11_BUFFER_DESC desc = {};
-			desc.Usage = D3D11_USAGE_STAGING;
-			desc.BindFlags = 0;
-			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-			desc.StructureByteStride = stride;
-			desc.ByteWidth = stride * count;
-			ID3D11Buffer* debugBuffer;
-			Renderer::GetDevice()->CreateBuffer(&desc, nullptr, &debugBuffer);
-			return debugBuffer;
-			})(sizeof(Matrix4x4), 1000);
-
-		Renderer::GetDeviceContext()->CopySubresourceRegion(debugBuffer, 0, 0, 0, 0, MatrixDivision::GetDataBuffer(), 0, nullptr);
-
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		if (Renderer::GetDeviceContext()->Map(debugBuffer, 0, D3D11_MAP_READ, 0, &mapped) == S_OK) {
-			Matrix4x4 data[1000];
-			memcpy(data, mapped.pData, sizeof(Matrix4x4) * 1000);
-			Renderer::GetDeviceContext()->Unmap(debugBuffer, 0);
-		}*/
-
-
 		m_Weapons[0] = Model::Create("asset\\model\\baseball_bat.mgm");
 		m_Weapons[1] = Model::Create("asset\\model\\wooden_axe.mgm");
 		m_Weapons[2] = Model::Create("asset\\model\\crowbar.mgm");
 
-
-
-		/*RGBA colors[3] = {
-			{1.0f, 0.5f, 0.5f, 1.0f},
-			{1.0f, 1.0f, 0.5f, 1.0f},
-			{1.0f, 0.5f, 1.0f, 1.0f}
-		};
-
-		for (int i = 0; i < ARRAYSIZE(weapons); i++) {
-			auto materialData = weapons[i].GetData().materials[0].GetData();
-			materialData.base = colors[i];
-			weapons[i].GetData().materials[0].SetData(materialData);
-		}*/
 
 		// Player
 		{
@@ -176,22 +80,6 @@ public:
 				m_Player = character;
 
 
-
-				// BoxCollider
-				{
-					/*Model model = Model::Create("asset\\model\\box.mgm");
-					GameObject* gameObject = AddGameObject();
-
-					ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-					modelRenderer->SetModel(model, LOD_ALL);
-
-					m_BoxColliderPlayer = gameObject->AddComponent<BoxCollider>();
-
-					gameObject->SetPosition({ 0.0f, 1.0f, 0.8f });
-					gameObject->SetScale({ 0.7f, 1.5f, 1.2f });
-					gameObject->SetRotation({ 0.0f, 0.0f, XMConvertToRadians(-40.0f) });
-					gameObject->SetParent(m_Player->GetGameObject());*/
-				}
 
 			}
 

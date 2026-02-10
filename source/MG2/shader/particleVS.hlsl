@@ -82,10 +82,11 @@ void main(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID, out PS_I
     uint particleIndex = ParticleIndexArray[instanceId];
     PARTICLE particle = ParticleData[particleIndex];
     
-    float4x4 localMatrix = MakeMatrix(particle.transform.position, particle.transform.scale, particle.transform.rotation);
+    float4x4 localSR = MakeMatrix(float3(0.0f, 0.0f, 0.0f), particle.transform.scale, particle.transform.rotation);
+    float4x4 localT = MakeMatrix(particle.transform.position, float3(1.0f, 1.0f, 1.0f), float4(0.0f, 0.0f, 0.0f, 1.0f));
+    float4x4 localMatrix = mul(mul(localSR, InvViewRotation), localT);
     float4x4 worldMatrix = DynamicMartixArray[WorldMatrixId];
-    float4x4 billboardWorldMatrix = mul(InvViewRotation, worldMatrix);
-    float4x4 nodeWorldMatrix = mul(localMatrix, billboardWorldMatrix);
+    float4x4 nodeWorldMatrix = mul(localMatrix, worldMatrix);
     
     Out.worldPosition = mul(vertexes[vertexId], nodeWorldMatrix);
     

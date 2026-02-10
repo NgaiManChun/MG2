@@ -67,8 +67,8 @@ namespace MG {
 
 		static void StaticInit();
 		static void StaticUninit();
-		static void UpdateAll(Scene* scene);
-		static void DrawAll(Scene* scene);
+		static void UpdateAll(Scene* scene, std::vector<ParticleRenderer*>& components);
+		static void DrawAll(Scene* scene, std::vector<ParticleRenderer*>& components);
 	private:
 		BIND_STATIC_INIT(ParticleRenderer, ParticleRenderer::StaticInit)
 		BIND_STATIC_UNINIT(ParticleRenderer, ParticleRenderer::StaticUninit)

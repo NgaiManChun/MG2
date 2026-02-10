@@ -4,12 +4,8 @@
 
 namespace MG {
 
-	void SpriteRenderer2D::DrawAll(Scene* scene)
+	void SpriteRenderer2D::DrawAll(Scene* scene, std::vector<SpriteRenderer2D*>& components)
 	{
-		auto& component_pair = Component::s_Components<SpriteRenderer2D>[scene];
-		auto& sceneComponents = component_pair.components;
-		size_t size = sceneComponents.size();
-
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
 		// シェーダ
@@ -39,8 +35,8 @@ namespace MG {
 			static_cast<float>(MGUtility::GetScreenHeight())
 		);
 
-		for (auto component : sceneComponents) {
-			if (component && component->IsEnabled()) {
+		for (auto component : components) {
+			if (component && component->IsActive()) {
 
 				// シングルメッシュ定数
 				SINGLE_CONSTANT singleConstant{};

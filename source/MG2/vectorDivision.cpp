@@ -17,13 +17,13 @@ namespace MG {
 			return false;
 		}
 
-		if (s_MetaBuffer) {
-			Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_MetaBuffer, 0, nullptr);
+		if (s_BookmarkBuffer) {
+			Renderer::GetDeviceContext()->CopySubresourceRegion(newBuffer, 0, 0, 0, 0, s_BookmarkBuffer, 0, nullptr);
 		}
 
 		SAFE_RELEASE(s_MetaSRV);
-		SAFE_RELEASE(s_MetaBuffer);
-		s_MetaBuffer = newBuffer;
+		SAFE_RELEASE(s_BookmarkBuffer);
+		s_BookmarkBuffer = newBuffer;
 		s_MetaSRV = newSrv;
 		s_MetaCapcity = newCapcity;
 		return true;
@@ -108,7 +108,7 @@ namespace MG {
 		D3D11_BOX box = Renderer::GetRangeBox(0, static_cast<unsigned int>(sizeof(BOOKMARK) * s_Meta.size()));
 
 		// update meta
-		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
+		deviceContext->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Meta.data(), 0, 0);
 
 		// pad data
 		deviceContext->CSSetUnorderedAccessViews(0, 1, &resultUAV, nullptr);
@@ -131,7 +131,7 @@ namespace MG {
 		}
 
 		// update meta
-		deviceContext->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data(), 0, 0);
+		deviceContext->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Meta.data(), 0, 0);
 
 		SAFE_RELEASE(resultUAV);
 		SAFE_RELEASE(resultBuffer);
@@ -148,7 +148,7 @@ namespace MG {
 	void VectorDivision::Uninit()
 	{
 		SAFE_RELEASE(s_MetaSRV);
-		SAFE_RELEASE(s_MetaBuffer);
+		SAFE_RELEASE(s_BookmarkBuffer);
 		SAFE_RELEASE(s_DataUAV);
 		SAFE_RELEASE(s_DataSRV);
 		SAFE_RELEASE(s_DataBuffer);
@@ -190,7 +190,7 @@ namespace MG {
 		// update meta
 		{
 			D3D11_BOX box = Renderer::GetRangeBox(sizeof(BOOKMARK) * key.m_Id, sizeof(BOOKMARK) * (key.m_Id + 1));
-			Renderer::GetDeviceContext()->UpdateSubresource(s_MetaBuffer, 0, &box, s_Meta.data() + key.m_Id, 0, 0);
+			Renderer::GetDeviceContext()->UpdateSubresource(s_BookmarkBuffer, 0, &box, s_Meta.data() + key.m_Id, 0, 0);
 		}
 
 		// update data

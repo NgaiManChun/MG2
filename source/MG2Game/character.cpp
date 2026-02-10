@@ -170,7 +170,7 @@ void Character::RunState::Update(Character* character)
 	}
 
 	float deltaTime = MGUtility::GetDeltaTime();
-	GameObject* gameObject = character->m_GameObject;
+	GameObject* gameObject = character->GetGameObject();
 
 	if (isAccelerating && !character->m_HasMoveInput)
 	{

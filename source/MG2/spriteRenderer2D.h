@@ -11,7 +11,7 @@ namespace MG {
 
 	class SpriteRenderer2D : public Component {
 	public:
-		static void DrawAll(Scene* scene);
+		static void DrawAll(Scene* scene, std::vector<SpriteRenderer2D*>& components);
 
 	private:
 		BIND_DRAW_ALL(SpriteRenderer2D, SpriteRenderer2D::DrawAll, 60)

@@ -9,17 +9,21 @@ namespace MG {
 		GameObject* gameObject = GetGameObject();
 		XMVECTOR position = gameObject->GetPosition();
 		XMVECTOR forward = gameObject->GetForward();
-		XMMATRIX view = XMMatrixLookAtLH(position, position + forward, gameObject->GetUpper());
+		XMVECTOR upper = gameObject->GetUpper();
+		XMMATRIX view = XMMatrixLookAtLH(position, position + forward, upper);
 		XMMATRIX projection = XMMatrixPerspectiveFovLH(m_Angle, MGUtility::GetScreenRatio(), m_Near, m_Far);
 
 		// ViewProjectionの逆行列
 		XMMATRIX invVp = XMMatrixInverse(nullptr, view * projection);
 
 		// ビルボード用の逆行列
-		XMMATRIX invViewRotation = XMMatrixInverse(nullptr, view);
-		invViewRotation.r[3].m128_f32[0] = 0.0f;
-		invViewRotation.r[3].m128_f32[1] = 0.0f;
-		invViewRotation.r[3].m128_f32[2] = 0.0f;
+		XMMATRIX invViewRotation = 
+			XMMATRIX(
+				gameObject->GetRight(), 
+				upper,
+				forward, 
+				XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f)
+			);
 
 		XMVECTOR points[4] = {
 			XMVector3TransformCoord(XMVectorSet(-1.0f,  1.0f, 1.0f, 0.0f), invVp),

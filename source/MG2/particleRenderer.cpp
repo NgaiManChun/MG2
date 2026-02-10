@@ -82,7 +82,7 @@ namespace MG {
 		s_DrawArgs.clear();
 		s_Capcity = 0;
 	}
-	void ParticleRenderer::UpdateAll(Scene* scene)
+	void ParticleRenderer::UpdateAll(Scene* scene, std::vector<ParticleRenderer*>& components)
 	{
 		scene->UpdateGameObjectWorlds();
 		DynamicMatrix::Update();
@@ -182,13 +182,8 @@ namespace MG {
 			}
 		}
 	}
-	void ParticleRenderer::DrawAll(Scene* scene)
+	void ParticleRenderer::DrawAll(Scene* scene, std::vector<ParticleRenderer*>& components)
 	{
-		auto& component_pair = Component::s_Components<ParticleRenderer>[scene];
-		auto& sceneComponents = component_pair.components;
-		size_t& destoryedComponentIndex = component_pair.destoryedComponentIndex;
-		size_t size = sceneComponents.size();
-
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
 		static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/particleVS.cso").vertexShader;
@@ -204,13 +199,12 @@ namespace MG {
 		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		Renderer::SetDepthState(DEPTH_STATE_NO_WRITE_COMPARISON_LESS);
 		Renderer::SetMainRenderTarget();
-		for (ptrdiff_t i = static_cast<ptrdiff_t>(size) - 1; i >= 0; i--) {
-			if (sceneComponents[i] && sceneComponents[i]->IsEnabled()) {
-				ParticleRenderer& component = *sceneComponents[i];
+		for (auto component : components) {
+			if (component && component->IsActive()) {
 
 				SINGLE_CONSTANT singleConstant{};
-				singleConstant.worldMatrixId = component.GetGameObject()->GetWorldMatrix();
-				singleConstant.materialId = component.m_Material;
+				singleConstant.worldMatrixId = component->GetGameObject()->GetWorldMatrix();
+				singleConstant.materialId = component->m_Material;
 				Renderer::SetSingleContant(singleConstant);
 
 				{
@@ -223,15 +217,15 @@ namespace MG {
 					};
 					deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 					ID3D11ShaderResourceView* srvArray[] = {
-						component.m_DataSRV,
-						component.m_IndexSRV,
+						component->m_DataSRV,
+						component->m_IndexSRV,
 						DynamicMatrix::GetSRV()
 					};
 					deviceContext->VSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 				}
 
 				{
-					auto& materialData = component.m_Material.GetData();
+					auto& materialData = component->m_Material.GetData();
 					ID3D11ShaderResourceView* srvArray[] = {
 						materialData.baseTexture.GetSRV(),
 						materialData.normalTexture.GetSRV(),
@@ -240,7 +234,7 @@ namespace MG {
 					};
 					deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 				}
-				unsigned int offset = sizeof(DRAW_INDIRECT_ARGS) * component.m_ArgsIndex;
+				unsigned int offset = sizeof(DRAW_INDIRECT_ARGS) * component->m_ArgsIndex;
 				deviceContext->DrawInstancedIndirect(s_DrawArgsIndirectBuffer, offset);
 			}
 		}
