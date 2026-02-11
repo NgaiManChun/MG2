@@ -54,11 +54,9 @@ public:
 
 		// Player
 		{
-			//alice
 			Model model0 = Model::Create("asset\\model\\player.mgm");
 			Model model1 = Model::Create("asset\\model\\player_lod1.mgm");
 			Model model2 = Model::Create("asset\\model\\player_lod2.mgm");
-
 
 			Animation idleAnimation = Animation::Create("asset\\animation\\player_idle.mga");
 			Animation runAnimation = Animation::Create("asset\\animation\\player_run.mga");
@@ -78,9 +76,6 @@ public:
 				character->SetModel(model1, LOD_1);
 				character->SetModel(model2, LOD_2 | LOD_3 | LOD_4);
 				m_Player = character;
-
-
-
 			}
 
 			// •Ší
@@ -90,10 +85,6 @@ public:
 				modelRenderer->SetModel(m_Weapons[0], LOD_ALL);
 				m_Player->SetWeapon(gameObject);
 			}
-
-
-
-
 		}
 
 		// Enemy
@@ -136,29 +127,8 @@ public:
 					modelRenderer->SetModel(m_Weapons[index], LOD_ALL);
 					character->SetWeapon(gameObject);
 				}
-
-				// BoxCollider
-				{
-					//Model model = Model::Create("asset\\model\\box.mgm");
-					//GameObject* gameObject = AddGameObject();
-
-					////ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-					////modelRenderer->SetModel(model, LOD_ALL);
-
-					//gameObject->AddComponent<BoxCollider>();
-					//gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
-					//gameObject->SetParent(character->GetGameObject());
-				}
 			}
 		}
-
-		static Texture white = Texture::Create("asset\\texture\\white.png");
-		/*Material material = Material::Create();
-		auto materialData = material.GetData();
-		materialData.base = RGBA{ 1.0f, 1.0f, 1.0f, 1.0f };
-		materialData.baseTexture = Texture::Create("asset\\texture\\grass.jpg");
-		materialData.opacityTexture = white;
-		material.SetData(materialData);*/
 
 		// Sky
 		{
@@ -182,93 +152,7 @@ public:
 					gameObject->SetPosition({ 100.0f * x, 0.0f, 100.0f * z });
 				}
 			}
-			/*GameObject* gameObject = AddGameObject();
-			ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-			modelRenderer->SetModel(model, LOD_ALL);*/
-
-			//model.GetData().materials[0] = material;
-
-			//modelRenderer->SetMaterial(material, 0);
-			//gameObject->SetScale({ 500.0f, 1.0f, 500.0f });
 		}
-
-		// BoxCollider
-		{
-			/*Model model = Model::Create("asset\\model\\box.mgm");
-			GameObject* gameObject = AddGameObject();
-
-			ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-			modelRenderer->SetModel(model, LOD_ALL);
-
-			m_BoxColliderTarget = gameObject->AddComponent<BoxCollider>();
-
-			gameObject->SetPosition({ 5.0f, 1.0f, 0.0f });
-			gameObject->SetRotation({ 0.5f, 0.5f, 0.5f });
-			gameObject->SetScale({ 1.0f, 2.0f, 3.0f });*/
-		}
-
-		// SphereCollider
-		{
-			Model model = Model::Create("asset\\model\\sphere.mgm");
-			GameObject* gameObject = AddGameObject();
-
-			//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-			//modelRenderer->SetModel(model, LOD_ALL);
-
-			m_SphereColliderTarget = gameObject->AddComponent<SphereCollider>();
-
-			gameObject->SetPosition({ 4.0f, 1.0f, 0.0f });
-			//gameObject->SetRotation({ 0.5f, 0.5f, 0.5f });
-			gameObject->SetScale({ 1.0f, 2.0f, 5.0f });
-		}
-
-		// SpriteRenderer2D
-		{
-			/*GameObject* gameObject = AddGameObject();
-			SpriteRenderer2D* spriteRenderer2D = gameObject->AddComponent<SpriteRenderer2D>();
-
-			Material material = Material::Create();
-			auto materialData = material.GetData();
-			materialData.base = RGBA{ 1.0f, 1.0f, 1.0f, 1.0f };
-			materialData.baseTexture = Texture::Create("asset\\texture\\grass.jpg");
-			materialData.opacityTexture = white;
-			material.SetData(materialData);
-			spriteRenderer2D->SetMaterial(material);
-
-			float width = MGUtility::GetScreenWidth() * 0.3f;
-			float height = MGUtility::GetScreenHeight() * 0.3f;
-			Vector3 position = { (width - MGUtility::GetScreenWidth()) * 0.5f, (height - MGUtility::GetScreenHeight()) * 0.5f };
-
-			gameObject->SetScale({ width, height, 0.0f });
-			gameObject->SetPosition(position);*/
-		}
-
-		GetMainCamera()->GetGameObject()->SetPosition({ 0.0f, 1.0f, -5.0f });
-		//GetMainCamera()->GetGameObject()->SetRotation({ 0.3f, 0.0f, 0.0f });
-
-		/*DynamicIndexDivision vertexIndexDivisions[3];
-		for (int i = 0; i < 3; i++) {
-			std::vector<UINT> data(5);
-			for (int k = 0; k < data.size(); k++) {
-				data[k] = 100 + i * 10 + k;
-			}
-			vertexIndexDivisions[i] = DynamicIndexDivision::Create(data.size(), data.data());
-		}
-
-		vertexIndexDivisions[0].Release();
-		vertexIndexDivisions[1].Release();
-
-		for (int i = 0; i < 3; i++) {
-			std::vector<UINT> data(5);
-			for (int k = 0; k < data.size(); k++) {
-				data[k] = 200 + i * 10 + k;
-			}
-			vertexIndexDivisions[i] = DynamicIndexDivision::Create(data.size(), data.data());
-		}*/
-
-
-		//vertexIndexDivisions[0].Release();
-		//DynamicIndexDivision::Pad();
 
 	}
 
@@ -385,77 +269,6 @@ public:
 
 			}
 		}
-
-		/*if (m_BoxColliderTarget->HasOverlap()) {
-			static Model model = Model::Create("asset\\model\\box.mgm");
-			auto& material = model.GetData().materials[0];
-			auto materialData = material.GetData();
-			materialData.base = RGBA(1.0f, 0.0f, 0.0f, 1.0f);
-			material.SetData(materialData);
-		}
-		else {
-			static Model model = Model::Create("asset\\model\\box.mgm");
-			auto& material = model.GetData().materials[0];
-			auto materialData = material.GetData();
-			materialData.base = RGBA(1.0f, 1.0f, 1.0f, 1.0f);
-			material.SetData(materialData);
-		}*/
-
-		//if (m_BoxColliderPlayer->IsEnabled()) {
-		//	if (m_BoxColliderTarget->Overlap(m_BoxColliderPlayer)) {
-		//		static Model model = Model::Create("asset\\model\\box.mgm");
-		//		auto& material = model.GetData().materials[0];
-		//		auto materialData = material.GetData();
-		//		materialData.base = RGBA(1.0f, 0.0f, 0.0f, 1.0f);
-		//		material.SetData(materialData);
-		//	}
-		//	else {
-		//		static Model model = Model::Create("asset\\model\\box.mgm");
-		//		auto& material = model.GetData().materials[0];
-		//		auto materialData = material.GetData();
-		//		materialData.base = RGBA(1.0f, 1.0f, 1.0f, 1.0f);
-		//		material.SetData(materialData);
-		//	}
-
-		//	if (m_SphereColliderTarget->Overlap(m_BoxColliderPlayer)) {
-		//		static Model model = Model::Create("asset\\model\\sphere.mgm");
-		//		auto& material = model.GetData().materials[0];
-		//		auto materialData = material.GetData();
-		//		materialData.base = RGBA(1.0f, 0.0f, 0.0f, 1.0f);
-		//		material.SetData(materialData);
-		//	}
-		//	else {
-		//		static Model model = Model::Create("asset\\model\\sphere.mgm");
-		//		auto& material = model.GetData().materials[0];
-		//		auto materialData = material.GetData();
-		//		materialData.base = RGBA(1.0f, 1.0f, 1.0f, 1.0f);
-		//		material.SetData(materialData);
-		//	}
-
-		//	if (Input::GetKeyPress('P')) {
-		//		m_BoxColliderPlayer->GetGameObject()->Destroy();
-		//	}
-		//}
-		//else {
-		//	if (Input::GetKeyPress('O')) {
-		//		Model model = Model::Create("asset\\model\\box.mgm");
-		//		GameObject* gameObject = AddGameObject();
-
-		//		ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-		//		modelRenderer->SetModel(model, LOD_ALL);
-
-		//		m_BoxColliderPlayer = gameObject->AddComponent<BoxCollider>();
-
-		//		gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
-		//		//gameObject->SetScale({ 2.0f, 1.0f, 1.0f });
-		//		gameObject->SetParent(m_Player->GetGameObject());
-		//	}
-		//	
-		//}
-
-
-
-
 
 	}
 };
