@@ -62,12 +62,11 @@ public:
 			Animation runAnimation = Animation::Create("asset\\animation\\player_run.mga");
 			Animation attackAnimation = Animation::Create("asset\\animation\\player_attack.mga");
 			Animation impactAnimation = Animation::Create("asset\\animation\\player_impact.mga");
-			//alice_impact
+
 			model0.BindAnimation(Character::IDLE_ANIMATION_SLOT, idleAnimation, true);
 			model0.BindAnimation(Character::RUN_ANIMATION_SLOT, runAnimation, true);
 			model0.BindAnimation(Character::ATTACK_ANIMATION_SLOT, attackAnimation, false);
 			model0.BindAnimation(Character::IMPACT_ANIMATION_SLOT, impactAnimation, false);
-			//IMPACT_ANIMATION_SLOT
 
 			{
 				GameObject* gameObject = AddGameObject();
