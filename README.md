@@ -4,7 +4,7 @@
 本作品は、大量のキャラクターを同時に扱うことを目的とした  
 ゲームフレームワークおよびそのデモです。
 
-詳しい説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/)をご覧ください。
+詳しい説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/#mg2)をご覧ください。
 
 ## ファイル
 
