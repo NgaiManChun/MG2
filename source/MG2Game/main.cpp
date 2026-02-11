@@ -23,8 +23,8 @@
 #include "MGUtility.h"
 #include "sceneManager.h"
 
-static constexpr const char* CLASS_NAME = "MGP";
-static constexpr const char* WINDOW_NAME = "MGP";
+static constexpr const char* CLASS_NAME = "MG2";
+static constexpr const char* WINDOW_NAME = "MG2";
 static constexpr const char* INIT_SCENE = "TestScene";
 static constexpr const UINT FPS = 60;
 static constexpr const unsigned int SCREEN_WIDTH = 1280;
