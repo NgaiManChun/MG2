@@ -5,7 +5,7 @@
 
 詳しい説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/)をご覧ください。
 
-##ファイル
+## ファイル
 実行ファイル： bin\MG2Game.exe
 Visual Studioソリューションファイル： source\MG2Game\MG2Game.sln
 
