@@ -8,8 +8,7 @@
 
 ## ファイル
 
-実行ファイル： bin\\MG2Game.exe
-
+実行ファイル： bin\\MG2Game.exe  
 Visual Studioソリューションファイル： source\\MG2Game\\MG2Game.sln
 
 ## 操作方法
