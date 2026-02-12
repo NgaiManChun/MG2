@@ -107,37 +107,42 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 			int currentFPS = static_cast<int>(MG::MGUtility::GetCurrentFPS());
 			float loadRate = MG::MGUtility::GetLoadRate();
-			if (loadRate > 0.8f) {
-				if (overloadTime < 0)
-					overloadTime = 0;
-				overloadTime++;
-				if (overloadTime > currentFPS * 0.25f) {
-					overloadTime = 0;
-					if (FPSShiftIndex < ARRAYSIZE(FPSShift) - 1) {
-						FPSShiftIndex++;
-						MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
+
+			// フレーム時間予算使用率が
+			// 連続でオーバーロードまたは低水準の時
+			// 基準FPSを調節する
+			{
+				if (loadRate > 0.8f) {
+					if (overloadTime < 0)
+						overloadTime = 0;
+					overloadTime++;
+					if (overloadTime > currentFPS * 0.25f) {
+						overloadTime = 0;
+						if (FPSShiftIndex < ARRAYSIZE(FPSShift) - 1) {
+							FPSShiftIndex++;
+							MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
+						}
 					}
 				}
-			}
-			else if (loadRate < 0.3f) {
-				if (overloadTime > 0)
-					overloadTime = 0;
-				overloadTime--;
-				if (overloadTime < (0 - currentFPS)) {
-					overloadTime = 0;
-					if (FPSShiftIndex > 0) {
-						FPSShiftIndex--;
-						MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
+				else if (loadRate < 0.3f) {
+					if (overloadTime > 0)
+						overloadTime = 0;
+					overloadTime--;
+					if (overloadTime < (0 - currentFPS)) {
+						overloadTime = 0;
+						if (FPSShiftIndex > 0) {
+							FPSShiftIndex--;
+							MG::MGUtility::SetTargetFPS(FPSShift[FPSShiftIndex]);
+						}
 					}
 				}
+				else {
+					overloadTime = 0;
+				}
 			}
-			else {
-				overloadTime = 0;
-			}
+			
 
 #if _DEBUG
-
-
 			float deltaTime = MG::MGUtility::GetDeltaTime();
 			std::string title = std::string("FPS: ") +
 				std::to_string(currentFPS) +
