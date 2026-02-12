@@ -1,16 +1,5 @@
 #include "common.hlsl"
 
-
-struct DRAW_INDEXED_INDIRECT_ARGS
-{
-    unsigned int indexCountPerInstance;
-    unsigned int instanceCount;
-    unsigned int startIndexLocation;
-    int baseVertexLocation;
-    unsigned int startInstanceLocation;
-    unsigned int instanceMaxCount;
-};
-
 RWStructuredBuffer<DRAW_INDEXED_INDIRECT_ARGS> DrawArgs : register(u0);
 AppendStructuredBuffer<MESH_INSTANCE> ResultMeshInstance : register(u1);
 
@@ -41,30 +30,26 @@ void main(uint3 DTid : SV_DispatchThreadID)
     float4x4 localMatrix = MatrixDivisionData[nodeMatrixDivisionMeta.offset + NodeIndex];
     
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
-    
     float4x4 nodeWorldMatrix = mul(localMatrix, worldMatrix);
     
+    // ワールド行列を適用後のAABBを計算
     float3 center = (LocalMin + LocalMax) * 0.5f;
     float3 extent = (LocalMax - LocalMin) * 0.5f;
     float3 worldCenter = mul(float4(center, 1.0f), nodeWorldMatrix).xyz;
     float3 worldExtent;
     float3x3 m = (float3x3) nodeWorldMatrix;
-    
     worldExtent.x =
     abs(m[0][0]) * extent.x +
     abs(m[1][0]) * extent.y +
     abs(m[2][0]) * extent.z;
-
     worldExtent.y =
     abs(m[0][1]) * extent.x +
     abs(m[1][1]) * extent.y +
     abs(m[2][1]) * extent.z;
-
     worldExtent.z =
     abs(m[0][2]) * extent.x +
     abs(m[1][2]) * extent.y +
     abs(m[2][2]) * extent.z;
-    
     float3 worldMin = worldCenter - worldExtent;
     float3 worldMax = worldCenter + worldExtent;
     
@@ -77,11 +62,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     meshInstance.max = worldMax.xyz;
     meshInstance.uz = 0;
     
-    //uint DRAW_ARGS_SIZE = 24;
-    //uint MAX_COUNT_ARG_OFFSET = 20;
     uint meshInstanceIndex;
     InterlockedAdd(DrawArgs[MeshId].instanceMaxCount, 1, meshInstanceIndex);
-    //DrawArgs.InterlockedAdd(MeshId * DRAW_ARGS_SIZE + MAX_COUNT_ARG_OFFSET, 1, meshInstanceIndex);
     ResultMeshInstance.Append(meshInstance);
 
 }

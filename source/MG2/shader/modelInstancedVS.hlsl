@@ -1,16 +1,6 @@
 
 #include "common.hlsl"
 
-struct DRAW_INDEXED_INDIRECT_ARGS
-{
-    unsigned int indexCountPerInstance;
-    unsigned int instanceCount;
-    unsigned int startIndexLocation;
-    int baseVertexLocation;
-    unsigned int startInstanceLocation;
-    unsigned int instanceMaxCount;
-};
-
 StructuredBuffer<MESH_INSTANCE> MeshInstanceArray : register(t0);
 StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t1);
 StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t2);
@@ -50,7 +40,6 @@ void main(in VS_IN In, out PS_IN Out)
     float4 vertexNormal = float4(In.normal, 0.0);
     float4 vertexTangent = float4(In.tangent, 0.0);
     float4 vertexBitangent = float4(In.bitangent, 0.0);
-    
     
     uint meshInstanceIndex = MeshInstanceIndexes[DrawArgs[MeshId].startInstanceLocation + In.instanceId];
     MESH_INSTANCE meshInstance = MeshInstanceArray[meshInstanceIndex];

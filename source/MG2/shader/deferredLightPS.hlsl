@@ -51,8 +51,6 @@ void main(in PS_IN In, out float4 outColor : SV_Target)
                 directLight *= 0.9f;
         }
     }
-    
-    
     light += directLight * f;
     
     outColor.rgb *= light;

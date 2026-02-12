@@ -1,15 +1,5 @@
 #include "common.hlsl"
 
-struct DRAW_INDEXED_INDIRECT_ARGS
-{
-    unsigned int indexCountPerInstance;
-    unsigned int instanceCount;
-    unsigned int startIndexLocation;
-    int baseVertexLocation;
-    unsigned int startInstanceLocation;
-    unsigned int instanceMaxCount;
-};
-
 RWStructuredBuffer<DRAW_INDEXED_INDIRECT_ARGS> DrawArgs : register(u0);
 RWStructuredBuffer<MESH_INSTANCE> ResultMeshInstance : register(u1);
 RWStructuredBuffer<uint> ResultMeshInstanceIndex : register(u2);

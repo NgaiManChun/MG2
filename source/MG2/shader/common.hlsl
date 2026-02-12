@@ -113,6 +113,16 @@ struct ANIMATION_SET_RESULT
     float blend;
 };
 
+struct DRAW_INDEXED_INDIRECT_ARGS
+{
+    unsigned int indexCountPerInstance;
+    unsigned int instanceCount;
+    unsigned int startIndexLocation;
+    int baseVertexLocation;
+    unsigned int startInstanceLocation;
+    unsigned int instanceMaxCount;
+};
+
 struct SPOT_LIGHT
 {
     matrix ViewProjection;
@@ -302,11 +312,4 @@ static float GetRandomSign(uint seed)
 }
 
 SamplerState SamplerState0 : register(s0);
-
-//StructuredBuffer<float4x4> DynamicMatrix : register(t0);
-//StructuredBuffer<MATERIAL> Materials : register(t1);
-//StructuredBuffer<uint> ModelInstanceIds : register(t2);
-//StructuredBuffer<uint> ModelInstanceMaterials : register(t3);
-//StructuredBuffer<float4x4> NodeMatrix : register(t4);
-//StructuredBuffer<MESH_INSTANCE> MeshInstance : register(t5);
 

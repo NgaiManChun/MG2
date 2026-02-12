@@ -15,6 +15,7 @@ StructuredBuffer<ANIMATION_SET_RESULT> AnimationSetResultArray : register(t2);
 StructuredBuffer<TRANSFORM> TransformDivisionData : register(t3);
 StructuredBuffer<uint> DynamicIndexDivisionData : register(t4);
 
+// トランスフォーム階層計算＋ブレンド
 float4x4 NodeMatrix(uint nodeIndex, uint nodeParentOffset, uint transformOffsetFrom, uint transformOffsetTo, float blend)
 {
     uint _nodeIndex = nodeIndex;
@@ -59,8 +60,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
     float4x4 localMatrix = NodeMatrix(animationFolloer.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend);
     
-    DynamicMatrixArray[animationFolloer.dynamicMatrixId] = mul(DynamicMatrixArray[animationFolloer.dynamicMatrixId]
-    , mul(localMatrix, worldMatrix));
+    DynamicMatrixArray[animationFolloer.dynamicMatrixId] = 
+        mul(DynamicMatrixArray[animationFolloer.dynamicMatrixId], mul(localMatrix, worldMatrix));
     
     
 }

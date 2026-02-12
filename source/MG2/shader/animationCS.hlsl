@@ -36,6 +36,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
     uint i = 0; // TODO: マルチブレンド
     
+    // アニメーションをブレンドする前に、
+    // 時間経過により、現在フレームとそのトランスフォームのアドレスを探す
     uint transformOffsetTo = GetTransformOffset(animationSet.modelAnimationIdsTo[i], CurrentTime - animationSet.animationStartTimeTo[i]);
     uint transformOffsetFrom = (animationSet.countFrom) ?
         GetTransformOffset(animationSet.modelAnimationIdsFrom[i], CurrentTime - animationSet.animationStartTimeFrom[i]) : transformOffsetTo;
