@@ -25,9 +25,6 @@
     <Filter Include="ソース ファイル\Buffer">
       <UniqueIdentifier>{d1e2fa42-f542-4e52-afcf-5a24ca843819}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Backup">
-      <UniqueIdentifier>{0101c843-625f-43c0-beb6-619d5361c974}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Buffer\Division">
       <UniqueIdentifier>{a6afd1f9-f8ea-4ef4-9e15-84884b305bee}</UniqueIdentifier>
     </Filter>
@@ -120,20 +117,8 @@
     <ClInclude Include="texture.h">
       <Filter>ヘッダー ファイル\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="atlasTexture.h">
-      <Filter>Backup</Filter>
-    </ClInclude>
-    <ClInclude Include="vertexGroup.h">
-      <Filter>Backup</Filter>
-    </ClInclude>
-    <ClInclude Include="vertexIndexGroup.h">
-      <Filter>Backup</Filter>
-    </ClInclude>
     <ClInclude Include="animation.h">
       <Filter>ヘッダー ファイル\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="matrixGroup.h">
-      <Filter>Backup</Filter>
     </ClInclude>
     <ClInclude Include="matrixDivision.h">
       <Filter>ヘッダー ファイル\Buffer\Division</Filter>
@@ -204,9 +189,6 @@
     <ClInclude Include="MGResource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="spotLight.h">
-      <Filter>Backup</Filter>
-    </ClInclude>
     <ClInclude Include="vector4.h">
       <Filter>ヘッダー ファイル\DataType</Filter>
     </ClInclude>
@@ -260,23 +242,11 @@
     <ClCompile Include="texture.cpp">
       <Filter>ソース ファイル\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="atlasTexture.cpp">
-      <Filter>Backup</Filter>
-    </ClCompile>
-    <ClCompile Include="vertexGroup.cpp">
-      <Filter>Backup</Filter>
-    </ClCompile>
-    <ClCompile Include="vertexIndexGroup.cpp">
-      <Filter>Backup</Filter>
-    </ClCompile>
     <ClCompile Include="model.cpp">
       <Filter>ソース ファイル\Buffer</Filter>
     </ClCompile>
     <ClCompile Include="animation.cpp">
       <Filter>ソース ファイル\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="matrixGroup.cpp">
-      <Filter>Backup</Filter>
     </ClCompile>
     <ClCompile Include="transformDivision.cpp">
       <Filter>ソース ファイル\Buffer\Division</Filter>
@@ -340,12 +310,6 @@
     </ClCompile>
     <ClCompile Include="MGResource.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="titleScene.cpp">
-      <Filter>Backup</Filter>
-    </ClCompile>
-    <ClCompile Include="spotLight.cpp">
-      <Filter>Backup</Filter>
     </ClCompile>
     <ClCompile Include="vector4.cpp">
       <Filter>ソース ファイル\DataType</Filter>

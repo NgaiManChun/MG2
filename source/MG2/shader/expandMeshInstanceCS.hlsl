@@ -44,10 +44,29 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
     float4x4 nodeWorldMatrix = mul(localMatrix, worldMatrix);
     
-    float4 position0 = mul(float4(LocalMin, 1.0f), nodeWorldMatrix);
-    float4 position1 = mul(float4(LocalMax, 1.0f), nodeWorldMatrix);
-    float3 worldMin = float3(min(position0.x, position1.x), min(position0.y, position1.y), min(position0.z, position1.z));
-    float3 worldMax = float3(max(position0.x, position1.x), max(position0.y, position1.y), max(position0.z, position1.z));
+    float3 center = (LocalMin + LocalMax) * 0.5f;
+    float3 extent = (LocalMax - LocalMin) * 0.5f;
+    float3 worldCenter = mul(float4(center, 1.0f), nodeWorldMatrix).xyz;
+    float3 worldExtent;
+    float3x3 m = (float3x3) nodeWorldMatrix;
+    
+    worldExtent.x =
+    abs(m[0][0]) * extent.x +
+    abs(m[1][0]) * extent.y +
+    abs(m[2][0]) * extent.z;
+
+    worldExtent.y =
+    abs(m[0][1]) * extent.x +
+    abs(m[1][1]) * extent.y +
+    abs(m[2][1]) * extent.z;
+
+    worldExtent.z =
+    abs(m[0][2]) * extent.x +
+    abs(m[1][2]) * extent.y +
+    abs(m[2][2]) * extent.z;
+    
+    float3 worldMin = worldCenter - worldExtent;
+    float3 worldMax = worldCenter + worldExtent;
     
     MESH_INSTANCE meshInstance;
     meshInstance.meshId = MeshId;

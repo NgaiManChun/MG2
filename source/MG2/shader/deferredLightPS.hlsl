@@ -19,19 +19,6 @@ void main(in PS_IN In, out float4 outColor : SV_Target)
     float d = dot(normal, -normalize(DirectLightDirection.xyz));
     float3 directLight = (d > 0.5f) ? DirectLightColor.rgb : DirectLightColor.rgb * pow(saturate(d / 0.5f), 0.5);
     
-    //float3 worldPosition = WorldPositionTexture.Sample(SamplerState0, In.texCoord).xyz;
-    //float4 shadowMapPosition = mul(float4(worldPosition, 1.0f), DirectionalShadowViewProjection);
-    //float3 ndc = shadowMapPosition.xyz / shadowMapPosition.w;
-    //float2 shadowUV = float2(ndc.x * 0.5f + 0.5f, -ndc.y * 0.5f + 0.5f);
-    //if (shadowUV.x <= 1.0f && shadowUV.x >= 0.0f &&
-    //    shadowUV.y <= 1.0f && shadowUV.y >= 0.0f)
-    //{
-    //    float z = DirectionalShadowMapTexture.Sample(SamplerState0, shadowUV).r;
-    //    if (shadowMapPosition.z - 0.002f > z)
-    //        directLight *= 0.5f;
-
-    //}
-    
     float3 upper = float3(0.0f, 0.0f, 1.0f);
     float3 right = cross(DirectLightDirection.xyz, upper);
     right *= 0.02f;
@@ -68,30 +55,6 @@ void main(in PS_IN In, out float4 outColor : SV_Target)
     
     light += directLight * f;
     
-    // Toon
-    //float3 cameraV = normalize(worldPosition - CameraPosition);
-    //light *= (abs(dot(cameraV, normal)) < 0.4f) ? 0.1f : 1.0f;
-    //light *= (dot(-cameraV, normal) < 0.05f) ? 0.1f : 1.0f;
-    
     outColor.rgb *= light;
-
-    //float4 fog = float4(0.3f, 0.3f, 0.3f, 400.0f);
-    
-    //float depth = DepthTexture.Sample(SamplerState0, In.texCoord).r;
-    //float near = 0.1f;
-    //float far = ProjectionFar;
-    //float distance = (near * far) / (far - depth * (far - near));
-    ////if (distance > 20.0f)
-    ////{
-    ////    outColor.rgb += float3(0.0f, 1.0f, 0.0f);
-    ////}
-    
-
-    //outColor.rgb += fog.rgb * saturate(distance / fog.w);
-    //if (outColor.a == 0.0f)
-    //{
-    //    outColor.a = 0.2f;
-    //    outColor.rgb = 1.0f;
-    //}
 
 }

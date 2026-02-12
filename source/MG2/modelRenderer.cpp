@@ -13,8 +13,13 @@
 #include "animationFollower.h"
 #include "camera.h"
 #include "MGUtility.h"
-#include "spriteRenderer2D.h"
+
 #include <vector>
+
+#if _DEBUG
+#include "input.h"
+#include "spriteRenderer2D.h"
+#endif
 
 namespace MG {
 
@@ -647,6 +652,7 @@ namespace MG {
 
 			// アウトラインoff
 			deviceContext->GSSetShader(nullptr, NULL, 0);
+
 		}
 
 		// デファードライティング
