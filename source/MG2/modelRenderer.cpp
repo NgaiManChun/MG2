@@ -127,8 +127,12 @@ namespace MG {
 			deviceContext->CSSetShader(animationCS, NULL, 0);
 
 			// UAV
-			ID3D11UnorderedAccessView* animationSetResultUAV = AnimationSet::GetResultUAV();
-			deviceContext->CSSetUnorderedAccessViews(0, 1, &animationSetResultUAV, nullptr);
+			//ID3D11UnorderedAccessView* animationSetResultUAV = AnimationSet::GetResultUAV();
+			ID3D11UnorderedAccessView* uavArray[] = {
+				AnimationSet::GetResultUAV(),
+				MatrixDivision::GetDataUAV()
+			};
+			deviceContext->CSSetUnorderedAccessViews(0, 1, uavArray, nullptr);
 
 			// SRV
 			ID3D11ShaderResourceView* srvArray[] = {
@@ -136,7 +140,11 @@ namespace MG {
 				AnimationSet::GetSRV(),
 				ModelAnimation::GetSRV(),
 				TransformDivision::GetBookmarkSRV(),
-				DynamicIndexDivision::GetBookmarkSRV()
+				DynamicIndexDivision::GetBookmarkSRV(),
+
+				TransformDivision::GetDataSRV(),
+				DynamicIndexDivision::GetDataSRV(),
+				MatrixDivision::GetBookmarkSRV()
 			};
 			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 

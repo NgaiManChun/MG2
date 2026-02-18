@@ -19,31 +19,23 @@ void Character::Init()
 {
 	m_IdleState.Init(this);
 	
-	GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
-
-	//Model model = Model::Create("asset\\model\\box.mgm");
-	//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-	//modelRenderer->SetModel(model, LOD_ALL);
-
-	m_Collider = gameObject->AddComponent<BoxCollider>(1);
-	gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
-	gameObject->SetScale({ 0.4f, 1.0f, 0.5f });
-	gameObject->SetParent(GetGameObject());
-
+	// 被弾ヒットボックス
 	{
-		//Model model = Model::Create("asset\\model\\box.mgm");
 		GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
+		m_Collider = gameObject->AddComponent<BoxCollider>(1);
+		gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
+		gameObject->SetScale({ 0.4f, 1.0f, 0.5f });
+		gameObject->SetParent(GetGameObject());
+	}
 
-		//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-		//modelRenderer->SetModel(model, LOD_ALL);
-
+	// 攻撃ヒットボックス
+	{
+		GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
 		m_AttackCollider = gameObject->AddComponent<BoxCollider>(2);
-
 		gameObject->SetPosition({ 0.0f, 1.0f, 0.8f });
 		gameObject->SetScale({ 0.7f, 1.5f, 1.2f });
 		gameObject->SetRotation({ 0.0f, 0.0f, XMConvertToRadians(-40.0f) });
 		gameObject->SetParent(GetGameObject());
-
 		m_AttackCollider->SetEnabled(false);
 	}
 }
@@ -53,11 +45,17 @@ void Character::SetModel(Model model, unsigned int lod)
 	m_Models.push_back(model);
 	ModelRenderer* modelRenderer = GetGameObject()->AddComponent<ModelRenderer>();
 	modelRenderer->SetModel(model, lod);
-	if (!model.GetData().animations.empty()) {
-		modelRenderer->SetAnimation(0);
+	if (model.GetData().animations[Character::IDLE_ANIMATION_SLOT]) {
+		modelRenderer->SetAnimation(Character::IDLE_ANIMATION_SLOT);
 	}
 	m_ModelRenderers.push_back(modelRenderer);
 
+	// 一個目のモデルと同じアニメーション結果に設定
+	if (m_ModelRenderers.size() > 1) {
+		modelRenderer->GetModelInstance().SetAniamtedMatrixDivision(
+			m_ModelRenderers[0]->GetModelInstance().GetData().aniamtedMatrixDivision
+		);
+	}
 }
 
 bool Character::IsImpact()
@@ -124,9 +122,7 @@ void Character::IdleState::Init(Character* character)
 {
 	auto& animations = character->m_Models[0].GetData().animations;
 	AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
-	for (auto& modelRenderer : character->m_ModelRenderers) {
-		modelRenderer->GetAnimationSet().Swap(animations[Character::IDLE_ANIMATION_SLOT], MOVE_DURATION);
-	}
+	animationSet.Swap(animations[Character::IDLE_ANIMATION_SLOT], MOVE_DURATION);
 }
 
 void Character::IdleState::Update(Character* character)
@@ -176,17 +172,13 @@ void Character::RunState::Update(Character* character)
 	{
 		auto& animations = character->m_Models[0].GetData().animations;
 		AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
-		for (auto& modelRenderer : character->m_ModelRenderers) {
-			modelRenderer->GetAnimationSet().Swap(animations[Character::IDLE_ANIMATION_SLOT], MOVE_DURATION);
-		}
+		animationSet.Swap(animations[Character::IDLE_ANIMATION_SLOT], MOVE_DURATION);
 		isAccelerating = false;
 	}
 	else if (!isAccelerating && character->m_HasMoveInput) {
 		auto& animations = character->m_Models[0].GetData().animations;
 		AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
-		for (auto& modelRenderer : character->m_ModelRenderers) {
-			modelRenderer->GetAnimationSet().Swap(animations[Character::RUN_ANIMATION_SLOT], MOVE_DURATION);
-		}
+		animationSet.Swap(animations[Character::RUN_ANIMATION_SLOT], MOVE_DURATION);
 		isAccelerating = true;
 	}
 
@@ -237,9 +229,7 @@ void Character::AttackState::Init(Character* character)
 
 	auto& animations = character->m_Models[0].GetData().animations;
 	AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
-	for (auto& modelRenderer : character->m_ModelRenderers) {
-		modelRenderer->GetAnimationSet().Swap(animations[Character::ATTACK_ANIMATION_SLOT], MOVE_DURATION);
-	}
+	animationSet.Swap(animations[Character::ATTACK_ANIMATION_SLOT], MOVE_DURATION);
 }
 
 void Character::AttackState::Update(Character* character)
@@ -275,9 +265,7 @@ void Character::ImpactState::Init(Character* character)
 
 	auto& animations = character->m_Models[0].GetData().animations;
 	AnimationSet animationSet = character->m_ModelRenderers[0]->GetAnimationSet();
-	for (auto& modelRenderer : character->m_ModelRenderers) {
-		modelRenderer->GetAnimationSet().Swap(animations[Character::IMPACT_ANIMATION_SLOT], 500);
-	}
+	animationSet.Swap(animations[Character::IMPACT_ANIMATION_SLOT], 500);
 }
 
 void Character::ImpactState::Update(Character* character)

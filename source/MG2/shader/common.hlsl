@@ -51,6 +51,7 @@ struct MODEL_INSTANCE
     uint enabled;
     uint animationSetId;
     uint matrixDivisionId;
+    uint aniamtedMatrixDivisionId;
     uint nodeParentIndexDivisionId;
     uint lod;
 };
