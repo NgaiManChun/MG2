@@ -19,26 +19,19 @@ void Character::Init()
 {
 	m_IdleState.Init(this);
 	
-	GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
-
-	//Model model = Model::Create("asset\\model\\box.mgm");
-	//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-	//modelRenderer->SetModel(model, LOD_ALL);
-
-	m_Collider = gameObject->AddComponent<BoxCollider>(1);
-	gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
-	gameObject->SetScale({ 0.4f, 1.0f, 0.5f });
-	gameObject->SetParent(GetGameObject());
-
+	// ”í’e”»’è
 	{
-		//Model model = Model::Create("asset\\model\\box.mgm");
 		GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
-
-		//ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-		//modelRenderer->SetModel(model, LOD_ALL);
-
+		m_Collider = gameObject->AddComponent<BoxCollider>(1);
+		gameObject->SetPosition({ 0.0f, 1.0f, 0.0f });
+		gameObject->SetScale({ 0.4f, 1.0f, 0.5f });
+		gameObject->SetParent(GetGameObject());
+	}
+	
+	// UŒ‚”»’è
+	{
+		GameObject* gameObject = GetGameObject()->GetScene()->AddGameObject();
 		m_AttackCollider = gameObject->AddComponent<BoxCollider>(2);
-
 		gameObject->SetPosition({ 0.0f, 1.0f, 0.8f });
 		gameObject->SetScale({ 0.7f, 1.5f, 1.2f });
 		gameObject->SetRotation({ 0.0f, 0.0f, XMConvertToRadians(-40.0f) });
