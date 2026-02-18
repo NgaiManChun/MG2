@@ -7,38 +7,7 @@ namespace MG {
 
 	MGResource::MGResource(const char* filename)
 	{
-		std::ifstream file(filename, std::ios::binary | std::ios::ate);
-		
-		if (file) {
-			size_t size = static_cast<size_t>(file.tellg());
-			file.seekg(0, std::ios::beg);
-
-			// ヘッダを読み込む
-			MG_RESOURCE_HEADER header;
-			file.read(reinterpret_cast<char*>(&header), sizeof(MG_RESOURCE_HEADER));
-
-			// エントリーを読み込む
-			std::vector<MG_RESOURCE_ENTRY> entries;
-			entries.reserve(header.entryCount);
-			for (unsigned int i = 0; i < header.entryCount; i++) {
-				MG_RESOURCE_ENTRY entry{};
-				file.read(reinterpret_cast<char*>(&entry), sizeof(MG_RESOURCE_ENTRY));
-				entries.push_back(entry);
-			}
-
-			// ファイルのデータを読み込む
-			for (auto entry : entries) {
-				ResourceFile resfile{
-					new unsigned char[entry.size],
-					entry.size
-				};
-				file.read(reinterpret_cast<char*>(resfile.data), entry.size);
-				m_Files[entry.name] = resfile;
-			}
-
-			file.close();
-
-		}
+		Load(filename);
 	}
 
 	void MGResource::Add(const char* filename, const char* rename)
@@ -88,6 +57,44 @@ namespace MG {
 			return m_Files[filename];
 		}
 		return {};
+	}
+
+	void MGResource::Load(const char* filename)
+	{
+		Release();
+
+		std::ifstream file(filename, std::ios::binary | std::ios::ate);
+
+		if (file) {
+			size_t size = static_cast<size_t>(file.tellg());
+			file.seekg(0, std::ios::beg);
+
+			// ヘッダを読み込む
+			MG_RESOURCE_HEADER header;
+			file.read(reinterpret_cast<char*>(&header), sizeof(MG_RESOURCE_HEADER));
+
+			// エントリーを読み込む
+			std::vector<MG_RESOURCE_ENTRY> entries;
+			entries.reserve(header.entryCount);
+			for (unsigned int i = 0; i < header.entryCount; i++) {
+				MG_RESOURCE_ENTRY entry{};
+				file.read(reinterpret_cast<char*>(&entry), sizeof(MG_RESOURCE_ENTRY));
+				entries.push_back(entry);
+			}
+
+			// ファイルのデータを読み込む
+			for (auto entry : entries) {
+				ResourceFile resfile{
+					new unsigned char[entry.size],
+					entry.size
+				};
+				file.read(reinterpret_cast<char*>(resfile.data), entry.size);
+				m_Files[entry.name] = resfile;
+			}
+
+			file.close();
+
+		}
 	}
 
 	void MGResource::Write(const char* filename)

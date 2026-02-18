@@ -433,6 +433,8 @@ $(OutDir)ResourceTool.exe $(ProjectDir)config/ $(OutDir)config.pak</Command>
     <ClInclude Include="character.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config\asset.csv" />
+    <None Include="config\test.csv" />
     <None Include="inputLayout\custom.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

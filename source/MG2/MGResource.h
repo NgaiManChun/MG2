@@ -30,7 +30,6 @@ namespace MG {
 				return size;
 			}
 		};
-		static MGResource Load(const char* filename);
 		static constexpr const char VERSION[8] = "1.0";
 
 	private:
@@ -43,6 +42,7 @@ namespace MG {
 		void Remove(const char* filename);
 		ResourceFile GetFile(const char* filename);
 		const std::unordered_map<std::string, ResourceFile>& GetAllFiles() { return m_Files; }
+		void Load(const char* filename);
 		void Write(const char* filename);
 		void Release();
 	};

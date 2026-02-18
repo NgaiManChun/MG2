@@ -44,40 +44,92 @@ private:
 	std::vector<Character*> m_Enemies;
 	std::vector<TimeLine> m_EnemyTimeLines;
 	std::vector<Vector3> m_EnemyDirections;
+
+	unsigned int m_EnemyNum = 1000;
+	Vector3 m_EnemyRange{ 50.0f, 0.0f, 50.0f };
+
+
 public:
 	void Init() override {
 
-		m_Weapons[0] = Model::Create("asset\\model\\baseball_bat.mgm");
-		m_Weapons[1] = Model::Create("asset\\model\\wooden_axe.mgm");
-		m_Weapons[2] = Model::Create("asset\\model\\crowbar.mgm");
+		Model palyer_lod0;
+		Model palyer_lod1;
+		Model palyer_lod2;
+		Model enemy_lod0;
+		Model enemy_lod1;
+		Model enemy_lod2;
+		Model weapon0;
+		Model weapon1;
+		Model weapon2;
+		Model sky;
+		Model ground;
+		Animation playerIdleAnimation;
+		Animation playerRunAnimation;
+		Animation playerAttackAnimation;
+		Animation playerImpactAnimation;
+		Animation enemyIdleAnimation;
+		Animation enemyRunAnimation;
+		Animation enemyAttackAnimation;
+		Animation enemyImpactAnimation;
 
-
-		// Player
+		// コンフィグ読み込み
 		{
-			Model model0 = Model::Create("asset\\model\\player.mgm");
-			Model model1 = Model::Create("asset\\model\\player_lod1.mgm");
-			Model model2 = Model::Create("asset\\model\\player_lod2.mgm");
+			MGResource configResource = MGResource("config.pak");
 
-			Animation idleAnimation = Animation::Create("asset\\animation\\player_idle.mga");
-			Animation runAnimation = Animation::Create("asset\\animation\\player_run.mga");
-			Animation attackAnimation = Animation::Create("asset\\animation\\player_attack.mga");
-			Animation impactAnimation = Animation::Create("asset\\animation\\player_impact.mga");
-
-			model0.BindAnimation(Character::IDLE_ANIMATION_SLOT, idleAnimation, true);
-			model0.BindAnimation(Character::RUN_ANIMATION_SLOT, runAnimation, true);
-			model0.BindAnimation(Character::ATTACK_ANIMATION_SLOT, attackAnimation, false);
-			model0.BindAnimation(Character::IMPACT_ANIMATION_SLOT, impactAnimation, false);
-
-			{
-				GameObject* gameObject = AddGameObject();
-				Character* character = gameObject->AddComponent<Character>();
-				character->SetModel(model0, LOD_0);
-				character->SetModel(model1, LOD_1);
-				character->SetModel(model2, LOD_2 | LOD_3 | LOD_4);
-				m_Player = character;
+			// TestScene設定
+			auto textConfig = configResource.GetFile("test.csv");
+			if (textConfig) {
+				auto csv = CSVResource(textConfig.data, textConfig.size);
+				m_EnemyNum = csv["ENEMY_NUM"]["value"];
+				m_EnemyRange = csv["ENEMY_RANGE"]["value"];
 			}
 
-			// 武器
+			// アセット設定
+			auto modelConfig = configResource.GetFile("asset.csv");
+			if (modelConfig) {
+				auto csv = CSVResource(modelConfig.data, modelConfig.size);
+				palyer_lod0 = Model::Create(csv["PLAYER_LOD0"]["value"]);
+				palyer_lod1 = Model::Create(csv["PLAYER_LOD1"]["value"]);
+				palyer_lod2 = Model::Create(csv["PLAYER_LOD2"]["value"]);
+				enemy_lod0 = Model::Create(csv["ENEMY_LOD0"]["value"]);
+				enemy_lod1 = Model::Create(csv["ENEMY_LOD1"]["value"]);
+				enemy_lod2 = Model::Create(csv["ENEMY_LOD2"]["value"]);
+				m_Weapons[0] = Model::Create(csv["WEAPON_0"]["value"]);
+				m_Weapons[1] = Model::Create(csv["WEAPON_1"]["value"]);
+				m_Weapons[2] = Model::Create(csv["WEAPON_2"]["value"]);
+				sky = Model::Create(csv["SKY"]["value"]);
+				ground = Model::Create(csv["GROUND"]["value"]);
+				playerIdleAnimation = Animation::Create(csv["PLAYER_IDLE"]["value"]);
+				playerRunAnimation = Animation::Create(csv["PLAYER_RUN"]["value"]);
+				playerAttackAnimation = Animation::Create(csv["PLAYER_ATTACK"]["value"]);
+				playerImpactAnimation = Animation::Create(csv["PLAYER_IMPACT"]["value"]);
+				palyer_lod0.BindAnimation(Character::IDLE_ANIMATION_SLOT, playerIdleAnimation, true);
+				palyer_lod0.BindAnimation(Character::RUN_ANIMATION_SLOT, playerRunAnimation, true);
+				palyer_lod0.BindAnimation(Character::ATTACK_ANIMATION_SLOT, playerAttackAnimation, false);
+				palyer_lod0.BindAnimation(Character::IMPACT_ANIMATION_SLOT, playerImpactAnimation, false);
+				enemyIdleAnimation = Animation::Create(csv["ENEMY_IDLE"]["value"]);
+				enemyRunAnimation = Animation::Create(csv["ENEMY_RUN"]["value"]);
+				enemyAttackAnimation = Animation::Create(csv["ENEMY_ATTACK"]["value"]);
+				enemyImpactAnimation = Animation::Create(csv["ENEMY_IMPACT"]["value"]);
+				enemy_lod0.BindAnimation(Character::IDLE_ANIMATION_SLOT, enemyIdleAnimation, true);
+				enemy_lod0.BindAnimation(Character::RUN_ANIMATION_SLOT, enemyRunAnimation, true);
+				enemy_lod0.BindAnimation(Character::ATTACK_ANIMATION_SLOT, enemyAttackAnimation, false);
+				enemy_lod0.BindAnimation(Character::IMPACT_ANIMATION_SLOT, enemyImpactAnimation, false);
+			}
+
+			configResource.Release();
+		}
+
+		// プレイヤー設定
+		{
+			GameObject* gameObject = AddGameObject();
+			Character* character = gameObject->AddComponent<Character>();
+			character->SetModel(palyer_lod0, LOD_0);
+			character->SetModel(palyer_lod1, LOD_1);
+			character->SetModel(palyer_lod2, LOD_2 | LOD_3 | LOD_4);
+			m_Player = character;
+
+			// プレイヤー武器設定
 			{
 				GameObject* gameObject = AddGameObject();
 				ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
@@ -86,40 +138,28 @@ public:
 			}
 		}
 
-		// Enemy
+		// エネミー設定
 		{
-			const unsigned int ENEMY_COUNT = 1000;
-			const float RANGE = 30.0f;
-			m_Enemies.reserve(ENEMY_COUNT);
-			m_EnemyTimeLines.reserve(ENEMY_COUNT);
-			m_EnemyDirections.resize(ENEMY_COUNT);
-			Model model0 = Model::Create("asset\\model\\alice.mgm");
-			Model model1 = Model::Create("asset\\model\\alice_lod1.mgm");
-			Model model2 = Model::Create("asset\\model\\alice_lod2.mgm");
-			Animation idleAnimation = Animation::Create("asset\\animation\\alice_idle.mga");
-			Animation runAnimation = Animation::Create("asset\\animation\\alice_run.mga");
-			Animation attackAnimation = Animation::Create("asset\\animation\\alice_attack.mga");
-			Animation impactAnimation = Animation::Create("asset\\animation\\alice_impact.mga");
-			model0.BindAnimation(Character::IDLE_ANIMATION_SLOT, idleAnimation, true);
-			model0.BindAnimation(Character::RUN_ANIMATION_SLOT, runAnimation, true);
-			model0.BindAnimation(Character::ATTACK_ANIMATION_SLOT, attackAnimation, false);
-			model0.BindAnimation(Character::IMPACT_ANIMATION_SLOT, impactAnimation, false);
-			for (int i = 0; i < ENEMY_COUNT; i++)
+			m_Enemies.reserve(m_EnemyNum);
+			m_EnemyTimeLines.reserve(m_EnemyNum);
+			m_EnemyDirections.resize(m_EnemyNum);
+			for (int i = 0; i < m_EnemyNum; i++)
 			{
 				GameObject* gameObject = AddGameObject();
 				Character* character = gameObject->AddComponent<Character>();
-				character->SetModel(model0, LOD_0);
-				character->SetModel(model1, LOD_1 | LOD_2);
-				character->SetModel(model2, LOD_3 | LOD_4);
-				gameObject->SetPosition({ RANDOM_T * RANDOM_SIGN * RANGE, 0.0f, RANDOM_T * RANDOM_SIGN * RANGE });
+				character->SetModel(enemy_lod0, LOD_0);
+				character->SetModel(enemy_lod1, LOD_1 | LOD_2);
+				character->SetModel(enemy_lod2, LOD_3 | LOD_4);
+				gameObject->SetPosition(m_EnemyRange * Vector3{ RANDOM_T * RANDOM_SIGN, 0.0f, RANDOM_T * RANDOM_SIGN });
 				m_Enemies.push_back(character);
 				m_EnemyTimeLines.push_back(TimeLine(RANDOM_T * 5.0f));
 
-				// 武器
+				// エネミー武器設定
 				{
 					GameObject* gameObject = AddGameObject();
 					ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
 
+					// ランタイム武器
 					int index = static_cast<int>(RANDOM_T * ARRAYSIZE(m_Weapons));
 					index %= ARRAYSIZE(m_Weapons);
 
@@ -129,34 +169,25 @@ public:
 			}
 		}
 
-		// Sky
+		// スカイスフィア設定
 		{
-			Model model = Model::Create("asset\\model\\sky.mgm");
 			GameObject* gameObject = AddGameObject();
 			SkyRenderer* modelRenderer = gameObject->AddComponent<SkyRenderer>();
-			modelRenderer->SetModel(model);
+			modelRenderer->SetModel(sky);
 			gameObject->SetScale({ 100.0f, 100.0f, 100.0f });
 		}
 
-
-		// Plane
+		// 地面設定
 		{
-			Model model = Model::Create("asset\\model\\ground.mgm");
-
 			for (int x = -1; x < 2; x++) {
 				for (int z = -1; z < 2; z++) {
 					GameObject* gameObject = AddGameObject();
 					ModelRenderer* modelRenderer = gameObject->AddComponent<ModelRenderer>();
-					modelRenderer->SetModel(model, LOD_ALL);
+					modelRenderer->SetModel(ground, LOD_ALL);
 					gameObject->SetPosition({ 100.0f * x, 0.0f, 100.0f * z });
 				}
 			}
 		}
-
-	}
-
-	void Uninit() override
-	{
 
 	}
 
@@ -174,8 +205,6 @@ public:
 
 			Camera* camera = GetMainCamera();
 
-
-			//m_Weapons
 			if (Input::GetKeyPress('1')) {
 				ModelRenderer* modelRenderer = m_Player->GetWeapon()->GetComponent<ModelRenderer>();
 				if (modelRenderer) {
@@ -195,8 +224,7 @@ public:
 				}
 			}
 
-
-			// Move
+			// 移動
 			bool move = false;
 			Vector3 direct{ 0.0f, 0.0f, 0.0f };
 			if (Input::GetKeyPress('W')) {
@@ -214,12 +242,12 @@ public:
 			direct.y = 0.0f;
 			m_Player->MoveCommand(direct);
 
-			// Attack
+			// 攻撃
 			if (Input::GetKeyTrigger('J')) {
 				m_Player->AttackCommand();
 			}
 
-			// Camera
+			// カメラ
 			Vector3 cameraRotation = camera->GetRotation();
 			if (Input::GetKeyPress(VK_UP)) {
 				cameraRotation.x -= CAMERA_ROTATE_SPEED * deltaTime;
