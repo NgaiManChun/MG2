@@ -1,6 +1,6 @@
 # MG2
 
-ドキュメントや他の作品は[こちら](https://ngaimanchun.github.io/portfolio/#mg2)をご覧ください。
+説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/#mg2)をご覧ください。
 
 ## ファイル
 
