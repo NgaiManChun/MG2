@@ -45,7 +45,7 @@ namespace MG {
 
 		// データバッファ確保
 		if (s_DataCount + count > s_DataCapcity) {
-			unsigned int newCapcity = s_DataCount + count * 2;
+			unsigned int newCapcity = max(s_DataCount + count, s_DataCapcity * 1.5f);
 			if (Buffer::NewBufferCopy(sizeof(Matrix4x4), newCapcity, s_DataBuffer, s_DataSRV, s_DataUAV)) {
 				s_DataCapcity = newCapcity;
 			}
