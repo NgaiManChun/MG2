@@ -7,14 +7,6 @@
 
 #endif
 
-//static int AllocBreakPoint() {
-//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-//	//_CrtSetBreakAlloc(169);
-//
-//	return 0;
-//}
-//static int _AllocBreakPoint = AllocBreakPoint();
-
 #include <windows.h>
 #include <assert.h>
 #include <thread>
@@ -141,8 +133,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 			}
 			
-
-#if _DEBUG
 			float deltaTime = MG::MGUtility::GetDeltaTime();
 			std::string title = std::string("FPS: ") +
 				std::to_string(currentFPS) +
@@ -151,7 +141,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				std::string(" Load Rate: ") +
 				std::to_string(loadRate);
 			SetWindowTextA(g_Window, title.c_str());
-#endif
+
 		}
 	}
 
