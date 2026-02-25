@@ -13,8 +13,8 @@ namespace MG {
 		SAFE_RELEASE(s_DataBuffer);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
-		s_BookmarkCapcity = 0;
-		s_DataCapcity = 0;
+		s_BookmarkCapacity = 0;
+		s_DataCapacity = 0;
 		s_DataCount = 0;
 	}
 
@@ -35,18 +35,18 @@ namespace MG {
 		}
 
 		// ブックマークバッファ確保
-		if (s_Bookmarks.capacity() > s_BookmarkCapcity) {
-			unsigned int newCapcity = static_cast<unsigned int>(s_Bookmarks.capacity());
-			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), newCapcity, s_BookmarkBuffer, s_BookmarkSRV)) {
-				s_BookmarkCapcity = newCapcity;
+		if (s_Bookmarks.capacity() > s_BookmarkCapacity) {
+			unsigned int newCapacity = static_cast<unsigned int>(s_Bookmarks.capacity());
+			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), newCapacity, s_BookmarkBuffer, s_BookmarkSRV)) {
+				s_BookmarkCapacity = newCapacity;
 			}
 		}
 
 		// 本データバッファ確保
-		if (s_DataCount + count > s_DataCapcity) {
-			unsigned int newCapcity = s_DataCount + count * 2;
-			if (Buffer::NewBufferCopy(sizeof(BONE), newCapcity, s_DataBuffer, s_DataSRV)) {
-				s_DataCapcity = newCapcity;
+		if (s_DataCount + count > s_DataCapacity) {
+			unsigned int newCapacity = s_DataCount + count * 2;
+			if (Buffer::NewBufferCopy(sizeof(BONE), newCapacity, s_DataBuffer, s_DataSRV)) {
+				s_DataCapacity = newCapacity;
 			}
 		}
 

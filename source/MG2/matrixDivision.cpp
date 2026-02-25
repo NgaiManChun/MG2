@@ -14,8 +14,8 @@ namespace MG {
 		SAFE_RELEASE(s_DataBuffer);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
-		s_BookmarkCapcity = 0;
-		s_DataCapcity = 0;
+		s_BookmarkCapacity = 0;
+		s_DataCapacity = 0;
 		s_DataCount = 0;
 	}
 
@@ -36,18 +36,18 @@ namespace MG {
 		}
 
 		// ブックマークバッファ確保
-		if (s_Bookmarks.capacity() > s_BookmarkCapcity) {
-			unsigned int newCapcity = static_cast<unsigned int>(s_Bookmarks.capacity());
-			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), newCapcity, s_BookmarkBuffer, s_BookmarkSRV)) {
-				s_BookmarkCapcity = newCapcity;
+		if (s_Bookmarks.capacity() > s_BookmarkCapacity) {
+			unsigned int newCapacity = static_cast<unsigned int>(s_Bookmarks.capacity());
+			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), newCapacity, s_BookmarkBuffer, s_BookmarkSRV)) {
+				s_BookmarkCapacity = newCapacity;
 			}
 		}
 
 		// データバッファ確保
-		if (s_DataCount + count > s_DataCapcity) {
-			unsigned int newCapcity = max(s_DataCount + count, s_DataCapcity * 1.5f);
-			if (Buffer::NewBufferCopy(sizeof(Matrix4x4), newCapcity, s_DataBuffer, s_DataSRV, s_DataUAV)) {
-				s_DataCapcity = newCapcity;
+		if (s_DataCount + count > s_DataCapacity) {
+			unsigned int newCapacity = max(s_DataCount + count, s_DataCapacity * 1.5f);
+			if (Buffer::NewBufferCopy(sizeof(Matrix4x4), newCapacity, s_DataBuffer, s_DataSRV, s_DataUAV)) {
+				s_DataCapacity = newCapacity;
 			}
 		}
 
@@ -80,9 +80,9 @@ namespace MG {
 	void MatrixDivision::DataReserve(unsigned int capcity)
 	{
 		// データバッファ確保
-		if (capcity > s_DataCapcity) {
+		if (capcity > s_DataCapacity) {
 			if (Buffer::NewBufferCopy(sizeof(Matrix4x4), capcity, s_DataBuffer, s_DataSRV, s_DataUAV)) {
-				s_DataCapcity = capcity;
+				s_DataCapacity = capcity;
 			}
 		}
 	}
@@ -90,10 +90,10 @@ namespace MG {
 	void MatrixDivision::BookmarkReserve(unsigned int capcity)
 	{
 		// ブックマークバッファ確保
-		if (capcity > s_BookmarkCapcity) {
+		if (capcity > s_BookmarkCapacity) {
 			s_Bookmarks.reserve(capcity);
 			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), capcity, s_BookmarkBuffer, s_BookmarkSRV)) {
-				s_BookmarkCapcity = capcity;
+				s_BookmarkCapacity = capcity;
 			}
 		}
 	}

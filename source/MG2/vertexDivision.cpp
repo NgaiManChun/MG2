@@ -9,7 +9,7 @@ namespace MG {
 		SAFE_RELEASE(s_DataBuffer);
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
-		s_DataCapcity = 0;
+		s_DataCapacity = 0;
 		s_DataCount = 0;
 	}
 
@@ -30,10 +30,10 @@ namespace MG {
 		}
 
 		// 頂点バッファ確保
-		if (s_DataCount + count > s_DataCapcity) {
-			unsigned int newCapcity = s_DataCount + count * 2;
-			if (Buffer::NewVertexBufferCopy(sizeof(VERTEX), newCapcity, s_DataBuffer)) {
-				s_DataCapcity = newCapcity;
+		if (s_DataCount + count > s_DataCapacity) {
+			unsigned int newCapacity = s_DataCount + count * 2;
+			if (Buffer::NewVertexBufferCopy(sizeof(VERTEX), newCapacity, s_DataBuffer)) {
+				s_DataCapacity = newCapacity;
 			}
 		}
 

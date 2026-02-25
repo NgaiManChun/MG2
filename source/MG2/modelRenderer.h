@@ -37,7 +37,7 @@ namespace MG {
 		struct MODEL_SET{
 			std::vector<ModelInstance> modelInstances;
 			std::set<unsigned int> emptyIds;
-			unsigned int bufferCapcity = 0;
+			unsigned int bufferCapacity = 0;
 			ID3D11Buffer* modelInstanceIdBuffer;
 			ID3D11ShaderResourceView* modelInstanceIdSRV;
 			bool needUpdateModelInstanceBuffer = false;
@@ -50,7 +50,7 @@ namespace MG {
 		static inline ID3D11Buffer* s_MeshInstanceIndexBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_MeshInstanceIndexSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_MeshInstanceIndexUAV = nullptr;
-		static inline unsigned int s_MeshInstanceBufferCapcity = 0;
+		static inline unsigned int s_MeshInstanceBufferCapacity = 0;
 		static inline unsigned int s_MeshInstanceMax = 0;
 
 		static inline ID3D11Texture2D* s_ColorTexture = nullptr;

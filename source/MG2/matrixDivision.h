@@ -21,8 +21,8 @@ namespace MG {
 		static inline ID3D11Buffer* s_DataBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_DataSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_DataUAV = nullptr;
-		static inline unsigned int s_BookmarkCapcity = 0;
-		static inline unsigned int s_DataCapcity = 0;
+		static inline unsigned int s_BookmarkCapacity = 0;
+		static inline unsigned int s_DataCapacity = 0;
 		static inline unsigned int s_DataCount = 0;
 
 	public:

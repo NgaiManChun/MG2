@@ -11,7 +11,7 @@ namespace MG {
 		SAFE_RELEASE(s_Buffer);
 		s_Data.clear();
 		s_EmptyIds.clear();
-		s_Capcity = 0;
+		s_Capacity = 0;
 		s_NeedUpdateBuffer = false;
 	}
 
@@ -20,18 +20,18 @@ namespace MG {
 		if (s_NeedUpdateBuffer) {
 
 			// バッファ確保
-			unsigned int newCapcity = static_cast<unsigned int>(s_Data.capacity());
-			if (newCapcity > s_Capcity) {
+			unsigned int newCapacity = static_cast<unsigned int>(s_Data.capacity());
+			if (newCapacity > s_Capacity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_UAV);
 				SAFE_RELEASE(s_Buffer);
 				s_Buffer = Renderer::CreateStructuredBuffer(
-					sizeof(Matrix4x4), static_cast<unsigned int>(newCapcity), s_Data.data(),
+					sizeof(Matrix4x4), static_cast<unsigned int>(newCapacity), s_Data.data(),
 					D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
 				if (s_Buffer) {
-					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapcity);
-					s_UAV = Renderer::CreateStructuredUAV(s_Buffer, newCapcity);
-					s_Capcity = newCapcity;
+					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapacity);
+					s_UAV = Renderer::CreateStructuredUAV(s_Buffer, newCapacity);
+					s_Capacity = newCapacity;
 					s_NeedUpdateBuffer = false;
 				}
 			}

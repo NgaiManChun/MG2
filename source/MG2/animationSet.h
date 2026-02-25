@@ -43,7 +43,7 @@ namespace MG {
 		static inline ID3D11Buffer* s_ResultBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_ResultSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_ResultUAV = nullptr;
-		static inline unsigned int s_Capcity = 0;
+		static inline unsigned int s_Capacity = 0;
 		static inline bool s_NeedUpdateBuffer = false;
 		
 	public:

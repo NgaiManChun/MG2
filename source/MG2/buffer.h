@@ -22,8 +22,8 @@ TYPE(const unsigned int& id) :m_Id(id) {}
 
 namespace MG::Buffer {
 
-	static inline unsigned int s_BookmarkCapcity = 0;
-	static inline unsigned int s_DataCapcity = 0;
+	static inline unsigned int s_BookmarkCapacity = 0;
+	static inline unsigned int s_DataCapacity = 0;
 	static inline ID3D11Buffer* s_BookmarkBuffer = nullptr;
 	static inline ID3D11Buffer* s_InputBuffer = nullptr;
 	static inline ID3D11Buffer* s_ResultBuffer = nullptr;

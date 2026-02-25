@@ -80,7 +80,7 @@ namespace MG {
 		s_CSPool.clear();
 		s_EmptyIds.clear();
 		s_DrawArgs.clear();
-		s_Capcity = 0;
+		s_Capacity = 0;
 	}
 	void ParticleRenderer::UpdateAll(Scene* scene, std::vector<ParticleRenderer*>& components)
 	{
@@ -94,7 +94,7 @@ namespace MG {
 		size_t size = s_DrawArgs.size(); //sceneComponents.size();
 		unsigned int capcity = static_cast<unsigned int>(s_DrawArgs.capacity()); // sceneComponents.capacity();
 
-		if (capcity > s_Capcity) {
+		if (capcity > s_Capacity) {
 			SAFE_RELEASE(s_DrawArgsSRV);
 			SAFE_RELEASE(s_DrawArgsUAV);
 			SAFE_RELEASE(s_DrawArgsBuffer);
@@ -114,7 +114,7 @@ namespace MG {
 			subResourceData.SysMemSlicePitch = 0;
 			subResourceData.pSysMem = s_DrawArgs.data();
 			Renderer::GetDevice()->CreateBuffer(&desc, &subResourceData, &s_DrawArgsIndirectBuffer);
-			s_Capcity = capcity;
+			s_Capacity = capcity;
 		}
 
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
@@ -131,7 +131,7 @@ namespace MG {
 			deviceContext->CSSetShader(resetInstanceCountCS, NULL, 0);
 
 			CS_CONSTANT constant{};
-			constant.CSMaxX = s_Capcity;
+			constant.CSMaxX = s_Capacity;
 			Renderer::SetCSContant(constant);
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)constant.CSMaxX / 64)), 1, 1);
 		}

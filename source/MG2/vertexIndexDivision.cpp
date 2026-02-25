@@ -28,10 +28,10 @@ namespace MG {
 		}
 
 		// 頂点バッファ確保
-		if (s_DataCount + count > s_DataCapcity) {
-			unsigned int newCapcity = s_DataCount + count * 2;
-			if (Buffer::NewVertexBufferCopy(sizeof(unsigned int), newCapcity, s_DataBuffer)) {
-				s_DataCapcity = newCapcity;
+		if (s_DataCount + count > s_DataCapacity) {
+			unsigned int newCapacity = s_DataCount + count * 2;
+			if (Buffer::NewVertexBufferCopy(sizeof(unsigned int), newCapacity, s_DataBuffer)) {
+				s_DataCapacity = newCapacity;
 			}
 		}
 

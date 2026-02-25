@@ -84,7 +84,7 @@ namespace MG {
 		SAFE_RELEASE(s_DSV);
 		SAFE_RELEASE(s_DepthTexture);
 
-		s_MeshInstanceBufferCapcity = 0;
+		s_MeshInstanceBufferCapacity = 0;
 		s_MeshInstanceMax = 0;
 
 		for (auto& pair : s_SceneModelSet) {
@@ -210,17 +210,17 @@ namespace MG {
 			if (activeInstanceCount == 0) continue;
 
 			// バッファ確保
-			unsigned int newCapcity = static_cast<unsigned int>(modelInstances.capacity());
-			if (newCapcity > modelSet.bufferCapcity) {
+			unsigned int newCapacity = static_cast<unsigned int>(modelInstances.capacity());
+			if (newCapacity > modelSet.bufferCapacity) {
 				SAFE_RELEASE(modelSet.modelInstanceIdSRV);
 				SAFE_RELEASE(modelSet.modelInstanceIdBuffer);
 
 				modelSet.modelInstanceIdBuffer = Renderer::CreateStructuredBuffer(
-					sizeof(ModelInstance), newCapcity, modelInstances.data()
+					sizeof(ModelInstance), newCapacity, modelInstances.data()
 				);
 				if (modelSet.modelInstanceIdBuffer) {
-					modelSet.modelInstanceIdSRV = Renderer::CreateStructuredSRV(modelSet.modelInstanceIdBuffer, newCapcity);
-					modelSet.bufferCapcity = newCapcity;
+					modelSet.modelInstanceIdSRV = Renderer::CreateStructuredSRV(modelSet.modelInstanceIdBuffer, newCapacity);
+					modelSet.bufferCapacity = newCapacity;
 					modelSet.needUpdateModelInstanceBuffer = false;
 				}
 			}
@@ -237,7 +237,7 @@ namespace MG {
 
 
 		// Meshインスタンスのバッファを確保
-		if (maxMeshInstanceCount > s_MeshInstanceBufferCapcity) {
+		if (maxMeshInstanceCount > s_MeshInstanceBufferCapacity) {
 			SAFE_RELEASE(s_MeshInstanceUAV);
 			SAFE_RELEASE(s_MeshInstanceSRV);
 			SAFE_RELEASE(s_MeshInstanceBuffer);
@@ -247,23 +247,23 @@ namespace MG {
 			SAFE_RELEASE(s_MeshInstanceIndexBuffer);
 
 			// ちょっと多めに取っておく
-			unsigned int newCapcity = static_cast<unsigned int>(maxMeshInstanceCount * 1.2);
+			unsigned int newCapacity = static_cast<unsigned int>(maxMeshInstanceCount * 1.2);
 
 			s_MeshInstanceBuffer = Renderer::CreateStructuredBuffer(
-				sizeof(MESH_INSTANCE), newCapcity, nullptr,
+				sizeof(MESH_INSTANCE), newCapacity, nullptr,
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 			);
-			s_MeshInstanceSRV = Renderer::CreateStructuredSRV(s_MeshInstanceBuffer, newCapcity);
-			s_MeshInstanceUAV = Renderer::CreateStructuredUAV(s_MeshInstanceBuffer, newCapcity, D3D11_BUFFER_UAV_FLAG_APPEND);
+			s_MeshInstanceSRV = Renderer::CreateStructuredSRV(s_MeshInstanceBuffer, newCapacity);
+			s_MeshInstanceUAV = Renderer::CreateStructuredUAV(s_MeshInstanceBuffer, newCapacity, D3D11_BUFFER_UAV_FLAG_APPEND);
 
 			s_MeshInstanceIndexBuffer = Renderer::CreateStructuredBuffer(
-				sizeof(unsigned int), newCapcity, nullptr,
+				sizeof(unsigned int), newCapacity, nullptr,
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
 			);
-			s_MeshInstanceIndexSRV = Renderer::CreateStructuredSRV(s_MeshInstanceIndexBuffer, newCapcity);
-			s_MeshInstanceIndexUAV = Renderer::CreateStructuredUAV(s_MeshInstanceIndexBuffer, newCapcity, D3D11_BUFFER_UAV_FLAG_APPEND);
+			s_MeshInstanceIndexSRV = Renderer::CreateStructuredSRV(s_MeshInstanceIndexBuffer, newCapacity);
+			s_MeshInstanceIndexUAV = Renderer::CreateStructuredUAV(s_MeshInstanceIndexBuffer, newCapacity, D3D11_BUFFER_UAV_FLAG_APPEND);
 
-			s_MeshInstanceBufferCapcity = newCapcity;
+			s_MeshInstanceBufferCapacity = newCapacity;
 		}
 		s_MeshInstanceMax = maxMeshInstanceCount;
 

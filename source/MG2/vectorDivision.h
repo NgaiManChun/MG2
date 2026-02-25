@@ -15,8 +15,8 @@ namespace MG {
 		static inline ID3D11Buffer* s_DataBuffer = nullptr;
 		static inline ID3D11ShaderResourceView* s_DataSRV = nullptr;
 		static inline ID3D11UnorderedAccessView* s_DataUAV = nullptr;
-		static inline unsigned int s_MetaCapcity = 0;
-		static inline unsigned int s_DataCapcity = 0;
+		static inline unsigned int s_MetaCapacity = 0;
+		static inline unsigned int s_DataCapacity = 0;
 		static inline unsigned int s_DataSize = 0;
 		static const constexpr unsigned int META_INTERVAL = 50;
 		static const constexpr unsigned int DATA_INTERVAL = 5000;
@@ -26,8 +26,8 @@ namespace MG {
 		static ID3D11Buffer* const GetDataBuffer() { return s_DataBuffer; }
 		static ID3D11ShaderResourceView* const GetDataSRV() { return s_DataSRV; }
 		static ID3D11UnorderedAccessView* const GetDataUAV() { return s_DataUAV; }
-		static bool ReserveMeta(unsigned int newCapcity);
-		static bool ReserveData(unsigned int newCapcity);
+		static bool ReserveMeta(unsigned int newCapacity);
+		static bool ReserveData(unsigned int newCapacity);
 		static void Pad();
 		static void Init();
 		static void Uninit();

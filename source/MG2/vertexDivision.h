@@ -15,7 +15,7 @@ namespace MG {
 		static inline std::vector<BOOKMARK> s_Bookmarks{};
 		static inline std::set<unsigned int> s_EmptyIds{};
 		static inline ID3D11Buffer* s_DataBuffer = nullptr;
-		static inline unsigned int s_DataCapcity = 0;
+		static inline unsigned int s_DataCapacity = 0;
 		static inline unsigned int s_DataCount = 0;
 
 	public:

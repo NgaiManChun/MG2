@@ -14,8 +14,8 @@ namespace MG {
 		s_Data.clear();
 		s_Bookmarks.clear();
 		s_EmptyIds.clear();
-		s_BookmarkCapcity = 0;
-		s_DataCapcity = 0;
+		s_BookmarkCapacity = 0;
+		s_DataCapacity = 0;
 	}
 
 	void DynamicIndexDivision::Update()
@@ -23,26 +23,26 @@ namespace MG {
 		if (s_NeedUpdateBuffer) {
 
 			// ブックマークバッファ確保
-			unsigned int newBookmarkCapcity = static_cast<unsigned int>(s_Bookmarks.capacity());
-			if (newBookmarkCapcity > s_BookmarkCapcity) {
+			unsigned int newBookmarkCapacity = static_cast<unsigned int>(s_Bookmarks.capacity());
+			if (newBookmarkCapacity > s_BookmarkCapacity) {
 				SAFE_RELEASE(s_BookmarkSRV);
 				SAFE_RELEASE(s_BookmarkBuffer);
-				s_BookmarkBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newBookmarkCapcity, nullptr);
+				s_BookmarkBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newBookmarkCapacity, nullptr);
 				if (s_BookmarkBuffer) {
-					s_BookmarkSRV = Renderer::CreateStructuredSRV(s_BookmarkBuffer, newBookmarkCapcity);
-					s_BookmarkCapcity = newBookmarkCapcity;
+					s_BookmarkSRV = Renderer::CreateStructuredSRV(s_BookmarkBuffer, newBookmarkCapacity);
+					s_BookmarkCapacity = newBookmarkCapacity;
 				}
 			}
 
 			// データバッファ確保
-			unsigned int newDataCapcity = static_cast<unsigned int>(s_Data.capacity());
-			if (newDataCapcity > s_DataCapcity) {
+			unsigned int newDataCapacity = static_cast<unsigned int>(s_Data.capacity());
+			if (newDataCapacity > s_DataCapacity) {
 				SAFE_RELEASE(s_DataSRV);
 				SAFE_RELEASE(s_DataBuffer);
-				s_DataBuffer = Renderer::CreateStructuredBuffer(sizeof(unsigned int), newDataCapcity, nullptr);
+				s_DataBuffer = Renderer::CreateStructuredBuffer(sizeof(unsigned int), newDataCapacity, nullptr);
 				if (s_DataBuffer) {
-					s_DataSRV = Renderer::CreateStructuredSRV(s_DataBuffer, newDataCapcity);
-					s_DataCapcity = newDataCapcity;
+					s_DataSRV = Renderer::CreateStructuredSRV(s_DataBuffer, newDataCapacity);
+					s_DataCapacity = newDataCapacity;
 				}
 			}
 

@@ -13,7 +13,7 @@ namespace MG {
 		SAFE_RELEASE(s_ResultBuffer);
 		s_Data.clear();
 		s_EmptyIds.clear();
-		s_Capcity = 0;
+		s_Capacity = 0;
 		s_NeedUpdateBuffer = false;
 	}
 
@@ -22,26 +22,26 @@ namespace MG {
 		if (s_NeedUpdateBuffer) {
 
 			// バッファ確保
-			unsigned int newCapcity = static_cast<unsigned int>(s_Data.capacity());
-			if (newCapcity > s_Capcity) {
+			unsigned int newCapacity = static_cast<unsigned int>(s_Data.capacity());
+			if (newCapacity > s_Capacity) {
 				SAFE_RELEASE(s_SRV);
 				SAFE_RELEASE(s_Buffer);
 				SAFE_RELEASE(s_ResultSRV);
 				SAFE_RELEASE(s_ResultUAV);
 				SAFE_RELEASE(s_ResultBuffer);
 
-				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), newCapcity, s_Data.data());
+				s_Buffer = Renderer::CreateStructuredBuffer(sizeof(DATA), newCapacity, s_Data.data());
 				if (s_Buffer) {
-					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapcity);
-					s_Capcity = newCapcity;
+					s_SRV = Renderer::CreateStructuredSRV(s_Buffer, newCapacity);
+					s_Capacity = newCapacity;
 					s_NeedUpdateBuffer = false;
 				}
 
-				s_ResultBuffer = Renderer::CreateStructuredBuffer(RESULT_STRIDE, newCapcity, nullptr,
+				s_ResultBuffer = Renderer::CreateStructuredBuffer(RESULT_STRIDE, newCapacity, nullptr,
 					D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
 				if (s_ResultBuffer) {
-					s_ResultSRV = Renderer::CreateStructuredSRV(s_ResultBuffer, newCapcity);
-					s_ResultUAV = Renderer::CreateStructuredUAV(s_ResultBuffer, newCapcity);
+					s_ResultSRV = Renderer::CreateStructuredSRV(s_ResultBuffer, newCapacity);
+					s_ResultUAV = Renderer::CreateStructuredUAV(s_ResultBuffer, newCapacity);
 				}
 			}
 		}

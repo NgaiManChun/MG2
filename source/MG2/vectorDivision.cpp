@@ -4,14 +4,14 @@
 
 namespace MG {
 
-	bool VectorDivision::ReserveMeta(unsigned int newCapcity)
+	bool VectorDivision::ReserveMeta(unsigned int newCapacity)
 	{
-		if (newCapcity < s_Meta.size()) return false;
+		if (newCapacity < s_Meta.size()) return false;
 
-		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newCapcity);
+		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), newCapacity);
 		if (!newBuffer) return false;
 
-		ID3D11ShaderResourceView* newSrv = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
+		ID3D11ShaderResourceView* newSrv = Renderer::CreateStructuredSRV(newBuffer, newCapacity);
 		if (!newSrv) {
 			SAFE_RELEASE(newBuffer);
 			return false;
@@ -25,18 +25,18 @@ namespace MG {
 		SAFE_RELEASE(s_BookmarkBuffer);
 		s_BookmarkBuffer = newBuffer;
 		s_MetaSRV = newSrv;
-		s_MetaCapcity = newCapcity;
+		s_MetaCapacity = newCapacity;
 		return true;
 	}
-	bool VectorDivision::ReserveData(unsigned int newCapcity)
+	bool VectorDivision::ReserveData(unsigned int newCapacity)
 	{
-		if (newCapcity < s_DataSize) return false;
+		if (newCapacity < s_DataSize) return false;
 
-		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(Vector4), newCapcity, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
+		ID3D11Buffer* newBuffer = Renderer::CreateStructuredBuffer(sizeof(Vector4), newCapacity, nullptr, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS);
 		if (!newBuffer) return false;
 
-		ID3D11ShaderResourceView* newSRV = Renderer::CreateStructuredSRV(newBuffer, newCapcity);
-		ID3D11UnorderedAccessView* newUAV = Renderer::CreateStructuredUAV(newBuffer, newCapcity);
+		ID3D11ShaderResourceView* newSRV = Renderer::CreateStructuredSRV(newBuffer, newCapacity);
+		ID3D11UnorderedAccessView* newUAV = Renderer::CreateStructuredUAV(newBuffer, newCapacity);
 		if (!newSRV || !newUAV) {
 			SAFE_RELEASE(newUAV);
 			SAFE_RELEASE(newSRV);
@@ -54,7 +54,7 @@ namespace MG {
 		s_DataBuffer = newBuffer;
 		s_DataSRV = newSRV;
 		s_DataUAV = newUAV;
-		s_DataCapcity = newCapcity;
+		s_DataCapacity = newCapacity;
 		return true;
 	}
 
@@ -163,16 +163,16 @@ namespace MG {
 		meta.offset = s_DataSize;
 		meta.count = count;
 
-		if (s_Meta.size() + 1 > s_MetaCapcity) {
-			unsigned int newCapcity = s_MetaCapcity + META_INTERVAL;
-			if (!ReserveMeta(newCapcity)) {
+		if (s_Meta.size() + 1 > s_MetaCapacity) {
+			unsigned int newCapacity = s_MetaCapacity + META_INTERVAL;
+			if (!ReserveMeta(newCapacity)) {
 				return key;
 			}
 		}
 
-		if (s_DataSize + count > s_DataCapcity) {
-			unsigned int newCapcity = max(s_DataCapcity + count * 2, DATA_INTERVAL);
-			if (!ReserveData(newCapcity)) {
+		if (s_DataSize + count > s_DataCapacity) {
+			unsigned int newCapacity = max(s_DataCapacity + count * 2, DATA_INTERVAL);
+			if (!ReserveData(newCapacity)) {
 				return key;
 			}
 		}

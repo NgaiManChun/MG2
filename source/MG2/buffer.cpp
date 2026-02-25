@@ -76,7 +76,7 @@ namespace MG::Buffer {
 		static ID3D11ComputeShader* s_PaddingCS = Renderer::GetComputeShader("CS\\paddingCS.cso");
 
 		unsigned int bookmarkCount = static_cast<unsigned int>(bookmarks.size());
-		if (bookmarkCount > s_BookmarkCapcity) {
+		if (bookmarkCount > s_BookmarkCapacity) {
 			SAFE_RELEASE(s_BookmarkSRV);
 			SAFE_RELEASE(s_BookmarkBuffer);
 			s_BookmarkBuffer = Renderer::CreateStructuredBuffer(sizeof(BOOKMARK), bookmarkCount);
@@ -85,7 +85,7 @@ namespace MG::Buffer {
 		}
 
 		unsigned int byteWidth = stride * dataCount;
-		if (byteWidth > s_DataCapcity) {
+		if (byteWidth > s_DataCapacity) {
 			SAFE_RELEASE(s_InputSRV);
 			SAFE_RELEASE(s_ResultUAV);
 			SAFE_RELEASE(s_InputBuffer);
@@ -100,8 +100,8 @@ namespace MG::Buffer {
 			return dataCount;
 		}
 
-		s_BookmarkCapcity = bookmarkCount;
-		s_DataCapcity = byteWidth;
+		s_BookmarkCapacity = bookmarkCount;
+		s_DataCapacity = byteWidth;
 
 		// ソートしたブックマーク配列を作成
 		// ※ID順 != offset順
@@ -182,8 +182,8 @@ namespace MG::Buffer {
 		SAFE_RELEASE(s_BookmarkBuffer);
 		SAFE_RELEASE(s_InputBuffer);
 		SAFE_RELEASE(s_ResultBuffer);
-		s_BookmarkCapcity = 0;
-		s_DataCapcity = 0;
+		s_BookmarkCapacity = 0;
+		s_DataCapacity = 0;
 	}
 	
 } // namespace MG::Buffer

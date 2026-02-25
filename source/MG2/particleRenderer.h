@@ -28,7 +28,7 @@ namespace MG {
 		static inline ID3D11Buffer* s_DrawArgsIndirectBuffer = nullptr;
 		static inline ID3D11Buffer* s_SpawnCountBuffer = nullptr;
 		static inline ID3D11UnorderedAccessView* s_SpawnCountUAV = nullptr;
-		static inline unsigned int s_Capcity = 0;
+		static inline unsigned int s_Capacity = 0;
 
 	private:
 		Material m_Material;
