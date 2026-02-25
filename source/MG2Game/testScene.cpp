@@ -280,14 +280,21 @@ public:
 				if (timeLine == 1.0f) {
 					m_Enemies[i]->AttackCommand();
 					timeLine.SetCurrent(0.0f);
-					if (RANDOM_SIGN > 0) {
-						m_EnemyDirections[i] = Vector3::GetSignedRandom();
-						m_EnemyDirections[i].y = 0.0f;
+
+					const Vector3& currentPosition = m_Enemies[i]->GetGameObject()->GetPosition();
+					if (currentPosition.LengthSq() > m_EnemyRange.LengthSq()) {
+						// Œ—ŠO‚Éo‚½
+						m_EnemyDirections[i] = -currentPosition;
 					}
 					else {
-						m_EnemyDirections[i] = Vector3{};
+						if (RANDOM_SIGN > 0) {
+							m_EnemyDirections[i] = Vector3::GetSignedRandom();
+							m_EnemyDirections[i].y = 0.0f;
+						}
+						else {
+							m_EnemyDirections[i] = Vector3{};
+						}
 					}
-
 				}
 				else {
 					m_Enemies[i]->MoveCommand(m_EnemyDirections[i]);

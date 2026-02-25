@@ -133,7 +133,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 			}
 			
-			float deltaTime = MG::MGUtility::GetDeltaTime();
 			std::string title = std::string("FPS: ") +
 				std::to_string(currentFPS) +
 				std::string("/") +
