@@ -112,7 +112,6 @@ namespace MG {
 		AnimationSet::Update();
 		AnimationFollower::Update();
 
-		//ID3D11Device* device = Renderer::GetDevice();
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
 		// 時刻定数更新
@@ -123,30 +122,49 @@ namespace MG {
 		// アニメーション
 		{
 			// シェーダ
-			static ID3D11ComputeShader* animationCS = Renderer::GetComputeShader("CS/animationCS.cso");
-			deviceContext->CSSetShader(animationCS, NULL, 0);
+			static ID3D11ComputeShader* animationModelCS = Renderer::GetComputeShader("CS/animationCS.cso");
+			deviceContext->CSSetShader(animationModelCS, NULL, 0);
 
 			// UAV
-			ID3D11UnorderedAccessView* animationSetResultUAV = AnimationSet::GetResultUAV();
-			deviceContext->CSSetUnorderedAccessViews(0, 1, &animationSetResultUAV, nullptr);
+			ID3D11UnorderedAccessView* uavArray[] = {
+				MatrixDivision::GetDataUAV()
+			};
+			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 
 			// SRV
 			ID3D11ShaderResourceView* srvArray[] = {
+				MatrixDivision::GetBookmarkSRV(),
+				TransformDivision::GetBookmarkSRV(),
+				DynamicIndexDivision::GetBookmarkSRV(),
 				ModelInstance::GetSRV(),
 				AnimationSet::GetSRV(),
 				ModelAnimation::GetSRV(),
-				TransformDivision::GetBookmarkSRV(),
-				DynamicIndexDivision::GetBookmarkSRV()
+				TransformDivision::GetDataSRV(),
+				DynamicIndexDivision::GetDataSRV()
 			};
-			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
+			deviceContext->CSSetShaderResources(1, ARRAYSIZE(srvArray), srvArray);
 
-			// 上限定数
-			CS_CONSTANT constant{};
-			constant.CSMaxX = static_cast<unsigned int>(ModelInstance::GetCount());
-			Renderer::SetCSContant(constant);
+			for (auto& pair : s_SceneModelSet[scene]) {
+				Model model = pair.first;
+				auto& modelData = model.GetData();
+				MODEL_SET& modelSet = pair.second;
+				auto& modelInstances = modelSet.modelInstances;
+				unsigned int activeInstanceCount = static_cast<unsigned int>(modelSet.modelInstances.size() - modelSet.emptyIds.size());
 
-			// 実行
-			deviceContext->Dispatch(static_cast<UINT>(ceil((float)ModelInstance::GetCount() / 64)), 1, 1);
+				if (modelData.hasAnimation && activeInstanceCount > 0) {
+
+					// モデルインスタンスID
+					deviceContext->CSSetShaderResources(0, 1, &modelSet.modelInstanceIdSRV);
+
+					// 上限定数
+					CS_CONSTANT constant{};
+					constant.CSMaxX = modelData.nodeCount;
+					Renderer::SetCSContant(constant);
+
+					// 実行
+					deviceContext->Dispatch(static_cast<UINT>(ceil((float)modelData.nodeCount / 64)), modelInstances.size(), 1);
+				}
+			}
 		}
 
 		// ソケット追従
@@ -163,9 +181,8 @@ namespace MG {
 			ID3D11ShaderResourceView* srvArray[] = {
 				AnimationFollower::GetSRV(),
 				ModelInstance::GetSRV(),
-				AnimationSet::GetResultSRV(),
-				TransformDivision::GetDataSRV(),
-				DynamicIndexDivision::GetDataSRV()
+				MatrixDivision::GetBookmarkSRV(),
+				MatrixDivision::GetDataSRV()
 			};
 			deviceContext->CSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
 
@@ -249,7 +266,6 @@ namespace MG {
 			s_MeshInstanceBufferCapcity = newCapcity;
 		}
 		s_MeshInstanceMax = maxMeshInstanceCount;
-		
 
 		// Meshインスタンスを作成し、DrawArgにカウントを記録する
 		{
@@ -364,9 +380,9 @@ namespace MG {
 
 			// UAV
 			ID3D11UnorderedAccessView* uavArray[] = {
-					Mesh::GetDrawArgsUAV(),
-					s_MeshInstanceUAV,
-					s_MeshInstanceIndexUAV
+				Mesh::GetDrawArgsUAV(),
+				s_MeshInstanceUAV,
+				s_MeshInstanceIndexUAV
 			};
 			deviceContext->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavArray), uavArray, nullptr);
 
@@ -418,7 +434,7 @@ namespace MG {
 
 		// 頂点インデックスバッファ
 		deviceContext->IASetIndexBuffer(VertexIndexDivision::GetDataBuffer(), DXGI_FORMAT_R32_UINT, 0);
-		
+
 		// VS SRV
 		ID3D11ShaderResourceView* srvArray[] = {
 			s_MeshInstanceSRV,
@@ -428,11 +444,6 @@ namespace MG {
 			s_MeshInstanceIndexSRV,
 			DynamicMatrix::GetSRV(),
 			Mesh::GetDrawArgsSRV(),
-
-			// アニメーション
-			AnimationSet::GetResultSRV(),
-			TransformDivision::GetDataSRV(),
-			DynamicIndexDivision::GetDataSRV(),
 
 			// スキニング
 			BoneDivision::GetDataSRV(),
@@ -456,13 +467,6 @@ namespace MG {
 			unsigned int activeInstanceCount = static_cast<unsigned int>(modelSet.modelInstances.size() - modelSet.emptyIds.size());
 
 			if (activeInstanceCount == 0) continue;
-
-			// モデル定数
-			MODEL_CONSTANT modelConstant{};
-			modelConstant.modelId = model;
-			modelConstant.nodeMatrixDivisionId = modelData.originalNodeMatrixDivision;
-			modelConstant.nodeParentIndexDivisionOffset = modelData.nodeParentIndexDivision.GetBookmarkData().offset;
-			Renderer::SetModelContant(modelConstant);
 			
 			auto& nodeMeshPairs = modelData.nodeMeshPairs;
 			for (int i = static_cast<int>(nodeMeshPairs.size()) - 1; i >= 0; i--) {

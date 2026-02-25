@@ -29,6 +29,7 @@ namespace MG {
 			MatrixDivision originalNodeMatrixDivision;
 			DynamicIndexDivision nodeParentIndexDivision;
 			std::array<ModelAnimation, UCHAR_MAX> animations;
+			bool hasAnimation;
 		};
 		
 	private:
@@ -49,6 +50,7 @@ namespace MG {
 		DATA& GetData() const { return s_Data[m_Id]; }
 		unsigned int GetNodeCount() const { return s_Data[m_Id].nodeCount; }
 		ModelAnimation GetModelAnimation(unsigned char slot) const { return s_Data[m_Id].animations[slot]; }
+		bool HasAnimation() const { return s_Data[m_Id].hasAnimation; }
 
 		void Release() 
 		{

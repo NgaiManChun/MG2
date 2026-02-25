@@ -77,6 +77,27 @@ namespace MG {
 		);
 	}
 
+	void MatrixDivision::DataReserve(unsigned int capcity)
+	{
+		// データバッファ確保
+		if (capcity > s_DataCapcity) {
+			if (Buffer::NewBufferCopy(sizeof(Matrix4x4), capcity, s_DataBuffer, s_DataSRV, s_DataUAV)) {
+				s_DataCapcity = capcity;
+			}
+		}
+	}
+
+	void MatrixDivision::BookmarkReserve(unsigned int capcity)
+	{
+		// ブックマークバッファ確保
+		if (capcity > s_BookmarkCapcity) {
+			s_Bookmarks.reserve(capcity);
+			if (Buffer::NewBufferCopy(sizeof(BOOKMARK), capcity, s_BookmarkBuffer, s_BookmarkSRV)) {
+				s_BookmarkCapcity = capcity;
+			}
+		}
+	}
+
 	void MatrixDivision::SetData(Matrix4x4* data) {
 		BOOKMARK& bookmark = s_Bookmarks[m_Id];
 		D3D11_BOX box = Renderer::GetRangeBox(sizeof(Matrix4x4) * bookmark.offset, sizeof(Matrix4x4) * (bookmark.offset + bookmark.count));
