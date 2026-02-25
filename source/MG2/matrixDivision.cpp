@@ -19,7 +19,8 @@ namespace MG {
 		s_DataCount = 0;
 	}
 
-	MatrixDivision MatrixDivision::Create(unsigned int count, const Matrix4x4* data) {
+	MatrixDivision MatrixDivision::Create(unsigned int count, const Matrix4x4* data) 
+	{
 		MatrixDivision key{};
 		BOOKMARK bookmark{};
 		bookmark.offset = s_DataCount;
