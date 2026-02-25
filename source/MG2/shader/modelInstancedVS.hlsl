@@ -9,30 +9,8 @@ StructuredBuffer<uint> MeshInstanceIndexes : register(t4);
 StructuredBuffer<float4x4> DynamicMatrixArray : register(t5);
 StructuredBuffer<DRAW_INDEXED_INDIRECT_ARGS> DrawArgs : register(t6);
 
-StructuredBuffer<ANIMATION_SET_RESULT> AnimationSetResultArray : register(t7);
-StructuredBuffer<TRANSFORM> TransformDivisionData : register(t8);
-StructuredBuffer<uint> DynamicIndexDivisionData : register(t9);
-
-StructuredBuffer<BONE> BoneDivisionArray : register(t10);
-StructuredBuffer<VERTEX_BONE_WEIGHT> VertexBoneWeightDivisionArray : register(t11);
-
-float4x4 NodeMatrix(uint nodeIndex, uint nodeParentOffset, uint transformOffsetFrom, uint transformOffsetTo, float blend)
-{
-    uint _nodeIndex = nodeIndex;
-    float4x4 nodeMatrix = IdentityMatrix;
-    do
-    {
-        TRANSFORM transformFrom = TransformDivisionData[transformOffsetFrom + _nodeIndex];
-        TRANSFORM transformTo = TransformDivisionData[transformOffsetTo + _nodeIndex];
-        float3 position = lerp(transformFrom.position, transformTo.position, blend);
-        float3 scale = lerp(transformFrom.scale, transformTo.scale, blend);
-        float4 rotation = lerp(transformFrom.rotation, transformTo.rotation, blend);
-        nodeMatrix = mul(nodeMatrix, MakeMatrix(position, scale, rotation));
-        _nodeIndex = DynamicIndexDivisionData[nodeParentOffset + _nodeIndex];
-
-    } while (_nodeIndex != 0xffffffff);
-    return nodeMatrix;
-}
+StructuredBuffer<BONE> BoneDivisionArray : register(t7);
+StructuredBuffer<VERTEX_BONE_WEIGHT> VertexBoneWeightDivisionArray : register(t8);
 
 void main(in VS_IN In, out PS_IN Out)
 {
@@ -49,15 +27,10 @@ void main(in VS_IN In, out PS_IN Out)
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
     float4x4 localMatrix = MatrixDivisionData[nodeMatrixOffset + meshInstance.nodeIndex];
     
-    if (modelInstance.animationSetId != 0xffffffff)
+    if (modelInstance.animatedMatrixDivisionId != 0xffffffff)
     {
-        ANIMATION_SET_RESULT animationSetResult = AnimationSetResultArray[modelInstance.animationSetId];
-        uint nodeParentOffset = animationSetResult.nodeParentOffset;
-        uint transformOffsetFrom = animationSetResult.transformOffsetFrom;
-        uint transformOffsetTo = animationSetResult.transformOffsetTo;
-        float blend = animationSetResult.blend;
-        
-        localMatrix = NodeMatrix(meshInstance.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend);
+        uint animatedMatrixOffset = MatrixDivisionMeta[modelInstance.animatedMatrixDivisionId].offset;
+        localMatrix = MatrixDivisionData[animatedMatrixOffset + meshInstance.nodeIndex];
         
         if (Skinning)
         {
@@ -72,10 +45,10 @@ void main(in VS_IN In, out PS_IN Out)
             BONE bone3 = BoneDivisionArray[boneOffset + boneIndeices[3]];
         
             float4x4 skinMatrix;
-            skinMatrix = mul(mul(bone0.offsetMatrix, NodeMatrix(bone0.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend)), BoneWeights.x);
-            skinMatrix += mul(mul(bone1.offsetMatrix, NodeMatrix(bone1.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend)), BoneWeights.y);
-            skinMatrix += mul(mul(bone2.offsetMatrix, NodeMatrix(bone2.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend)), BoneWeights.z);
-            skinMatrix += mul(mul(bone3.offsetMatrix, NodeMatrix(bone3.nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend)), BoneWeights.w);
+            skinMatrix = mul(mul(bone0.offsetMatrix, MatrixDivisionData[animatedMatrixOffset + bone0.nodeIndex]), BoneWeights.x);
+            skinMatrix += mul(mul(bone1.offsetMatrix, MatrixDivisionData[animatedMatrixOffset + bone1.nodeIndex]), BoneWeights.y);
+            skinMatrix += mul(mul(bone2.offsetMatrix, MatrixDivisionData[animatedMatrixOffset + bone2.nodeIndex]), BoneWeights.z);
+            skinMatrix += mul(mul(bone3.offsetMatrix, MatrixDivisionData[animatedMatrixOffset + bone3.nodeIndex]), BoneWeights.w);
             
             vertexPosition = mul(vertexPosition, skinMatrix);
         

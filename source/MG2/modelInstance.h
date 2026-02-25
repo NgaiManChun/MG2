@@ -24,7 +24,7 @@ namespace MG {
 			unsigned int enabled;
 			AnimationSet animationSet;
 			MatrixDivision matrixDivision;
-			MatrixDivision aniamtedMatrixDivision;
+			MatrixDivision animatedMatrixDivision;
 			DynamicIndexDivision nodeParentIndexDivision;
 			unsigned int lod = LOD_ALL;
 		};
@@ -55,8 +55,8 @@ namespace MG {
 			data.world = world;
 			data.enabled = enabled;
 			data.matrixDivision = modelData.originalNodeMatrixDivision;
-			if (!modelData.animations.empty()) {
-				data.aniamtedMatrixDivision = MatrixDivision::Create(modelData.nodeCount);
+			if (modelData.hasAnimation) {
+				data.animatedMatrixDivision = MatrixDivision::Create(modelData.nodeCount);
 			}
 			data.nodeParentIndexDivision = modelData.nodeParentIndexDivision;
 			data.lod = lod;
@@ -122,9 +122,9 @@ namespace MG {
 			s_NeedUpdateBuffer = true;
 		}
 
-		void SetAniamtedMatrixDivision(MatrixDivision matrixDivision)
+		void SetAnimatedMatrixDivision(MatrixDivision matrixDivision)
 		{
-			s_Data[m_Id].aniamtedMatrixDivision = matrixDivision;
+			s_Data[m_Id].animatedMatrixDivision = matrixDivision;
 			s_NeedUpdateBuffer = true;
 		}
 

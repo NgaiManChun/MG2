@@ -1,16 +1,17 @@
 #include "common.hlsl"
 
-RWStructuredBuffer<ANIMATION_SET_RESULT> AnimationSetResultArray : register(u0);
-RWStructuredBuffer<float4x4> MatrixDivisionData : register(u1);
+RWStructuredBuffer<float4x4> MatrixDivisionData : register(u0);
 
-StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t0);
-StructuredBuffer<ANIMATION_SET> AnimationSetArray : register(t1);
-StructuredBuffer<MODEL_ANIMATION> ModelAnimationArray : register(t2);
-StructuredBuffer<DISVISION_META> TransformDivisionMeta : register(t3);
-StructuredBuffer<DISVISION_META> DynamicIndexDivisionMeta : register(t4);
-StructuredBuffer<TRANSFORM> TransformDivisionData : register(t5);
-StructuredBuffer<uint> DynamicIndexDivisionData : register(t6);
-StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t7);
+StructuredBuffer<uint> ModelInstanceIds : register(t0);
+StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t1);
+StructuredBuffer<DISVISION_META> TransformDivisionMeta : register(t2);
+StructuredBuffer<DISVISION_META> DynamicIndexDivisionMeta : register(t3);
+StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t4);
+StructuredBuffer<ANIMATION_SET> AnimationSetArray : register(t5);
+StructuredBuffer<MODEL_ANIMATION> ModelAnimationArray : register(t6);
+StructuredBuffer<TRANSFORM> TransformDivisionData : register(t7);
+StructuredBuffer<uint> DynamicIndexDivisionData : register(t8);
+
 
 uint GetTransformOffset(uint modelAnimationId, uint deltaTime)
 {
@@ -44,13 +45,14 @@ float4x4 NodeMatrix(uint nodeIndex, uint nodeParentOffset, uint transformOffsetF
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     
-    uint instanceIndex = DTid.x;
-    if (instanceIndex >= CSMaxX)
+    uint nodeIndex = DTid.x;
+    if (nodeIndex >= CSMaxX)
         return;
     
-    MODEL_INSTANCE modelInstance = ModelInstanceArray[instanceIndex];
+    uint modelInstanceId = ModelInstanceIds[DTid.y];
+    MODEL_INSTANCE modelInstance = ModelInstanceArray[modelInstanceId];
     uint animationSetId = modelInstance.animationSetId;
-    if (animationSetId == 0xffffffff || !modelInstance.enabled)
+    if (animationSetId == 0xffffffff)
         return;
     
     ANIMATION_SET animationSet = AnimationSetArray[animationSetId];
@@ -64,12 +66,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
         GetTransformOffset(animationSet.modelAnimationIdsFrom[i], CurrentTime - animationSet.animationStartTimeFrom[i]) : transformOffsetTo;
     float blend = float(CurrentTime - animationSet.animationBlendStartTime) / animationSet.animationBlendDuration;
     blend = saturate(blend);
+    uint nodeParentOffset = DynamicIndexDivisionMeta[modelInstance.nodeParentIndexDivisionId].offset;
+    uint matrixOffset = MatrixDivisionMeta[modelInstance.animatedMatrixDivisionId].offset + nodeIndex;
+    MatrixDivisionData[matrixOffset] = NodeMatrix(nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend);
     
-    ANIMATION_SET_RESULT result;
-    result.nodeParentOffset = DynamicIndexDivisionMeta[modelInstance.nodeParentIndexDivisionId].offset;
-    result.transformOffsetFrom = transformOffsetFrom;
-    result.transformOffsetTo = transformOffsetTo;
-    result.blend = blend;
-    
-    AnimationSetResultArray[animationSetId] = result;
 }

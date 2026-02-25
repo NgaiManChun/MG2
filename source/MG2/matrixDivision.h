@@ -35,6 +35,8 @@ namespace MG {
 		static void Uninit();
 		static MatrixDivision Create(unsigned int count, const Matrix4x4* data = nullptr);
 		static void Pad();
+		static void DataReserve(unsigned int capcity);
+		static void BookmarkReserve(unsigned int capcity);
 
 	private:
 		unsigned int m_Id = UINT_MAX;

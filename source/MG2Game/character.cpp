@@ -52,8 +52,8 @@ void Character::SetModel(Model model, unsigned int lod)
 
 	// 一個目のモデルと同じアニメーション結果に設定
 	if (m_ModelRenderers.size() > 1) {
-		modelRenderer->GetModelInstance().SetAniamtedMatrixDivision(
-			m_ModelRenderers[0]->GetModelInstance().GetData().aniamtedMatrixDivision
+		modelRenderer->GetModelInstance().SetAnimatedMatrixDivision(
+			m_ModelRenderers[0]->GetModelInstance().GetData().animatedMatrixDivision
 		);
 	}
 }

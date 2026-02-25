@@ -333,9 +333,6 @@
     <FxCompile Include="shader\common.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
-    <FxCompile Include="shader\animationCS.hlsl">
-      <Filter>Shader\CS</Filter>
-    </FxCompile>
     <FxCompile Include="shader\animationFollowCS.hlsl">
       <Filter>Shader\CS</Filter>
     </FxCompile>
@@ -383,6 +380,9 @@
     </FxCompile>
     <FxCompile Include="shader\outlineGS.hlsl">
       <Filter>Shader\GS</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\animationCS.hlsl">
+      <Filter>Shader\CS</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

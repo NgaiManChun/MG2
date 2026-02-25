@@ -170,6 +170,7 @@ namespace MG {
 	{
 		s_Data[m_Id].animations[slot].Release();
 		s_Data[m_Id].animations[slot] = ModelAnimation::Create(m_Id, animation, loop);
+		s_Data[m_Id].hasAnimation = true;
 	}
 
 } // namespace MG
