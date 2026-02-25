@@ -57,7 +57,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
     float3 center = lerp(meshInstance.min, meshInstance.max, 0.5f);
     float radius = length(center - meshInstance.max);
-    float radiusSq = radius * radius * 4.0f;
+    float radiusSq = radius * radius * radius;
     float3 v = center - CameraPosition;
     float z = dot(CameraForward, v);
     
