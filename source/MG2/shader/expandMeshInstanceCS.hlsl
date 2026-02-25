@@ -5,9 +5,9 @@ AppendStructuredBuffer<MESH_INSTANCE> ResultMeshInstance : register(u1);
 
 StructuredBuffer<uint> ModelInstanceIds : register(t0);
 StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t1);
-StructuredBuffer<DISVISION_META> MaterialIdDivisionMeta : register(t2);
+StructuredBuffer<BOOKMARK> MaterialIdDivisionBookmarks : register(t2);
 StructuredBuffer<uint> MaterialIdDivisionData : register(t3);
-StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t4);
+StructuredBuffer<BOOKMARK> MatrixDivisionBookmarks : register(t4);
 StructuredBuffer<float4x4> MatrixDivisionData : register(t5);
 StructuredBuffer<float4x4> DynamicMatrixArray : register(t6);
 
@@ -23,11 +23,11 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (!modelInstance.enabled)
         return;
     
-    DISVISION_META materialIdDivisionMeta = MaterialIdDivisionMeta[modelInstance.materialIdDivsionId];
+    BOOKMARK materialIdDivisionMeta = MaterialIdDivisionBookmarks[modelInstance.materialIdDivsionId];
     uint materialId = MaterialIdDivisionData[materialIdDivisionMeta.offset + MeshMaterialOffset];
     
-    DISVISION_META nodeMatrixDivisionMeta = MatrixDivisionMeta[modelInstance.matrixDivisionId];
-    float4x4 localMatrix = MatrixDivisionData[nodeMatrixDivisionMeta.offset + NodeIndex];
+    BOOKMARK nodeMatrixDivisionBookmarks = MatrixDivisionBookmarks[modelInstance.matrixDivisionId];
+    float4x4 localMatrix = MatrixDivisionData[nodeMatrixDivisionBookmarks.offset + NodeIndex];
     
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
     float4x4 nodeWorldMatrix = mul(localMatrix, worldMatrix);

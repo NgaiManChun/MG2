@@ -2,7 +2,7 @@
 
 RWByteAddressBuffer Result : register(u0);
 
-StructuredBuffer<DISVISION_META> DivisionMeta : register(t0);
+StructuredBuffer<BOOKMARK> DivisionBookmarks : register(t0);
 ByteAddressBuffer Original : register(t1);
 
 [numthreads(8, 8, 1)]
@@ -19,7 +19,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
     uint stride = CSMaxX; // N / 4 byte
 
-    DISVISION_META meta = DivisionMeta[divisionIndex];
+    BOOKMARK meta = DivisionBookmarks[divisionIndex];
     uint begin = meta.offset;
     uint count = meta.count;
     uint padding = meta.padding;

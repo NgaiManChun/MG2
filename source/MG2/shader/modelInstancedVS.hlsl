@@ -3,7 +3,7 @@
 
 StructuredBuffer<MESH_INSTANCE> MeshInstanceArray : register(t0);
 StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t1);
-StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t2);
+StructuredBuffer<BOOKMARK> MatrixDivisionBookmarks : register(t2);
 StructuredBuffer<float4x4> MatrixDivisionData : register(t3);
 StructuredBuffer<uint> MeshInstanceIndexes : register(t4);
 StructuredBuffer<float4x4> DynamicMatrixArray : register(t5);
@@ -22,14 +22,14 @@ void main(in VS_IN In, out PS_IN Out)
     uint meshInstanceIndex = MeshInstanceIndexes[DrawArgs[MeshId].startInstanceLocation + In.instanceId];
     MESH_INSTANCE meshInstance = MeshInstanceArray[meshInstanceIndex];
     MODEL_INSTANCE modelInstance = ModelInstanceArray[meshInstance.modelInstanceId];
-    uint nodeMatrixOffset = MatrixDivisionMeta[modelInstance.matrixDivisionId].offset;
+    uint nodeMatrixOffset = MatrixDivisionBookmarks[modelInstance.matrixDivisionId].offset;
     
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
     float4x4 localMatrix = MatrixDivisionData[nodeMatrixOffset + meshInstance.nodeIndex];
     
     if (modelInstance.animatedMatrixDivisionId != 0xffffffff)
     {
-        uint animatedMatrixOffset = MatrixDivisionMeta[modelInstance.animatedMatrixDivisionId].offset;
+        uint animatedMatrixOffset = MatrixDivisionBookmarks[modelInstance.animatedMatrixDivisionId].offset;
         localMatrix = MatrixDivisionData[animatedMatrixOffset + meshInstance.nodeIndex];
         
         if (Skinning)

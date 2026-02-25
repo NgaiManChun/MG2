@@ -11,7 +11,7 @@ RWStructuredBuffer<float4x4> DynamicMatrixArray : register(u0);
 
 StructuredBuffer<ANIMATION_FOLLOWER> AnimationFolloerArray : register(t0);
 StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t1);
-StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t2);
+StructuredBuffer<BOOKMARK> MatrixDivisionBookmarks : register(t2);
 StructuredBuffer<float4x4> MatrixDivisionData : register(t3);
 
 [numthreads(64, 1, 1)]
@@ -31,7 +31,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         return;
     
     float4x4 worldMatrix = DynamicMatrixArray[modelInstance.worldMatrixId];
-    DISVISION_META matrixDivisionBookmark = MatrixDivisionMeta[modelInstance.animatedMatrixDivisionId];
+    BOOKMARK matrixDivisionBookmark = MatrixDivisionBookmarks[modelInstance.animatedMatrixDivisionId];
     float4x4 localMatrix = MatrixDivisionData[matrixDivisionBookmark.offset + animationFollower.nodeIndex];
     
     DynamicMatrixArray[animationFollower.dynamicMatrixId] = 

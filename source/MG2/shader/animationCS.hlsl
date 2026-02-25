@@ -3,9 +3,9 @@
 RWStructuredBuffer<float4x4> MatrixDivisionData : register(u0);
 
 StructuredBuffer<uint> ModelInstanceIds : register(t0);
-StructuredBuffer<DISVISION_META> MatrixDivisionMeta : register(t1);
-StructuredBuffer<DISVISION_META> TransformDivisionMeta : register(t2);
-StructuredBuffer<DISVISION_META> DynamicIndexDivisionMeta : register(t3);
+StructuredBuffer<BOOKMARK> MatrixDivisionBookmarks : register(t1);
+StructuredBuffer<BOOKMARK> TransformDivisionBookmarks : register(t2);
+StructuredBuffer<BOOKMARK> DynamicIndexDivisionBookmarks : register(t3);
 StructuredBuffer<MODEL_INSTANCE> ModelInstanceArray : register(t4);
 StructuredBuffer<ANIMATION_SET> AnimationSetArray : register(t5);
 StructuredBuffer<MODEL_ANIMATION> ModelAnimationArray : register(t6);
@@ -16,7 +16,7 @@ StructuredBuffer<uint> DynamicIndexDivisionData : register(t8);
 uint GetTransformOffset(uint modelAnimationId, uint deltaTime)
 {
     MODEL_ANIMATION modelAnimation = ModelAnimationArray[modelAnimationId];
-    uint transformOffset = TransformDivisionMeta[modelAnimation.transformDivisionId].offset;
+    uint transformOffset = TransformDivisionBookmarks[modelAnimation.transformDivisionId].offset;
     deltaTime = (modelAnimation.loop) ? deltaTime % modelAnimation.duration : min(deltaTime, modelAnimation.duration);
     uint frame = round(float(deltaTime) / modelAnimation.duration * (modelAnimation.frameCount - 1));
     transformOffset += modelAnimation.nodeCount * frame;
@@ -66,8 +66,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
         GetTransformOffset(animationSet.modelAnimationIdsFrom[i], CurrentTime - animationSet.animationStartTimeFrom[i]) : transformOffsetTo;
     float blend = float(CurrentTime - animationSet.animationBlendStartTime) / animationSet.animationBlendDuration;
     blend = saturate(blend);
-    uint nodeParentOffset = DynamicIndexDivisionMeta[modelInstance.nodeParentIndexDivisionId].offset;
-    uint matrixOffset = MatrixDivisionMeta[modelInstance.animatedMatrixDivisionId].offset + nodeIndex;
+    uint nodeParentOffset = DynamicIndexDivisionBookmarks[modelInstance.nodeParentIndexDivisionId].offset;
+    uint matrixOffset = MatrixDivisionBookmarks[modelInstance.animatedMatrixDivisionId].offset + nodeIndex;
     MatrixDivisionData[matrixOffset] = NodeMatrix(nodeIndex, nodeParentOffset, transformOffsetFrom, transformOffsetTo, blend);
     
 }

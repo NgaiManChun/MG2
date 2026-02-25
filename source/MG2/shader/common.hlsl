@@ -75,7 +75,7 @@ struct DRAW_INSTANCE
     
 };
 
-struct DISVISION_META
+struct BOOKMARK
 {
     uint offset;
     uint count;
