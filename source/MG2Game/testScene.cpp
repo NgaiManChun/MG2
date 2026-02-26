@@ -26,6 +26,18 @@ using namespace MG;
 class TestScene : public Scene
 {
 private:
+	enum VIRTUAL_INPUT {
+		INPUT_MOVE_VERTICAL,
+		INPUT_MOVE_HORIZONTAL,
+		INPUT_CAMERA_VERTICAL,
+		INPUT_CAMERA_HORIZONTAL,
+		INPUT_ATTACK,
+		INPUT_WEAPON_0,
+		INPUT_WEAPON_1,
+		INPUT_WEAPON_2,
+		INPUT_WEAPON_SHIFT
+	};
+
 	REGISTER_SCENE(TestScene)
 private:
 	Model m_Model0;
@@ -51,6 +63,33 @@ private:
 
 public:
 	void Init() override {
+
+		// 入力設定
+		Input::INPUT_LAYOUT layouts[] = {
+			// キーボード
+			{ INPUT_MOVE_VERTICAL, Input::INPUT_TYPE_KEY, 'W', 1 },
+			{ INPUT_MOVE_VERTICAL, Input::INPUT_TYPE_KEY, 'S', -1 },
+			{ INPUT_MOVE_HORIZONTAL, Input::INPUT_TYPE_KEY, 'D', 1 },
+			{ INPUT_MOVE_HORIZONTAL, Input::INPUT_TYPE_KEY, 'A', -1 },
+			{ INPUT_CAMERA_VERTICAL, Input::INPUT_TYPE_KEY, VK_UP, 1 },
+			{ INPUT_CAMERA_VERTICAL, Input::INPUT_TYPE_KEY, VK_DOWN, -1 },
+			{ INPUT_CAMERA_HORIZONTAL, Input::INPUT_TYPE_KEY, VK_RIGHT, 1 },
+			{ INPUT_CAMERA_HORIZONTAL, Input::INPUT_TYPE_KEY, VK_LEFT, -1 },
+			{ INPUT_ATTACK, Input::INPUT_TYPE_KEY, 'J', 1 },
+			{ INPUT_WEAPON_0, Input::INPUT_TYPE_KEY, '1', 1 },
+			{ INPUT_WEAPON_1, Input::INPUT_TYPE_KEY, '2', 1 },
+			{ INPUT_WEAPON_2, Input::INPUT_TYPE_KEY, '3', 1 },
+
+			// ゲームパッド
+			{ INPUT_MOVE_VERTICAL, Input::INPUT_TYPE_PAD, Input::PAD_LEFT_ANALOG_Y, 1 },
+			{ INPUT_MOVE_HORIZONTAL, Input::INPUT_TYPE_PAD, Input::PAD_LEFT_ANALOG_X, 1 },
+			{ INPUT_CAMERA_VERTICAL, Input::INPUT_TYPE_PAD, Input::PAD_RIGHT_ANALOG_Y, 1 },
+			{ INPUT_CAMERA_HORIZONTAL, Input::INPUT_TYPE_PAD, Input::PAD_RIGHT_ANALOG_X, 1 },
+			{ INPUT_ATTACK, Input::INPUT_TYPE_PAD, Input::PAD_X, 1 },
+			{ INPUT_WEAPON_SHIFT, Input::INPUT_TYPE_PAD, Input::PAD_RB, 1 },
+		};
+		Input::SetInputLayouts(layouts, ARRAYSIZE(layouts));
+
 
 		Model palyer_lod0;
 		Model palyer_lod1;
@@ -202,67 +241,49 @@ public:
 			static constexpr const float CAMERA_ROTATE_X_MAX = 0.7f;
 			static constexpr const float CAMERA_DISTANCE = 2.0f;
 			static const Vector3 CAMERA_OFFSET = { 0.0f, 1.2f, 0.0f };
+			static int weaponIndex = 0;
+
+			// 武器切り替え
+			int newWeaponIndex = weaponIndex;
+			if (Input::IsTrigger(INPUT_WEAPON_0)) {
+				newWeaponIndex = 0;
+			}
+			if (Input::IsTrigger(INPUT_WEAPON_1)) {
+				newWeaponIndex = 1;
+			}
+			if (Input::IsTrigger(INPUT_WEAPON_2)) {
+				newWeaponIndex = 2;
+			}
+			if (Input::IsTrigger(INPUT_WEAPON_SHIFT)) {
+				newWeaponIndex = (newWeaponIndex + 1) % 3;
+			}
+			if (newWeaponIndex != weaponIndex) {
+				ModelRenderer* modelRenderer = m_Player->GetWeapon()->GetComponent<ModelRenderer>();
+				if (modelRenderer) {
+					modelRenderer->SetModel(m_Weapons[newWeaponIndex]);
+				}
+				weaponIndex = newWeaponIndex;
+			}
 
 			Camera* camera = GetMainCamera();
 
-			if (Input::GetKeyPress('1')) {
-				ModelRenderer* modelRenderer = m_Player->GetWeapon()->GetComponent<ModelRenderer>();
-				if (modelRenderer) {
-					modelRenderer->SetModel(m_Weapons[0]);
-				}
-			}
-			else if (Input::GetKeyPress('2')) {
-				ModelRenderer* modelRenderer = m_Player->GetWeapon()->GetComponent<ModelRenderer>();
-				if (modelRenderer) {
-					modelRenderer->SetModel(m_Weapons[1]);
-				}
-			}
-			else if (Input::GetKeyPress('3')) {
-				ModelRenderer* modelRenderer = m_Player->GetWeapon()->GetComponent<ModelRenderer>();
-				if (modelRenderer) {
-					modelRenderer->SetModel(m_Weapons[2]);
-				}
-			}
-
 			// 移動
-			bool move = false;
 			Vector3 direct{ 0.0f, 0.0f, 0.0f };
-			if (Input::GetKeyPress('W')) {
-				direct += camera->GetForward();
-			}
-			if (Input::GetKeyPress('S')) {
-				direct -= camera->GetForward();
-			}
-			if (Input::GetKeyPress('A')) {
-				direct -= camera->GetRight();
-			}
-			if (Input::GetKeyPress('D')) {
-				direct += camera->GetRight();
-			}
+			direct += camera->GetForward() * Input::GetValue(INPUT_MOVE_VERTICAL);
+			direct += camera->GetRight() * Input::GetValue(INPUT_MOVE_HORIZONTAL);
 			direct.y = 0.0f;
 			m_Player->MoveCommand(direct);
 
 			// 攻撃
-			if (Input::GetKeyTrigger('J')) {
+			if (Input::IsTrigger(INPUT_ATTACK)) {
 				m_Player->AttackCommand();
 			}
 
 			// カメラ
 			Vector3 cameraRotation = camera->GetRotation();
-			if (Input::GetKeyPress(VK_UP)) {
-				cameraRotation.x -= CAMERA_ROTATE_SPEED * deltaTime;
-				cameraRotation.x = max(cameraRotation.x, CAMERA_ROTATE_X_MIN);
-			}
-			if (Input::GetKeyPress(VK_DOWN)) {
-				cameraRotation.x += CAMERA_ROTATE_SPEED * deltaTime;
-				cameraRotation.x = min(cameraRotation.x, CAMERA_ROTATE_X_MAX);
-			}
-			if (Input::GetKeyPress(VK_LEFT)) {
-				cameraRotation.y -= CAMERA_ROTATE_SPEED * deltaTime;
-			}
-			if (Input::GetKeyPress(VK_RIGHT)) {
-				cameraRotation.y += CAMERA_ROTATE_SPEED * deltaTime;
-			}
+			cameraRotation.x -= Input::GetValue(INPUT_CAMERA_VERTICAL) * CAMERA_ROTATE_SPEED * deltaTime;
+			cameraRotation.y += Input::GetValue(INPUT_CAMERA_HORIZONTAL) * CAMERA_ROTATE_SPEED * deltaTime;
+			cameraRotation.x = min(max(cameraRotation.x, CAMERA_ROTATE_X_MIN), CAMERA_ROTATE_X_MAX);
 			camera->GetGameObject()->SetRotation(cameraRotation);
 			Vector3 targetPoint = m_Player->GetGameObject()->GetPosition() + CAMERA_OFFSET;
 			Vector3 cameraMove = (targetPoint - camera->GetForward() * CAMERA_DISTANCE) - camera->GetPosition();
