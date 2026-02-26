@@ -9,10 +9,17 @@ Visual Studioソリューションファイル： source\\MG2Game\\MG2Game.sln
 
 ## 操作方法
 
+キーボード
 * WASDキー：移動
 * 方向キー：カメラ操作
 * Jキー：攻撃
 * 1～3キー：武器切り替え
+  
+XInputコントローラー
+* 左スティック：移動
+* 右スティック：カメラ操作
+* Xボタン：攻撃
+* RBボタン：武器切り替え
 
 Created by Ngai Man Chun
 
