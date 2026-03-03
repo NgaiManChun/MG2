@@ -1,5 +1,6 @@
 # MG2
 "MG2" developed by Ngai Man Chun  
+
 説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/#mg2)をご覧ください。
 
 ## ファイル
