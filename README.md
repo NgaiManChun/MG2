@@ -1,5 +1,5 @@
 # MG2
-
+"MG2" developed by Ngai Man Chun  
 説明や他の作品は[こちら](https://ngaimanchun.github.io/portfolio/#mg2)をご覧ください。
 
 ## ファイル
@@ -20,6 +20,3 @@ XInputコントローラー
 * 右スティック：カメラ操作
 * Xボタン：攻撃
 * RBボタン：武器切り替え
-
-Created by Ngai Man Chun
-
