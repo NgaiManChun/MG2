@@ -13,10 +13,6 @@ namespace MG {
 
 	void SceneManager::Init()
 	{
-		/*Material::InitBuffer();
-		MatrixResource::InitBuffer();
-		AnimationKey::InitBuffer();
-		NodeSphere::InitBuffer();*/
 		Component::StaticInit();
 	}
 
@@ -33,25 +29,13 @@ namespace MG {
 			scene->UninitScene();
 			delete scene;
 		}
-
-		/*Model::ReleaseAll();
-		Animation::ReleaseAll();
-		Texture::ReleaseAll();
-		Material::UninitBuffer();
-		MatrixResource::UninitBuffer();
-		AnimationKey::UninitBuffer();
-		NodeSphere::UninitBuffer();*/
 	}
 
 	void SceneManager::Update()
 	{
 		SceneTransition* transition = s_Transition;
 		if (transition) {
-			//transition->Update();
-			/*if (!transition->IsEnded()) {
-				SceneTransition::Destroy(transition);
-				s_Transition = nullptr;
-			}*/
+			// –¢ŽÀ‘•
 		}
 		
 		Renderer::Begin();

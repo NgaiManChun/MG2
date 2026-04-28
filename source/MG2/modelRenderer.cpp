@@ -1,3 +1,10 @@
+// =======================================================
+// ModelRenderer
+// ・MG2の描画パイプラインの中核
+// ・GPU駆動（Compute Shader）でインスタンス生成・カリング
+// ・Deferred Rendering + Shadow対応
+// =======================================================
+
 #include "modelRenderer.h"
 #include "renderer.h"
 #include "dynamicMatrix.h"
@@ -25,6 +32,13 @@ namespace MG {
 
 	void ModelRenderer::StaticInit()
 	{
+		// =======================================================
+		// 一元初期化
+		// ・GBuffer用テクスチャ（Color / Normal / WorldPosition）生成
+		// ・シャドウマップ用テクスチャ生成
+		// ・深度テクスチャ生成
+		// =======================================================
+
 		s_ColorTexture = Renderer::CreateTexture2D(MGUtility::GetScreenWidth(), MGUtility::GetScreenHeight());
 		s_ColorRTV = Renderer::CreateTextureRTV(s_ColorTexture);
 		s_ColorSRV = Renderer::CreateTextureSRV(s_ColorTexture);
@@ -101,6 +115,14 @@ namespace MG {
 
 	void ModelRenderer::UpdateAll(Scene* scene, std::vector<ModelRenderer*>& components)
 	{
+		// =======================================================
+		// 全モデル更新（1フレームのGPU前処理）
+		// ・Transform更新
+		// ・アニメーション（CS）
+		// ・ボーン追従（CS）
+		// ・MeshInstance展開（CS）
+		// ・DrawArgs構築
+		// =======================================================
 
 		scene->UpdateGameObjectWorlds();
 		DynamicMatrix::Update();
@@ -119,7 +141,11 @@ namespace MG {
 		timeConstant.currentTime = MGUtility::GetRunTimeMilliseconds();
 		Renderer::SetTimeContant(timeConstant);
 
-		// アニメーション
+		// =======================================================
+		// アニメーション計算
+		// ・ノード行列をGPUで生成
+		// ・インスタンス数 × ノード数でDispatch
+		// =======================================================
 		{
 			// シェーダ
 			static ID3D11ComputeShader* animationModelCS = Renderer::GetComputeShader("CS/animationCS.cso");
@@ -167,7 +193,11 @@ namespace MG {
 			}
 		}
 
-		// ソケット追従
+		// =======================================================
+		// アニメーション追従
+		// ・指定ノードに対してオブジェクトを追従させる
+		// ・武器・エフェクトなど
+		// =======================================================
 		{
 			// シェーダ
 			static ID3D11ComputeShader* animationFollowCS = Renderer::GetComputeShader("CS/animationFollowCS.cso");
@@ -195,6 +225,12 @@ namespace MG {
 			deviceContext->Dispatch(static_cast<UINT>(ceil((float)AnimationFollower::GetCount() / 64)), 1, 1);
 		}
 
+		// =======================================================
+		// MeshInstance生成
+		// ・モデルインスタンス → メッシュ単位へ展開
+		// ・AABB計算もここで実施
+		// ・DrawArgs.instanceMaxCountを更新
+		// =======================================================
 
 		// Meshインスタンスのカウント
 		unsigned int maxMeshInstanceCount = 0;
@@ -330,7 +366,10 @@ namespace MG {
 			}
 		}
 
-		// 各DrawArgのinstanceStartLocationをセット
+		// =======================================================
+		// DrawArgsのstartInstanceLocation計算
+		// ・メッシュごとのinstance配列位置を確定
+		// =======================================================
 		{
 			// シェーダ
 			static ID3D11ComputeShader* offsetMeshInstanceCS = Renderer::GetComputeShader("CS/offsetMeshInstanceCS.cso");
@@ -349,6 +388,14 @@ namespace MG {
 
 	void ModelRenderer::Culling()
 	{
+		// =======================================================
+		// カリング処理
+		// ・instanceCountリセット
+		// ・Frustum + LODカリング
+		// ・描画対象Indexを生成
+		// ・DrawIndirect用Argsにコピー
+		// =======================================================
+
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
 		// 描画するMeshインスタンスのカウンターをリセットする
@@ -420,6 +467,12 @@ namespace MG {
 
 	void ModelRenderer::DrawAll(Scene* scene)
 	{
+		// =======================================================
+		// 描画処理（DrawIndirect）
+		// ・Mesh単位でループ
+		// ・GPUが決めたinstanceCountで描画
+		// =======================================================
+
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 
 		// 頂点バッファ
@@ -515,12 +568,22 @@ namespace MG {
 
 	void ModelRenderer::MainDrawAll(Scene* scene, std::vector<ModelRenderer*>& components)
 	{
+		// =======================================================
+		// メイン描画
+		// 1. シャドウマップ生成
+		// 2. GBuffer生成
+		// 3. Deferred Lighting
+		// =======================================================
+
 		ID3D11DeviceContext* deviceContext = Renderer::GetDeviceContext();
 		
 		static XMFLOAT4X4 directionalShadowViewProjection;
 
-		// シャドーマップキャプチャ
-		// ToDo: コンポーネント化
+		// =======================================================
+		// シャドウマップ描画
+		// ・ライト視点で描画
+		// ・深度のみ
+		// =======================================================
 		{
 			// シャドーマップ用のカメラ定数を設定
 			{
@@ -616,7 +679,11 @@ namespace MG {
 			DrawAll(scene);
 		}
 
-		// G-Bufferに描画
+		// =======================================================
+		// GBuffer描画
+		// ・Color / Normal / WorldPosition出力
+		// ・アウトライン（GeometryShader）
+		// =======================================================
 		{
 			// レンダーターゲットをクリア
 			static const float CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -659,7 +726,10 @@ namespace MG {
 
 		}
 
+		// =======================================================
 		// デファードライティング
+		// ・シャドウ適用
+		// =======================================================
 		{
 			// シェーダ
 			static ID3D11VertexShader* vertexShader = Renderer::GetVertexShaderSet("VS/fullScreenVS.cso").vertexShader;
@@ -697,38 +767,72 @@ namespace MG {
 		
 	}
 
-	void ModelRenderer::SetModel(Model model, unsigned int lod) {
+	void ModelRenderer::SetModel(Model model, unsigned int lod) 
+	{
+		// =======================================================
+		// モデル設定
+		// ・GameObjectに対応するモデルインスタンスを登録
+		// ・インスタンスプールを利用して再利用（new/delete削減）
+		// ・GPU転送用バッファ更新フラグも管理
+		// =======================================================
+
+		// 所属GameObject取得（存在しなければ何もしない）
 		GameObject* gameObject = GetGameObject();
 		if (!gameObject) return;
+
+		// 所属Scene取得（存在しなければ何もしない）
 		Scene* scene = gameObject->GetScene();
 		if (!scene) return;
 
+		// 同じモデルなら何もしない（無駄な更新防止）
 		if (m_Model == model) return;
 
+		// 既に登録済みのインスタンスがあれば無効化してプールへ戻す
 		if (m_ModelSet) {
 			m_ModelSet->modelInstances[m_InstanceIndex].SetEnabled(false);
-			m_ModelSet->emptyIds.insert(m_InstanceIndex);
+			m_ModelSet->emptyIds.insert(m_InstanceIndex); // 再利用用
 		}
 
+		// モデルがnullなら解除のみ行って終了
 		if (!model) {
 			m_ModelSet = nullptr;
 			return;
 		}
 
+		// 新しいモデルを設定
 		m_Model = model;
+
+		// Sceneごとの「モデル単位インスタンス管理」から取得
 		MODEL_SET& modelSet = s_SceneModelSet[scene][model];
 		m_ModelSet = &modelSet;
 
+		// =======================================================
+		// インスタンス確保（プール or 新規生成）
+		// =======================================================
+
 		if (modelSet.emptyIds.empty()) {
+			// 空きがない → 新規生成
 			modelSet.modelInstances.push_back(
-				ModelInstance::Create(model, gameObject->GetWorldMatrix(), IsActive(), lod)
+				ModelInstance::Create(
+					model,
+					gameObject->GetWorldMatrix(),
+					IsActive(),
+					lod
+				)
 			);
+
+			// 自分のインスタンスIndex
 			m_InstanceIndex = static_cast<unsigned int>(modelSet.modelInstances.size() - 1);
+
+			// GPU側バッファ更新が必要
 			m_ModelSet->needUpdateModelInstanceBuffer = true;
 		}
 		else {
+			// 空きIDを再利用
 			m_InstanceIndex = *modelSet.emptyIds.begin();
 			modelSet.emptyIds.erase(modelSet.emptyIds.begin());
+
+			// インスタンス内容を更新
 			modelSet.modelInstances[m_InstanceIndex].SetWorld(gameObject->GetWorldMatrix());
 			modelSet.modelInstances[m_InstanceIndex].SetEnabled(IsActive());
 			modelSet.modelInstances[m_InstanceIndex].SetLOD(lod);
@@ -737,31 +841,80 @@ namespace MG {
 
 	void ModelRenderer::SetAnimation(unsigned char animationId, unsigned int blendDuration, unsigned int timeOffset)
 	{
+		// =======================================================
+		// アニメーション設定
+		// ・現在アニメーション → 新しいアニメーションへ遷移
+		// ・時間ベースでブレンド制御
+		// =======================================================
+
+		// モデル未設定なら何もしない
 		if (!m_ModelSet) return;
+
+		// 現在時刻（ミリ秒）
 		unsigned int nowTime = MG::MGUtility::GetRunTimeMilliseconds();
-		AnimationSet animationSet = m_ModelSet->modelInstances[m_InstanceIndex].GetData().animationSet;
+
+		// 現在のAnimationSet取得
+		AnimationSet animationSet =
+			m_ModelSet->modelInstances[m_InstanceIndex].GetData().animationSet;
+
 		AnimationSet::DATA animationSetData{};
 
+		// =======================================================
+		// 既存アニメーション → from側へ退避
+		// =======================================================
 
 		if (animationSet) {
 			animationSetData = animationSet.GetData();
 
-			animationSetData.modelAnimationsFrom[0] = animationSetData.modelAnimationsTo[0];
-			animationSetData.animationStartTimeFrom[0] = animationSetData.animationStartTimeTo[0];
+			// 現在のtoをfromへコピー（ブレンド開始のため）
+			animationSetData.modelAnimationsFrom[0] =
+				animationSetData.modelAnimationsTo[0];
+
+			animationSetData.animationStartTimeFrom[0] =
+				animationSetData.animationStartTimeTo[0];
+
 			animationSetData.countFrom = animationSetData.countTo;
 		}
-		animationSetData.modelAnimationsTo[0] = m_Model.GetData().animations[animationId];
-		animationSetData.animationStartTimeTo[0] = nowTime - timeOffset;
+
+		// =======================================================
+		// 新しいアニメーションをto側へ設定
+		// =======================================================
+
+		animationSetData.modelAnimationsTo[0] =
+			m_Model.GetData().animations[animationId];
+
+		// 開始時間（timeOffsetで少し進めた状態にもできる）
+		animationSetData.animationStartTimeTo[0] =
+			nowTime - timeOffset;
+
 		animationSetData.countTo = 1;
 
-		animationSetData.animationBlendStartTime = nowTime - timeOffset;
-		animationSetData.animationBlendDuration = blendDuration;
+		// =======================================================
+		// ブレンド設定
+		// =======================================================
+
+		animationSetData.animationBlendStartTime =
+			nowTime - timeOffset;
+
+		animationSetData.animationBlendDuration =
+			blendDuration;
+
+		// 再生速度（現状固定）
 		animationSetData.timeMultiplier = 1.0f;
+
+		// =======================================================
+		// AnimationSetの適用
+		// =======================================================
+
 		if (!animationSet) {
+			// 初回 → 新規生成
 			animationSet = AnimationSet::Create(animationSetData);
-			m_ModelSet->modelInstances[m_InstanceIndex].SetAnimationSet(animationSet);
+
+			m_ModelSet->modelInstances[m_InstanceIndex]
+				.SetAnimationSet(animationSet);
 		}
 		else {
+			// 既存 → データ更新のみ
 			animationSet.SetData(animationSetData);
 		}
 

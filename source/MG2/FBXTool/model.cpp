@@ -1,3 +1,27 @@
+// =======================================================
+// モデルコンバータ
+// -------------------------------------------------------
+// 外部ファイル（FBX等）からモデルデータを読み込み、
+// MG2専用フォーマット（.mgm）へ変換する
+//
+// ■ 出力構造
+// [MAGIC]
+// [VERSION]
+// [META]
+// [texture meta]
+// [texture data]
+// [materials]
+// [vertices]
+// [indices]
+// [bones]
+// [vertex bone weights]
+// [meshes]
+// [node matrices]
+// [node parents]
+// [node mesh pairs]
+// [node names]
+// =======================================================
+
 #include "model.h"
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
@@ -72,6 +96,11 @@ unsigned int GetFaceIndexCount(PRIMITIVE_TYPE type)
 	return 0;
 }
 
+// =======================================================
+// ノード階層の再帰取得
+// ・Assimpのツリー構造をフラット配列へ変換
+// ・親インデックスで階層を保持
+// =======================================================
 void GetNodes(aiNode* ainode, unsigned int parent, std::vector<NODE>& nodes)
 {
 	NODE node{};
@@ -94,6 +123,12 @@ void GetNodes(aiNode* ainode, unsigned int parent, std::vector<NODE>& nodes)
 	}
 }
 
+// =======================================================
+// モデル読み込み＆変換処理
+// ・Assimpから読み込み
+// ・各データをMG2形式へ変換
+// ・最終的にバイナリとして書き出す
+// =======================================================
 void ReadModel(const char* fileName, const char* outputName)
 {
 	const aiScene* scene = aiImportFile(fileName, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_ConvertToLeftHanded | aiProcess_GenBoundingBoxes);
@@ -113,7 +148,11 @@ void ReadModel(const char* fileName, const char* outputName)
 	std::vector<NODE_MESH_PAIR> nodeMeshPairArray;
 	std::unordered_map<std::string, unsigned int> namedNodeIndex;
 
+	// =======================================================
 	// ノード読み込み
+	// ・Transform / 親関係 / 名前
+	// ・ノードとメッシュの対応付け
+	// =======================================================
 	{
 		std::vector<NODE> nodes;
 		GetNodes(scene->mRootNode, UINT_MAX, nodes);
@@ -159,7 +198,11 @@ void ReadModel(const char* fileName, const char* outputName)
 	});
 	
 
+	// =======================================================
 	// テクスチャ読み込み
+	// ・Assimpの埋め込みテクスチャを取得
+	// ・連続メモリへパック
+	// =======================================================
 	{
 		std::vector<unsigned char*> textureDataPointers;
 		size_t textureDataLength = 0;
@@ -185,7 +228,11 @@ void ReadModel(const char* fileName, const char* outputName)
 		}
 	}
 
+	// =======================================================
 	// マテリアル読み込み
+	// ・色、メタリック、ラフネスなど
+	// ・テクスチャ参照の解決
+	// =======================================================
 	{
 		materialArray.resize(scene->mNumMaterials);
 		for (size_t i = 0; i < scene->mNumMaterials; i++)
@@ -267,7 +314,13 @@ void ReadModel(const char* fileName, const char* outputName)
 		}
 	}
 
+	// =======================================================
 	// メッシュ読み込み
+	// ・頂点
+	// ・インデックス
+	// ・AABB
+	// ・マテリアル参照
+	// =======================================================
 	{
 		unsigned int vertexesOffset = 0;
 		unsigned int vertexIndexesOffset = 0;
@@ -380,6 +433,12 @@ void ReadModel(const char* fileName, const char* outputName)
 				}
 			}
 
+			// =======================================================
+			// スキニング情報
+			// ・ボーン行列
+			// ・頂点ウェイト（最大4）
+			// =======================================================
+
 			struct BONE_WEIGHT {
 				unsigned int boneId = 0;
 				float weight = 0.0f;
@@ -420,6 +479,11 @@ void ReadModel(const char* fileName, const char* outputName)
 		}
 	}
 
+	// =======================================================
+	// メタ情報
+	// ・各配列サイズ
+	// ・総データサイズ
+	// =======================================================
 	MODEL_META modelMeta{};
 	modelMeta.textureCount = static_cast<unsigned int>(textureMetaArray.size());
 	modelMeta.materialCount = static_cast<unsigned int>(materialArray.size());
@@ -445,7 +509,9 @@ void ReadModel(const char* fileName, const char* outputName)
 	modelMeta.dataSize += sizeof(NODE_MESH_PAIR) * nodeMeshPairArray.size();
 	modelMeta.dataSize += sizeof(char) * nodeNameArray.size();
 
-
+	// =======================================================
+	// バイナリ書き出し
+	// =======================================================
 	std::string ouputFileName;
 	if (outputName) {
 		ouputFileName = outputName;
